@@ -1,0 +1,311 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Polish (Poland) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_PLK)
+LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
+#pragma code_page(1250)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Polish (Poland) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_GLI_ICON            ICON                    "glidetect.ico"
+
+IDI_RAYHEAD             ICON                    "Rayman2D.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MAIN DIALOGEX 0, 0, 267, 236
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Show advanced settings",IDC_ADVANCED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,220,94,10
+    DEFPUSHBUTTON   "OK",IDOK,159,218,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,213,218,50,14
+    CONTROL         "",IDC_TAB1,"SysTabControl32",TCS_MULTILINE | WS_TABSTOP,4,4,259,210
+END
+
+IDD_GENERAL DIALOGEX 0, 0, 254, 194
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Status",IDC_STATIC,6,6,242,68
+    EDITTEXT        IDC_STATUSLINE,14,18,226,32,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    CONTROL         "Enable Ray2Fix",IDC_MAINTOGGLE,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,14,56,65,10
+    GROUPBOX        "Resolution / Window Size",IDC_STATIC,6,78,126,46
+    COMBOBOX        IDC_RESOLUTION,14,90,110,74,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RADIOBUTTON     "Windowed*",IDC_FSMODE_WND,14,107,53,10,WS_GROUP
+    RADIOBUTTON     "Fullscreen",IDC_FSMODE_FS,74,107,48,10
+    GROUPBOX        "Advanced",IDC_ADVGROUP,136,78,112,72,NOT WS_VISIBLE
+    CONTROL         "Force VSync",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,144,91,55,10
+    LTEXT           "Refresh Rate",IDC_REFRATE_LABEL,144,108,44,8,NOT WS_VISIBLE
+    COMBOBOX        IDC_REFRATE,197,106,43,46,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "*  Suggested ""safe"" values for speedrunning",IDC_STATIC,6,168,144,8
+    LTEXT           "+  Largest recommended size for windowed mode",IDC_STATIC,6,180,161,8
+END
+
+IDD_TWEAKS DIALOGEX 0, 0, 254, 194
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Warning: Tweaks and mods are not allowed in speedruns.",IDC_STATIC,6,6,186,8
+    LTEXT           "Enabling tweaks will display a small watermark in the lower right corner of the screen during gameplay.",IDC_STATIC,6,20,228,16
+    GROUPBOX        "Tweaks",IDC_STATIC,6,44,242,144
+    CONTROL         "Show coordinates",IDC_SHOWPOS,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,18,60,73,10
+    LTEXT           "(Not implemented yet)",IDC_STATIC,30,74,72,8
+    CONTROL         "Adjust luminosity with -/+ keys",IDC_LUMCONTROL,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,18,90,115,10
+    LTEXT           "(Not implemented yet)",IDC_STATIC,30,104,72,8
+    CONTROL         "Load all DLLs from ""Rayman 2\\Mods""",IDC_MODLOADER,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,120,135,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Spitfire_x86"
+            VALUE "FileDescription", "Ray2Fix Settings"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "R2FixCfg.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2020"
+            VALUE "OriginalFilename", "R2FixCfg.exe"
+            VALUE "ProductName", "R2FixCfg"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 263
+        VERTGUIDE, 6
+        VERTGUIDE, 10
+        VERTGUIDE, 258
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 232
+        HORZGUIDE, 18
+        HORZGUIDE, 210
+        HORZGUIDE, 214
+        HORZGUIDE, 218
+        HORZGUIDE, 225
+    END
+
+    IDD_GENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 248
+        VERTGUIDE, 14
+        VERTGUIDE, 124
+        VERTGUIDE, 132
+        VERTGUIDE, 136
+        VERTGUIDE, 144
+        VERTGUIDE, 240
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 188
+        HORZGUIDE, 18
+        HORZGUIDE, 50
+        HORZGUIDE, 56
+        HORZGUIDE, 66
+        HORZGUIDE, 74
+        HORZGUIDE, 78
+        HORZGUIDE, 90
+        HORZGUIDE, 102
+        HORZGUIDE, 106
+        HORZGUIDE, 118
+        HORZGUIDE, 124
+    END
+
+    IDD_TWEAKS, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 248
+        VERTGUIDE, 18
+        VERTGUIDE, 30
+        VERTGUIDE, 240
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 188
+        HORZGUIDE, 14
+        HORZGUIDE, 20
+        HORZGUIDE, 36
+        HORZGUIDE, 44
+        HORZGUIDE, 60
+        HORZGUIDE, 74
+        HORZGUIDE, 90
+        HORZGUIDE, 104
+        HORZGUIDE, 120
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_MAIN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_GENERAL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_TWEAKS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCEL ACCELERATORS
+BEGIN
+    VK_F10,         ID_DEBUG,               VIRTKEY, CONTROL, ALT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_APPNAME             "Ray2Fix Settings"
+    IDS_FLAVORTEXT          "Leading Brand Graphics Fix-type Software"
+    IDS_GREETING            "If you're reading this, I hope you have a nice day."
+    IDS_U_ENABLED           "ENABLED"
+    IDS_U_DISABLED          "DISABLED"
+    IDS_ASKTOSAVE           "Do you want to save current settings before exiting?"
+    IDS_ENABLED             "enabled"
+    IDS_DISABLED            "disabled"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_FIXSTATUS           "Ray2Fix is currently %s.\r\n"
+    IDS_STATUSCHANGED       "Ray2Fix will be %s after saving the settings.\r\n"
+    IDS_B_ENABLE            "Enable"
+    IDS_B_DISABLE           "Disable"
+    IDS_VE_OK               "File verification successful."
+    IDS_VE_HEADER           "Missing files: "
+    IDS_VE_REINSTALLFIX     "\r\nPlease reinstall Ray2Fix."
+    IDS_VE_REINSTALLR2      "\r\nPlease reinstall Rayman 2."
+    IDS_VE_DEGE             "dgVoodoo.conf  "
+    IDS_VE_GLIDE            "GliVd1Vf.dll  "
+    IDS_VE_FIX              "GliFixVf.dll  "
+    IDS_VE_DINPUT           "dinput.dll  "
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
