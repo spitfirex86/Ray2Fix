@@ -36,12 +36,30 @@ BOOL IsDuplicateMode( DISP_MODE *lpMode, int nModes )
 	return FALSE;
 }
 
+void FindBestResolution( int nModes )
+{
+	RECT rcWorkArea = { 0 };
+	SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
+
+	for ( int i = nModes - 1; i >= 0; i-- )
+	{
+		DISP_MODE *mode = &g_aDispModes[i];
+
+		// Find the largest resolution that fits in the work area
+		if ( (int)mode->dwWidth <= rcWorkArea.right && (int)mode->dwHeight <= rcWorkArea.bottom )
+		{
+			mode->dmfFlags |= DMF_BEST;
+			return;
+		}
+	}
+}
+
 void EnumResolutions( void )
 {
 	DEVMODE dm = { 0 };
 	dm.dmSize = sizeof(dm);
 
-	int idx = 0;
+	int nModes = 0;
 
 	for ( int i = 0; EnumDisplaySettings(NULL, i, &dm) != 0; i++ )
 	{
@@ -51,7 +69,7 @@ void EnumResolutions( void )
 			DMF_NONE
 		};
 
-		if ( IsDuplicateMode(&mode, idx) )
+		if ( IsDuplicateMode(&mode, nModes) )
 			continue;
 
 		DWORD ratio = 100 * dm.dmPelsHeight / dm.dmPelsWidth;
@@ -64,14 +82,9 @@ void EnumResolutions( void )
 				mode.dmfFlags |= DMF_SAFE;
 			}
 
-			g_aDispModes[idx++] = mode;
+			g_aDispModes[nModes++] = mode;
 		}
 	}
 
-	// HACK: Choose the 2nd largest resolution as "best" to account for window borders
-	// This is a terrible way of doing this, but it should work in most cases anyway.
-	if ( idx >= 2 )
-	{
-		g_aDispModes[idx - 2].dmfFlags |= DMF_BEST;
-	}
+	FindBestResolution(nModes);
 }
