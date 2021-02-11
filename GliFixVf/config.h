@@ -2,12 +2,17 @@
 #include "framework.h"
 #include "shared.h"
 
+typedef struct tagDISP_MODE
+{
+	DWORD dwWidth;
+	DWORD dwHeight;
+} DISP_MODE;
+
 //
 // GLOBAL VARS
 //
 
-extern int CFG_lDispWidth;
-extern int CFG_lDispHeight;
+extern DISP_MODE CFG_dmDispMode;
 
 extern BOOL CFG_bIsMainModuleR2;
 extern BOOL CFG_bIsFixEnabled;

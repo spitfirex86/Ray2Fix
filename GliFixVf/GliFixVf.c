@@ -66,8 +66,8 @@ EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( GliSet gliSet )
 	mode = gliSet(disp, dev, 0, GS_ADD_MODE, NULL);
 	gliSet(disp, dev, mode, GS_MODE_FULLSCREEN, 1);
 	gliSet(disp, dev, mode, GS_MODE_BITDEPTH, 16);
-	gliSet(disp, dev, mode, GS_MODE_WIDTH, CFG_lDispWidth);
-	gliSet(disp, dev, mode, GS_MODE_HEIGHT, CFG_lDispHeight);
+	gliSet(disp, dev, mode, GS_MODE_WIDTH, CFG_dmDispMode.dwWidth);
+	gliSet(disp, dev, mode, GS_MODE_HEIGHT, CFG_dmDispMode.dwHeight);
 
 	gliSet(disp, dev, 0, "dev_caps", &caps);
 
@@ -124,7 +124,7 @@ EXPORT BOOL GLI_DRV_lSetCommonFct( const char *szName, CommonFct lpFn )
 
 EXPORT BOOL GLI_DRV_fnl_EnumModes( char *szDrvDspName, char *szDevName )
 {
-	fnAddDiplayMode(TRUE, CFG_lDispWidth, CFG_lDispHeight, 16);
+	fnAddDiplayMode(TRUE, CFG_dmDispMode.dwWidth, CFG_dmDispMode.dwHeight, 16);
 
 	return TRUE;
 }
