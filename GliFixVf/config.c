@@ -104,7 +104,7 @@ BOOL CFG_bOpenConfigTool( void )
 	if ( lResult > 32 )
 		return TRUE;
 
-	return TRUE;
+	return FALSE;
 }
 
 BOOL CFG_bDetermineMainModule( void )
