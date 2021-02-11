@@ -4,7 +4,7 @@
 #include "devinfo.h"
 #include "imports.h"
 
-// AddDisplayMode function pointer
+DEV_CAPS *gliCaps = NULL;
 int (*fnAddDiplayMode)( BOOL bFullscreen, int x, int y, int lBitDepth ) = NULL;
 
 void vCopyString( char *dst, const char *src )
@@ -100,8 +100,6 @@ EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( GliSet gliSet )
 	return TRUE;
 }
 
-DEV_CAPS *gliCaps;
-
 EXPORT BOOL GLI_DRV_lSetCommonData( const char *szName, void *value )
 {
 	if ( !strcmp(szName, "GliCaps") )
@@ -129,14 +127,22 @@ EXPORT BOOL GLI_DRV_fnl_EnumModes( char *szDrvDspName, char *szDevName )
 	return TRUE;
 }
 
+EXPORT DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int yBottom, int lBitDepth )
+{
+	DWORD dwResult = Vd_GLI_DRV_xInitDriver(hWnd, bFullscreen, xRight, yBottom, lBitDepth);
+
+	// HACK: make sure the window has a title bar and a border
+	// Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
+	// without a title bar, making it impossible to move or resize the game window.
+	int lStyle = GetWindowLong(hWnd, GWL_STYLE);
+	SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
+
+	return dwResult;
+}
+
 //
 // REDIRECTED EXPORTS
 //
-
-EXPORT NAKED DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int yBottom, int lBitDepth )
-{
-	JUMP(Vd_GLI_DRV_xInitDriver);
-}
 
 EXPORT NAKED void GLI_DRV_vCloseDriver()
 {

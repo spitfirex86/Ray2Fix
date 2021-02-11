@@ -14,19 +14,19 @@ EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( GliSet gliSet );
 EXPORT BOOL GLI_DRV_lSetCommonData( const char *szName, void *value );
 EXPORT BOOL GLI_DRV_lSetCommonFct( const char *szName, CommonFct lpFn );
 EXPORT BOOL GLI_DRV_fnl_EnumModes( char *szDrvDspName, char *szDevName );
+EXPORT DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int yBottom, int lBitDepth );
 
 //
 // REDIRECTED EXPORTS
 //
 
-EXPORT DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int yBottom, int lBitDepth );
 EXPORT void GLI_DRV_vCloseDriver();
 EXPORT BOOL GLI_DRV_bBeginScene();
 EXPORT BOOL GLI_DRV_bEndScene();
 EXPORT BOOL GLI_DRV_bLockDevice( DWORD *a1, DWORD *a2 );
 EXPORT BOOL GLI_DRV_bUnlockDevice();
 EXPORT void GLI_DRV_vClearDevice( int a1, int a2, int a3 );
-EXPORT void GLI_DRV_vFlipDevice(int waitFrames);
+EXPORT void GLI_DRV_vFlipDevice( int waitFrames );
 EXPORT void GLI_DRV_vFlipDeviceWithSyncro();
 EXPORT void GLI_DRV_vDownLoadTextures( int a1, int a2, int a3 );
 EXPORT void GLI_DRV_vUnLoadTextures();
