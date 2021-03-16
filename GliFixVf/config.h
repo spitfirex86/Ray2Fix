@@ -13,6 +13,7 @@ typedef struct tagDISP_MODE
 //
 
 extern DISP_MODE CFG_dmDispMode;
+extern BOOL CFG_bHalfRefRate;
 
 extern BOOL CFG_bIsMainModuleR2;
 extern BOOL CFG_bIsFixEnabled;

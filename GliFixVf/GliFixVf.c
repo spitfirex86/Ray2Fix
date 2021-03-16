@@ -137,6 +137,16 @@ EXPORT DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int y
 	int lStyle = GetWindowLong(hWnd, GWL_STYLE);
 	SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
 
+	// HACK: Refresh rate fix for >60Hz monitors
+	if ( CFG_bHalfRefRate )
+	{
+		gliCaps->RefreshRate = 30.0f;
+	}
+	else
+	{
+		gliCaps->RefreshRate = 60.0f;
+	}
+
 	return dwResult;
 }
 

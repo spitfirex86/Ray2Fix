@@ -27,6 +27,7 @@ char *szUbiPath = ".\\Ubi.ini";
 //
 
 DISP_MODE CFG_dmDispMode = { 0, 0 };
+BOOL CFG_bHalfRefRate = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
@@ -116,6 +117,13 @@ void fn_vReadFixConfig( void )
 {
 	char szBuffer[128];
 	char *szSection = "Ray2Fix";
+
+	// Refresh rate
+	GetPrivateProfileString(szSection, "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+	{
+		CFG_bHalfRefRate = TRUE;
+	}
 
 	// Tweaks
 	GetPrivateProfileString(szSection, "Tweaks", "0", szBuffer, sizeof(szBuffer), szUbiPath);

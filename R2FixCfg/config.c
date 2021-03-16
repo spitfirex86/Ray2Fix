@@ -130,8 +130,12 @@ void WriteUbiIni( void )
 	WritePrivateProfileString(szUbiR2, "GLI_Mode", szBuffer, szUbiPath);
 
 	// Tweaks
-	_itoa_s(g_lTweaks, szBuffer, sizeof(szBuffer), 10);
+	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_lTweaks);
 	WritePrivateProfileString(szUbiFix, "Tweaks", szBuffer, szUbiPath);
+
+	// Refresh rate
+	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_lRefRate == RR_HALF));
+	WritePrivateProfileString(szUbiFix, "HalfRefRate", szBuffer, szUbiPath);
 }
 
 void WriteDegeIni( void )

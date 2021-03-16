@@ -106,8 +106,8 @@ IDD_TWEAKS DIALOGEX 0, 0, 254, 194
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "Warning: Tweaks and mods are not allowed in speedruns.",IDC_STATIC,6,6,186,8
-    LTEXT           "Enabling tweaks will display a small watermark in the lower right corner of the screen during gameplay.",IDC_STATIC,6,20,228,16
+    LTEXT           "Warning: Tweaks and mods are not allowed in speedruns.",IDC_STATIC,12,6,186,8
+    LTEXT           "Enabling tweaks will display a small watermark in the lower left corner of the screen during gameplay.",IDC_STATIC,12,20,228,16
     GROUPBOX        "Tweaks",IDC_STATIC,6,44,242,144
     CONTROL         "Show coordinates",IDC_SHOWPOS,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,18,60,73,10
     LTEXT           "(Not implemented yet)",IDC_STATIC,30,74,72,8
@@ -124,8 +124,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 1,2,0,0
+ PRODUCTVERSION 1,2,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -142,12 +142,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Spitfire_x86"
             VALUE "FileDescription", "Ray2Fix Settings"
-            VALUE "FileVersion", "1.0.0.0"
+            VALUE "FileVersion", "1.2.0.0"
             VALUE "InternalName", "R2FixCfg.exe"
             VALUE "LegalCopyright", "Copyright (C) 2020"
             VALUE "OriginalFilename", "R2FixCfg.exe"
             VALUE "ProductName", "R2FixCfg"
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "ProductVersion", "1.2.0.0"
         END
     END
     BLOCK "VarFileInfo"
