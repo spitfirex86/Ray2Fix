@@ -6,11 +6,14 @@ It can also be used as a basic mod loader (can be enabled in Tweaks tab in R2Fix
 
 ## How to Install
 
-> **Important:** You need the [GOG version](https://www.gog.com/game/rayman_2_the_great_escape) of the game. The Uplay version is pre-patched with a different graphics fix that cannot be cleanly removed and is not compatible with Ray2Fix.
-
-- Download the [latest release zip](https://github.com/spitfirex86/Ray2Fix/releases/latest) and extract all files to Rayman 2 installation directory
-- Run R2FixCfg.exe and choose your preferred display resolution
-- (Optional) Configure controller input using Steam (described below)
+#### Prerequisites:
+- The [GOG.com version](https://www.gog.com/game/rayman_2_the_great_escape) of the game installed using the [standalone installer](https://www.gog.com/downloads/rayman_2_the_great_escape/en1installer0).
+- Uplay, Ubisoft Connect and Retail CD/DVD versions are not supported.
+- GOG Galaxy is not supported.
+#### Guide:
+- Download the **[latest release zip](https://github.com/spitfirex86/Ray2Fix/releases/latest)** and extract all files to Rayman 2 installation directory.
+- Run R2FixCfg.exe and choose your preferred display resolution.
+- (Optional) Configure controller input using Steam (described below).
 
 
 ## Using Steam to map controller input
@@ -24,3 +27,7 @@ In Steam Library:
 - Right-click Rayman 2 -> Manage -> Controller configuration
 
 Example controller config: <steam://controllerconfig/rayman%202%20the%20great%20escape/2357726715>
+
+#### Controller troubleshooting:
+- Make sure only one controller is plugged in (including virtual controllers).
+- In some cases it may be necessary to disable Desktop Configuration in Big Picture Settings.
