@@ -5,7 +5,8 @@ typedef enum tagDM_FLAGS
 {
 	DMF_NONE = 0,
 	DMF_SAFE = 1 << 0,
-	DMF_BEST = 1 << 1
+	DMF_BEST = 1 << 1,
+	DMF_CUSTOM = 1 << 2
 } DM_FLAGS;
 
 typedef enum tagREFRATE

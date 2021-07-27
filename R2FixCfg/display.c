@@ -28,12 +28,20 @@ BOOL IsDuplicateMode( DISP_MODE *lpMode, int nModes )
 		DISP_MODE *prevMode = &g_aDispModes[i];
 
 		if ( lpMode->dwWidth == prevMode->dwWidth && lpMode->dwHeight == prevMode->dwHeight )
-		{
 			return TRUE;
-		}
 	}
 
 	return FALSE;
+}
+
+void AddCustomModeIfSet( int nModes )
+{
+	if ( g_dmCurrentMode.dwWidth <= 0 || g_dmCurrentMode.dwHeight <= 0 ||
+		 IsDuplicateMode(&g_dmCurrentMode, nModes) )
+		return;
+
+	g_dmCurrentMode.dmfFlags |= DMF_CUSTOM;
+	g_aDispModes[nModes] = g_dmCurrentMode;
 }
 
 void FindBestResolution( int nModes )
@@ -69,6 +77,9 @@ void EnumResolutions( void )
 			DMF_NONE
 		};
 
+		if ( mode.dwWidth <= 0 || mode.dwHeight <= 0 )
+			continue;
+
 		if ( IsDuplicateMode(&mode, nModes) )
 			continue;
 
@@ -78,13 +89,12 @@ void EnumResolutions( void )
 		if ( ratio > 73 && ratio < 82 )
 		{
 			if ( IsSafeResolution(&mode) )
-			{
 				mode.dmfFlags |= DMF_SAFE;
-			}
 
 			g_aDispModes[nModes++] = mode;
 		}
 	}
 
 	FindBestResolution(nModes);
+	AddCustomModeIfSet(nModes);
 }

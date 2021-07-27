@@ -147,6 +147,7 @@ BOOL CALLBACK MainDialogProc(
 			break;
 
 		case IDOK:
+			SetFocus(NULL);
 			WriteConfig();
 			g_bUnsavedChanges = FALSE;
 			// fall-through
