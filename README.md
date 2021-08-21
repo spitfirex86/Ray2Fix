@@ -27,6 +27,7 @@ In Steam Library:
 - Right-click Rayman 2 -> Manage -> Controller configuration
 
 Example controller config: <steam://controllerconfig/rayman%202%20the%20great%20escape/2357726715>
+(Note: the name of the game in Steam MUST be set to "Rayman 2: The Great Escape" in order to import above config!)
 
 #### Controller troubleshooting:
 - Make sure only one controller is plugged in (including virtual controllers).
