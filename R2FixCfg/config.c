@@ -145,7 +145,7 @@ void WriteDegeIni( void )
 	// These values should never change, but write them anyway in case the user messes up the config
 	WritePrivateProfileString(szDegeGeneral, "ProgressiveScanlineOrder", szTrue, szDegePath);
 	WritePrivateProfileString(szDegeGeneral, "EnumerateRefreshRates", szTrue, szDegePath);
-	WritePrivateProfileString(szDegeGeneral, "ScalingMode", "centered", szDegePath);
+	WritePrivateProfileString(szDegeGeneral, "ScalingMode", "stretched_ar", szDegePath);
 	WritePrivateProfileString(szDegeGeneral, "KeepWindowAspectRatio", szTrue, szDegePath);
 	WritePrivateProfileString(szDegeGlide, "VideoCard", "voodoo_2", szDegePath);
 	WritePrivateProfileString(szDegeGlide, "OnboardRAM", "12", szDegePath);
