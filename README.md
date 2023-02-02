@@ -6,7 +6,7 @@ It can also be used as a basic mod loader (can be enabled in Tweaks tab in R2Fix
 
 ## How to Install
 
-#### Prerequisites:
+#### Game versions:
 - Recommended: The [GOG.com version](https://www.gog.com/game/rayman_2_the_great_escape) of the game installed using the [standalone installer](https://www.gog.com/downloads/rayman_2_the_great_escape/en1installer0).
 - GOG Galaxy is not supported (just use the standalone installer)
 - Retail CD/DVD versions are not supported (due to a different game EXE that includes DRM)
