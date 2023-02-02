@@ -7,9 +7,10 @@ It can also be used as a basic mod loader (can be enabled in Tweaks tab in R2Fix
 ## How to Install
 
 #### Prerequisites:
-- The [GOG.com version](https://www.gog.com/game/rayman_2_the_great_escape) of the game installed using the [standalone installer](https://www.gog.com/downloads/rayman_2_the_great_escape/en1installer0).
-- Uplay, Ubisoft Connect and Retail CD/DVD versions are not supported.
-- GOG Galaxy is not supported.
+- Recommended: The [GOG.com version](https://www.gog.com/game/rayman_2_the_great_escape) of the game installed using the [standalone installer](https://www.gog.com/downloads/rayman_2_the_great_escape/en1installer0).
+- GOG Galaxy is not supported (just use the standalone installer)
+- Retail CD/DVD versions are not supported (due to a different game EXE that includes DRM)
+- Ubisoft Connect - investigating. Some report that it works, others that it does not. Try at your own risk.
 #### Guide:
 - Download the **[latest release zip](https://github.com/spitfirex86/Ray2Fix/releases/latest)** and extract all files to Rayman 2 installation directory.
 - Run R2FixCfg.exe and choose your preferred display resolution.
