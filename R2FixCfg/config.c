@@ -145,7 +145,7 @@ void WriteDegeIni( void )
 	// These values should never change, but write them anyway in case the user messes up the config
 	WritePrivateProfileString(szDegeGeneral, "ProgressiveScanlineOrder", szTrue, szDegePath);
 	WritePrivateProfileString(szDegeGeneral, "EnumerateRefreshRates", szTrue, szDegePath);
-	WritePrivateProfileString(szDegeGeneral, "ScalingMode", "centered", szDegePath);
+	WritePrivateProfileString(szDegeGeneral, "ScalingMode", "stretched_ar", szDegePath);
 	WritePrivateProfileString(szDegeGeneral, "KeepWindowAspectRatio", szTrue, szDegePath);
 	WritePrivateProfileString(szDegeGlide, "VideoCard", "voodoo_2", szDegePath);
 	WritePrivateProfileString(szDegeGlide, "OnboardRAM", "12", szDegePath);
@@ -170,31 +170,12 @@ void WriteDegeIni( void )
 
 void CleanUpGogMess( void )
 {
-	char szFindQuery[MAX_PATH];
-	WIN32_FIND_DATA ffd = { 0 };
-
 	for ( DWORD i = 0; i < ARRAYSIZE(a_szFilesToDelete); i++ )
 	{
 		char szFilePath[MAX_PATH];
 		sprintf_s(szFilePath, MAX_PATH, ".\\%s", a_szFilesToDelete[i]);
 
 		DeleteFile(szFilePath);
-	}
-
-	sprintf_s(szFindQuery, MAX_PATH, ".\\%s", "goggame-*.*");
-	HANDLE hFind = FindFirstFile(szFindQuery, &ffd);
-
-	if ( hFind != INVALID_HANDLE_VALUE )
-	{
-		do
-		{
-			char szFilePath[MAX_PATH];
-			sprintf_s(szFilePath, MAX_PATH, ".\\%s", ffd.cFileName);
-
-			DeleteFile(szFilePath);
-		}
-		while ( FindNextFile(hFind, &ffd) != 0 );
-		FindClose(hFind);
 	}
 }
 
