@@ -11,6 +11,7 @@
 #define IDD_TWEAKS                      107
 #define IDS_U_ENABLED                   107
 #define IDS_U_DISABLED                  108
+#define IDD_PAD                         108
 #define IDI_RAYHEAD                     109
 #define IDS_ASKTOSAVE                   109
 #define IDS_ENABLED                     110
@@ -45,6 +46,25 @@
 #define IDC_RESX                        1029
 #define IDC_RESY                        1030
 #define IDC_RES_LABEL                   1031
+#define IDC_LS                          1032
+#define IDC_RS                          1062
+#define IDC_LSCLICK                     1063
+#define IDC_RSCLICK                     1064
+#define IDC_DUP                         1065
+#define IDC_DDOWN                       1066
+#define IDC_DLEFT                       1067
+#define IDC_DRIGHT                      1068
+#define IDC_AA                          1069
+#define IDC_BB                          1070
+#define IDC_XX                          1071
+#define IDC_YY                          1072
+#define IDC_RT                          1073
+#define IDC_RB                          1074
+#define IDC_LT                          1075
+#define IDC_LB                          1076
+#define IDC_BBACK                       1077
+#define IDC_COMBO18                     1078
+#define IDC_BSTART                      1078
 #define ID_DEBUG                        40001
 
 // Next default values for new objects
@@ -53,7 +73,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        111
 #define _APS_NEXT_COMMAND_VALUE         40003
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1036
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

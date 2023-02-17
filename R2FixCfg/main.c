@@ -17,6 +17,7 @@ HWND a_hTabs[NUM_TABS];
 
 TAB_INFO a_tiTabs[NUM_TABS] = {
 	[TAB_GENERAL] = { IDD_GENERAL, "General", GeneralDialogProc },
+	[TAB_PAD] = { IDD_PAD, "Gamepad", PadDialogProc },
 	[TAB_TWEAKS] = { IDD_TWEAKS, "Tweaks", TweaksDialogProc }
 };
 

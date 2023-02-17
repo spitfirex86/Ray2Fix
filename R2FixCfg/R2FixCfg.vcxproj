@@ -23,6 +23,7 @@
     <ClCompile Include="display.c" />
     <ClCompile Include="generaldlg.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="paddlg.c" />
     <ClCompile Include="tweaksdlg.c" />
   </ItemGroup>
   <ItemGroup>
