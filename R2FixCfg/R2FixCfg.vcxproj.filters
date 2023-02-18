@@ -53,6 +53,18 @@
     <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="def_analog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="def_button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="def_pad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Rayman2D.ico">

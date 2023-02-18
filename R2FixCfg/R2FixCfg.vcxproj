@@ -28,10 +28,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
+    <ClInclude Include="def_analog.h" />
+    <ClInclude Include="def_button.h" />
+    <ClInclude Include="def_pad.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="dialogs.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="pad.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
