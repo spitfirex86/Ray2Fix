@@ -4,9 +4,10 @@
 #include "devinfo.h"
 #include "shared.h"
 
-#define MAX_GLIDE_MODES 8
 
-DISP_MODE a_dmGlideModes[MAX_GLIDE_MODES] = {
+#define C_MaxGlideModes 8
+
+tdstDisplayMode a_stGlideModes[C_MaxGlideModes] = {
 	{ 320, 200 },
 	{ 400, 300 },
 	{ 512, 384 },
@@ -17,34 +18,36 @@ DISP_MODE a_dmGlideModes[MAX_GLIDE_MODES] = {
 	{ 1600, 1200 },
 };
 
-DISP_MODE dmDefaultRes = { 1024, 768 };
+tdstDisplayMode stDefaultRes = { 1024, 768 };
 
-char *szDegePath = ".\\dgVoodoo.conf";
-char *szUbiPath = ".\\Ubi.ini";
+char const *szDegePath = ".\\dgVoodoo.conf";
+char const *szUbiPath = ".\\Ubi.ini";
 
-//
-// GLOBAL VARS
-//
 
-DISP_MODE CFG_dmDispMode = { 0, 0 };
+/*
+ * Global Vars
+ */
+
+tdstDisplayMode CFG_stDispMode = { 0, 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
 
 BOOL CFG_bTainted = FALSE;
-TWEAKS CFG_lTweaks = TWK_NO_TWEAKS;
+tdeTweaks CFG_eTweaks = e_TWK_NoTweaks;
 
-//
-// FUNCTIONS
-//
+
+/*
+ * Functions
+ */
 
 // Returns largest Glide resolution smaller than the provided display mode.
-DISP_MODE* fn_lpdmGetClosestGlideMode( DISP_MODE *lpMode )
+tdstDisplayMode * fn_p_stGetClosestGlideMode( tdstDisplayMode *lpMode )
 {
-	for ( int i = MAX_GLIDE_MODES - 1; i >= 0; i-- )
+	for ( int i = C_MaxGlideModes - 1; i >= 0; i-- )
 	{
-		DISP_MODE *lpGlideMode = &a_dmGlideModes[i];
+		tdstDisplayMode *lpGlideMode = &a_stGlideModes[i];
 
 		if ( lpGlideMode->dwWidth <= lpMode->dwWidth && lpGlideMode->dwHeight <= lpMode->dwHeight )
 		{
@@ -55,10 +58,10 @@ DISP_MODE* fn_lpdmGetClosestGlideMode( DISP_MODE *lpMode )
 	// Ruh roh, somehow even the smallest Glide mode is larger than lpMode.
 	// That's probably an error, so let's just return the "default" value (1024x768).
 
-	return &dmDefaultRes;
+	return &stDefaultRes;
 }
 
-BOOL fn_bReadDispModeFromDegeConfig( DISP_MODE *lpDst )
+BOOL fn_bReadDispModeFromDegeConfig( tdstDisplayMode *lpDst )
 {
 	char szBuffer[128];
 	char *szSection = "Glide";
@@ -82,12 +85,10 @@ BOOL fn_bReadDispModeFromDegeConfig( DISP_MODE *lpDst )
 void fn_vReadR2Config( void )
 {
 	char szBuffer[128];
-	char *szSection = "Rayman2";
-
-	DISP_MODE dmFromConfig = { 0 };
+	tdstDisplayMode stFromConfig = { 0 };
 
 	// GLI library
-	GetPrivateProfileString(szSection, "GLI_Dll", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	GetPrivateProfileString("Rayman2", "GLI_Dll", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
 
 	if ( strcmp(szBuffer, GLI_szName) != 0 )
 	{
@@ -97,53 +98,52 @@ void fn_vReadR2Config( void )
 	}
 
 	// Display mode (resolution)
-	GetPrivateProfileString(szSection, "GLI_Mode", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	GetPrivateProfileString("Rayman2", "GLI_Mode", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
 
-	int nParsed = sscanf_s(szBuffer, "1 - %u x %u", &dmFromConfig.dwWidth, &dmFromConfig.dwHeight);
+	int nParsed = sscanf_s(szBuffer, "1 - %u x %u", &stFromConfig.dwWidth, &stFromConfig.dwHeight);
 
-	if ( nParsed < 2 || dmFromConfig.dwWidth <= 0 || dmFromConfig.dwHeight <= 0 )
+	if ( nParsed < 2 || stFromConfig.dwWidth <= 0 || stFromConfig.dwHeight <= 0 )
 	{
 		// Try to parse resolution from dgvoodoo.conf
-		if ( !fn_bReadDispModeFromDegeConfig(&dmFromConfig) )
+		if ( !fn_bReadDispModeFromDegeConfig(&stFromConfig) )
 		{
 			// Give up and apply sane defaults (1024x768)
-			dmFromConfig = dmDefaultRes;
+			stFromConfig = stDefaultRes;
 		}
 	}
-	CFG_dmDispMode = dmFromConfig;
+	CFG_stDispMode = stFromConfig;
 }
 
 void fn_vReadFixConfig( void )
 {
 	char szBuffer[128];
-	char *szSection = "Ray2Fix";
 
 	// Refresh rate
-	GetPrivateProfileString(szSection, "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	GetPrivateProfileString("Ray2Fix", "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
 	{
 		CFG_bHalfRefRate = TRUE;
 	}
 
 	// Tweaks
-	GetPrivateProfileString(szSection, "Tweaks", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	GetPrivateProfileString("Ray2Fix", "Tweaks", "0", szBuffer, sizeof(szBuffer), szUbiPath);
 
-	CFG_lTweaks = strtol(szBuffer, NULL, 10);
-	CFG_bTainted = CFG_lTweaks > 0;
+	CFG_eTweaks = strtol(szBuffer, NULL, 10);
+	CFG_bTainted = CFG_eTweaks > 0;
 }
 
-void CFG_vInitGlobals( void )
+void CFG_fn_vInitGlobals( void )
 {
-	CFG_bIsMainModuleR2 = CFG_bDetermineMainModule();
+	CFG_bIsMainModuleR2 = CFG_fn_bDetermineMainModule();
 
 	fn_vReadR2Config();
 	fn_vReadFixConfig();
 
-	DISP_MODE *lpGlideMode = fn_lpdmGetClosestGlideMode(&CFG_dmDispMode);
-	CFG_dmDispMode = *lpGlideMode;
+	tdstDisplayMode *lpGlideMode = fn_p_stGetClosestGlideMode(&CFG_stDispMode);
+	CFG_stDispMode = *lpGlideMode;
 }
 
-BOOL CFG_bOpenConfigTool( void )
+BOOL CFG_fn_bOpenConfigTool( void )
 {
 	int lResult = (int)ShellExecute(NULL, NULL, ".\\R2FixCfg.exe", NULL, NULL, SW_SHOW);
 
@@ -153,16 +153,14 @@ BOOL CFG_bOpenConfigTool( void )
 	return FALSE;
 }
 
-BOOL CFG_bDetermineMainModule( void )
+BOOL CFG_fn_bDetermineMainModule( void )
 {
 	char szModuleName[MAX_PATH];
 	GetModuleFileName(GetModuleHandle(NULL), szModuleName, MAX_PATH);
 	char *pBaseName = strrchr(szModuleName, '\\') + 1;
 
 	if ( !strcmp(pBaseName, "Rayman2.exe") )
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }

@@ -4,33 +4,36 @@
 #include "devinfo.h"
 #include "imports.h"
 
-DEV_CAPS *gliCaps = NULL;
-int (*fnAddDiplayMode)( BOOL bFullscreen, int x, int y, int lBitDepth ) = NULL;
 
-void vCopyString( char *dst, const char *src )
+tdstDevCaps *p_stCaps = NULL;
+int (*p_fn_lAddDiplayMode)( BOOL bFullscreen, int x, int y, int lBitDepth ) = NULL;
+
+
+void fn_vCopyString( char *dst, const char *src )
 {
 	size_t len = strlen(src) + 1;
 	strcpy_s(dst, len, src);
 }
 
-//
-// EXPORTED FUNCTIONS
-//
+
+/*
+ * Exported functions
+ */
 
 // Copies renderer info (first listbox in GxSetup) to specified memory address
 EXPORT BOOL GLI_DRV_lGetDllInfo( const char *szType, void *lpDst )
 {
 	if ( !strcmp(szType, "Name") )
 	{
-		vCopyString(lpDst, GLI_szName);
+		fn_vCopyString(lpDst, GLI_szName);
 	}
 	else if ( !strcmp(szType, "Description") )
 	{
-		vCopyString(lpDst, GLI_szDesc);
+		fn_vCopyString(lpDst, GLI_szDesc);
 	}
 	else if ( !strcmp(szType, "Version") )
 	{
-		vCopyString(lpDst, GLI_szVersion);
+		fn_vCopyString(lpDst, GLI_szVersion);
 	}
 	else if ( !strcmp(szType, "Code") )
 	{
@@ -45,38 +48,41 @@ EXPORT BOOL GLI_DRV_lGetDllInfo( const char *szType, void *lpDst )
 }
 
 // Sets capability flags and populates displays, devices and resolutions
-EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( GliSet gliSet )
+EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( tdfnGliSet p_fn_vGliSet )
 {
 	int disp, dev, mode;
-	DEV_CAPS caps = { 0 };
+	tdstDevCaps stCaps = { 0 };
 
-	gliSet(0, 0, 0, GS_BMP, 0);
+	p_fn_vGliSet(0, 0, 0, GS_BMP, 0);
 
 	// display info
-	disp = gliSet(0, 0, 0, GS_ADD_DISPLAY, NULL);
-	gliSet(disp, 0, 0, GS_DISPLAY_NAME, "Default");
-	//(disp, 0, 0, GS_DISPLAY_DESC, "Display Description");
+	disp = p_fn_vGliSet(0, 0, 0, GS_ADD_DISPLAY, NULL);
+	p_fn_vGliSet(disp, 0, 0, GS_DISPLAY_NAME, "Default");
+	//p_fn_vGliSet(disp, 0, 0, GS_DISPLAY_DESC, "Display Description");
 
 	// device info
-	dev = gliSet(disp, 0, 0, GS_ADD_DEVICE, NULL);
-	gliSet(disp, dev, 0, GS_DEVICE_NAME, "Default");
-	//gliSet(disp, dev, 0, GS_DEVICE_DESC, "Device Description");
+	dev = p_fn_vGliSet(disp, 0, 0, GS_ADD_DEVICE, NULL);
+	p_fn_vGliSet(disp, dev, 0, GS_DEVICE_NAME, "Default");
+	//p_fn_vGliSet(disp, dev, 0, GS_DEVICE_DESC, "Device Description");
 
 	// display mode (resolution)
-	mode = gliSet(disp, dev, 0, GS_ADD_MODE, NULL);
-	gliSet(disp, dev, mode, GS_MODE_FULLSCREEN, 1);
-	gliSet(disp, dev, mode, GS_MODE_BITDEPTH, 16);
-	gliSet(disp, dev, mode, GS_MODE_WIDTH, CFG_dmDispMode.dwWidth);
-	gliSet(disp, dev, mode, GS_MODE_HEIGHT, CFG_dmDispMode.dwHeight);
+	mode = p_fn_vGliSet(disp, dev, 0, GS_ADD_MODE, NULL);
+	p_fn_vGliSet(disp, dev, mode, GS_MODE_FULLSCREEN, 1);
+	p_fn_vGliSet(disp, dev, mode, GS_MODE_BITDEPTH, 16);
+	p_fn_vGliSet(disp, dev, mode, GS_MODE_WIDTH, CFG_stDispMode.dwWidth);
+	p_fn_vGliSet(disp, dev, mode, GS_MODE_HEIGHT, CFG_stDispMode.dwHeight);
 
-	gliSet(disp, dev, 0, "dev_caps", &caps);
+	p_fn_vGliSet(disp, dev, 0, "dev_caps", &stCaps);
 
 	// HACK: start R2FixCfg instead of GxSetup/GliDetect
 	if ( CFG_bIsFixEnabled )
 	{
 		// If fix is enabled, always open R2FixCfg
-		if ( CFG_bOpenConfigTool() )
+		if ( CFG_fn_bOpenConfigTool() )
 			ExitProcess(0);
+
+		MessageBox(NULL, "Cannot open Ray2Fix Settings, please update or reinstall Ray2Fix.",
+				   GLI_szName, MB_OK | MB_ICONERROR);
 	}
 	else
 	{
@@ -87,13 +93,11 @@ EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( GliSet gliSet )
 
 		if ( lResult == IDYES )
 		{
-			if ( !CFG_bOpenConfigTool() )
-			{
-				MessageBox(NULL, "Cannot open Ray2Fix Settings, please update or reinstall Ray2Fix.",
-				           GLI_szName, MB_OK | MB_ICONERROR);
-			}
+			if ( CFG_fn_bOpenConfigTool() )
+				ExitProcess(0);
 
-			ExitProcess(0);
+			MessageBox(NULL, "Cannot open Ray2Fix Settings, please update or reinstall Ray2Fix.",
+					   GLI_szName, MB_OK | MB_ICONERROR);
 		}
 	}
 
@@ -104,17 +108,17 @@ EXPORT BOOL GLI_DRV_lSetCommonData( const char *szName, void *value )
 {
 	if ( !strcmp(szName, "GliCaps") )
 	{
-		gliCaps = value;
+		p_stCaps = value;
 	}
 	return Vd_GLI_DRV_lSetCommonData(szName, value);
 }
 
-EXPORT BOOL GLI_DRV_lSetCommonFct( const char *szName, CommonFct lpFn )
+EXPORT BOOL GLI_DRV_lSetCommonFct( const char *szName, tdfnCommonFct lpFn )
 {
 	// needed for EnumModes
-	if ( fnAddDiplayMode == NULL && !strcmp(szName, "AddDisplayMode") )
+	if ( p_fn_lAddDiplayMode == NULL && !strcmp(szName, "AddDisplayMode") )
 	{
-		fnAddDiplayMode = lpFn;
+		p_fn_lAddDiplayMode = lpFn;
 	}
 
 	return Vd_GLI_DRV_lSetCommonFct(szName, lpFn);
@@ -122,7 +126,7 @@ EXPORT BOOL GLI_DRV_lSetCommonFct( const char *szName, CommonFct lpFn )
 
 EXPORT BOOL GLI_DRV_fnl_EnumModes( char *szDrvDspName, char *szDevName )
 {
-	fnAddDiplayMode(TRUE, CFG_dmDispMode.dwWidth, CFG_dmDispMode.dwHeight, 16);
+	p_fn_lAddDiplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
 
 	return TRUE;
 }
@@ -140,58 +144,59 @@ EXPORT DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int y
 	// HACK: Refresh rate fix for >60Hz monitors
 	if ( CFG_bHalfRefRate )
 	{
-		gliCaps->RefreshRate = 30.0f;
+		p_stCaps->xRefreshRate = 30.0f;
 	}
 	else
 	{
-		gliCaps->RefreshRate = 60.0f;
+		p_stCaps->xRefreshRate = 60.0f;
 	}
 
 	return dwResult;
 }
 
-//
-// REDIRECTED EXPORTS
-//
+
+/*
+ * Redirected exports
+ */
 
 EXPORT NAKED void GLI_DRV_vCloseDriver()
 {
-	JUMP(Vd_GLI_DRV_vCloseDriver);
+	JMP(Vd_GLI_DRV_vCloseDriver);
 }
 
 EXPORT NAKED BOOL GLI_DRV_bBeginScene()
 {
-	JUMP(Vd_GLI_DRV_bBeginScene);
+	JMP(Vd_GLI_DRV_bBeginScene);
 }
 
 EXPORT NAKED BOOL GLI_DRV_bEndScene()
 {
-	JUMP(Vd_GLI_DRV_bEndScene);
+	JMP(Vd_GLI_DRV_bEndScene);
 }
 
 EXPORT NAKED BOOL GLI_DRV_bLockDevice( DWORD *a1, DWORD *a2 )
 {
-	JUMP(Vd_GLI_DRV_bLockDevice);
+	JMP(Vd_GLI_DRV_bLockDevice);
 }
 
 EXPORT NAKED BOOL GLI_DRV_bUnlockDevice()
 {
-	JUMP(Vd_GLI_DRV_bUnlockDevice);
+	JMP(Vd_GLI_DRV_bUnlockDevice);
 }
 
 EXPORT NAKED void GLI_DRV_vClearDevice( int a1, int a2, int a3 )
 {
-	JUMP(Vd_GLI_DRV_vClearDevice);
+	JMP(Vd_GLI_DRV_vClearDevice);
 }
 
 EXPORT NAKED void GLI_DRV_vFlipDevice( int waitFrames )
 {
-	JUMP(Vd_GLI_DRV_vFlipDevice);
+	JMP(Vd_GLI_DRV_vFlipDevice);
 }
 
 EXPORT NAKED void GLI_DRV_vFlipDeviceWithSyncro()
 {
-	JUMP(Vd_GLI_DRV_vFlipDeviceWithSyncro);
+	JMP(Vd_GLI_DRV_vFlipDeviceWithSyncro);
 }
 
 // TODO: remove this, testing alternative framerate fix
@@ -204,135 +209,135 @@ EXPORT void GLI_DRV_vFlipDeviceWithSyncro()
 
 EXPORT NAKED void GLI_DRV_vDownLoadTextures( int a1, int a2, int a3 )
 {
-	JUMP(Vd_GLI_DRV_vDownLoadTextures);
+	JMP(Vd_GLI_DRV_vDownLoadTextures);
 }
 
 EXPORT NAKED void GLI_DRV_vUnLoadTextures()
 {
-	JUMP(Vd_GLI_DRV_vUnLoadTextures);
+	JMP(Vd_GLI_DRV_vUnLoadTextures);
 }
 
 EXPORT NAKED int GLI_DRV_lGetSizeOfTexture( void *a1 )
 {
-	JUMP(Vd_GLI_DRV_lGetSizeOfTexture);
+	JMP(Vd_GLI_DRV_lGetSizeOfTexture);
 }
 
 EXPORT NAKED void GLI_DRV_vDoOpaqueTextureSelection( int a1 )
 {
-	JUMP(Vd_GLI_DRV_vDoOpaqueTextureSelection);
+	JMP(Vd_GLI_DRV_vDoOpaqueTextureSelection);
 }
 
 EXPORT NAKED HANDLE GLI_DRV_hChangeMode( BOOL bFullscreen, int xRight, int yBottom, int bitDepth )
 {
-	JUMP(Vd_GLI_DRV_hChangeMode);
+	JMP(Vd_GLI_DRV_hChangeMode);
 }
 
 EXPORT NAKED BOOL GLI_DRV_bWindowedModeIsOptimized()
 {
-	JUMP(Vd_GLI_DRV_bWindowedModeIsOptimized);
+	JMP(Vd_GLI_DRV_bWindowedModeIsOptimized);
 }
 
 EXPORT NAKED void GLI_DRV_vOptimizedWindowedMode()
 {
-	JUMP(Vd_GLI_DRV_vOptimizedWindowedMode);
+	JMP(Vd_GLI_DRV_vOptimizedWindowedMode);
 }
 
 EXPORT NAKED void GLI_DRV_vNonOptimizedWindowedMode()
 {
-	JUMP(Vd_GLI_DRV_vNonOptimizedWindowedMode);
+	JMP(Vd_GLI_DRV_vNonOptimizedWindowedMode);
 }
 
 EXPORT NAKED BOOL GLI_DRV_bPrepareForGliWindowed( HWND hWnd )
 {
-	JUMP(Vd_GLI_DRV_bPrepareForGliWindowed);
+	JMP(Vd_GLI_DRV_bPrepareForGliWindowed);
 }
 
 EXPORT NAKED void GLI_DRV_vPrepareForGliFullScreen( HWND hWnd )
 {
-	JUMP(Vd_GLI_DRV_vPrepareForGliFullScreen);
+	JMP(Vd_GLI_DRV_vPrepareForGliFullScreen);
 }
 
 EXPORT NAKED void GLI_DRV_vActivateGli( HWND hWnd, BOOL a2 )
 {
-	JUMP(Vd_GLI_DRV_vActivateGli);
+	JMP(Vd_GLI_DRV_vActivateGli);
 }
 
 EXPORT NAKED void GLI_DRV_vReadaptDisplay()
 {
-	JUMP(Vd_GLI_DRV_vReadaptDisplay);
+	JMP(Vd_GLI_DRV_vReadaptDisplay);
 }
 
 EXPORT NAKED void GLI_DRV_vAddBlackPolygon( int a1, int a2, int a3, int a4 )
 {
-	JUMP(Vd_GLI_DRV_vAddBlackPolygon);
+	JMP(Vd_GLI_DRV_vAddBlackPolygon);
 }
 
 EXPORT NAKED void GLI_DRV_vNoBlackPolygon()
 {
-	JUMP(Vd_GLI_DRV_vNoBlackPolygon);
+	JMP(Vd_GLI_DRV_vNoBlackPolygon);
 }
 
 EXPORT NAKED void GLI_DRV_vSetZClip( float a1, int a2 )
 {
-	JUMP(Vd_GLI_DRV_vSetZClip);
+	JMP(Vd_GLI_DRV_vSetZClip);
 }
 
 EXPORT NAKED void GLI_DRV_vSetClipWindow( float a1, int a2, int a3, int a4, int a5 )
 {
-	JUMP(Vd_GLI_DRV_vSetClipWindow);
+	JMP(Vd_GLI_DRV_vSetClipWindow);
 }
 
 EXPORT NAKED void GLI_DRV_vSendSingleLineToClip( int a1, int a2, int a3, int a4, int a5 )
 {
-	JUMP(Vd_GLI_DRV_vSendSingleLineToClip);
+	JMP(Vd_GLI_DRV_vSendSingleLineToClip);
 }
 
 EXPORT NAKED void GLI_DRV_vSendSpriteToClip( int a1, int a2, int a3 )
 {
-	JUMP(Vd_GLI_DRV_vSendSpriteToClip);
+	JMP(Vd_GLI_DRV_vSendSpriteToClip);
 }
 
 EXPORT NAKED void GLI_DRV_vSendSpriteToClipWithColors( int a1, int a2, int a3, int a4 )
 {
-	JUMP(Vd_GLI_DRV_vSendSpriteToClipWithColors);
+	JMP(Vd_GLI_DRV_vSendSpriteToClipWithColors);
 }
 
 EXPORT NAKED void GLI_DRV_vSendSpriteToClipWithUV( int a1, int a2, int a3, int a4 )
 {
-	JUMP(Vd_GLI_DRV_vSendSpriteToClipWithUV);
+	JMP(Vd_GLI_DRV_vSendSpriteToClipWithUV);
 }
 
 EXPORT NAKED int GLI_DRV_xSendElementTIToClip_TRIANGLES( int a1, int a2 )
 {
-	JUMP(Vd_GLI_DRV_xSendElementTIToClip_TRIANGLES);
+	JMP(Vd_GLI_DRV_xSendElementTIToClip_TRIANGLES);
 }
 
 EXPORT NAKED int GLI_DRV_xSendSingleTriangleToClip_TRIANGLES( int a1, int a2, int a3 )
 {
-	JUMP(Vd_GLI_DRV_xSendSingleTriangleToClip_TRIANGLES);
+	JMP(Vd_GLI_DRV_xSendSingleTriangleToClip_TRIANGLES);
 }
 
 EXPORT NAKED DWORD GLI_DRV_xClearViewingList()
 {
-	JUMP(Vd_GLI_DRV_xClearViewingList);
+	JMP(Vd_GLI_DRV_xClearViewingList);
 }
 
 EXPORT NAKED DWORD GLI_DRV_xSendListToViewport()
 {
-	JUMP(Vd_GLI_DRV_xSendListToViewport);
+	JMP(Vd_GLI_DRV_xSendListToViewport);
 }
 
 EXPORT NAKED void GLI_DRV_vClearZBufferRegion()
 {
-	JUMP(Vd_GLI_DRV_vClearZBufferRegion);
+	JMP(Vd_GLI_DRV_vClearZBufferRegion);
 }
 
 EXPORT NAKED void GLI_DRV_vComputeFogEffect( int a1 )
 {
-	JUMP(Vd_GLI_DRV_vComputeFogEffect);
+	JMP(Vd_GLI_DRV_vComputeFogEffect);
 }
 
 EXPORT NAKED void GLI_DRV_vWrite16bBitmapToBackBuffer( int a1, int a2, int a3, int a4, int a5, int a6, int a7 )
 {
-	JUMP(Vd_GLI_DRV_vWrite16bBitmapToBackBuffer);
+	JMP(Vd_GLI_DRV_vWrite16bBitmapToBackBuffer);
 }

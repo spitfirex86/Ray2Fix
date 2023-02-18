@@ -5,6 +5,7 @@
 #include "config.h"
 #include "main.h"
 
+
 HWND hThis;
 
 HWND hStatus;
@@ -24,28 +25,29 @@ HWND hRefRateLabel;
 HWND hRefRate;
 
 int lCbCustomIdx;
-DISP_MODE dmLastMode;
+tdstDisplayMode eLastMode;
 
-DISP_MODE * GetSelectedDisplayMode( HWND hCB )
+
+tdstDisplayMode * fn_p_stGetSelectedDisplayMode( HWND hCB )
 {
 	int idx = ComboBox_GetCurSel(hCB);
-	DISP_MODE *lpMode = (DISP_MODE*)ComboBox_GetItemData(hCB, idx);
+	tdstDisplayMode *lpMode = (tdstDisplayMode*)ComboBox_GetItemData(hCB, idx);
 	
 	return lpMode;
 }
 
-void SetDisplayMode( HWND hCB )
+void fn_vSetDisplayMode( HWND hCB )
 {
-	DISP_MODE *lpMode = GetSelectedDisplayMode(hCB);
+	tdstDisplayMode *lpMode = fn_p_stGetSelectedDisplayMode(hCB);
 
 	if ( lpMode != NULL )
 	{
-		g_dmCurrentMode.dwWidth = lpMode->dwWidth;
-		g_dmCurrentMode.dwHeight = lpMode->dwHeight;
+		g_stCurrentMode.dwWidth = lpMode->dwWidth;
+		g_stCurrentMode.dwHeight = lpMode->dwHeight;
 	}
 }
 
-BOOL SetCustomDisplayMode( void )
+BOOL fn_bSetCustomDisplayMode( void )
 {
 	char szBuffer[8];
 	
@@ -56,17 +58,17 @@ BOOL SetCustomDisplayMode( void )
 
 	if ( dwWidth > 0 && dwHeight > 0 )
 	{
-		g_dmCurrentMode.dwWidth = dwWidth;
-		g_dmCurrentMode.dwHeight = dwHeight;
+		g_stCurrentMode.dwWidth = dwWidth;
+		g_stCurrentMode.dwHeight = dwHeight;
 
 		return TRUE;
 	}
 
-	g_dmCurrentMode = dmLastMode;
+	g_stCurrentMode = eLastMode;
 	return FALSE;
 }
 
-void UpdateStatus( HWND hEdit, HWND hButton )
+void fn_vUpdateStatus( HWND hEdit, HWND hButton )
 {
 	char szStatusLine[512];
 	char szMsgTemplate[140];
@@ -80,7 +82,7 @@ void UpdateStatus( HWND hEdit, HWND hButton )
 
 	int nChars = 0;
 
-	if ( g_veMissingFiles == VE_OK )
+	if ( g_eMissingFiles == e_VE_Ok )
 	{
 		nChars += sprintf_s(szStatusLine, sizeof(szStatusLine), szMsgTemplate, szCurrentStatus);
 		nChars += LoadStringAtChar(IDS_VE_OK, szStatusLine, nChars);
@@ -89,22 +91,22 @@ void UpdateStatus( HWND hEdit, HWND hButton )
 	{
 		nChars += LoadStringAtChar(IDS_VE_HEADER, szStatusLine, nChars);
 
-		if ( g_veMissingFiles & VE_DEGE_MISSING )
+		if ( g_eMissingFiles & e_VE_DegeMissing )
 			nChars += LoadStringAtChar(IDS_VE_DEGE, szStatusLine, nChars);
 
-		if ( g_veMissingFiles & VE_FIX_MISSING )
+		if ( g_eMissingFiles & e_VE_FixMissing )
 			nChars += LoadStringAtChar(IDS_VE_FIX, szStatusLine, nChars);
 
-		if ( g_veMissingFiles & VE_DINPUT_MISSING )
+		if ( g_eMissingFiles & e_VE_DinputMissing )
 			nChars += LoadStringAtChar(IDS_VE_DINPUT, szStatusLine, nChars);
 
-		if ( g_veMissingFiles & VE_GLIDE_MISSING )
+		if ( g_eMissingFiles & e_VE_GlideMissing )
 			nChars += LoadStringAtChar(IDS_VE_GLIDE, szStatusLine, nChars);
 
-		if ( g_veMissingFiles & VE_FIX_ERROR )
+		if ( g_eMissingFiles & e_VE_FixError )
 			nChars += LoadStringAtChar(IDS_VE_REINSTALLFIX, szStatusLine, nChars);
 
-		if ( g_veMissingFiles & VE_GAME_ERROR )
+		if ( g_eMissingFiles & e_VE_GameError )
 			nChars += LoadStringAtChar(IDS_VE_REINSTALLR2, szStatusLine, nChars);
 	}
 
@@ -112,16 +114,16 @@ void UpdateStatus( HWND hEdit, HWND hButton )
 	Button_SetCheck(hButton, g_bFixState);
 }
 
-void ShowCustomRes( void )
+void fn_vShowCustomRes( void )
 {
 	char szBuffer[8];
 	
-	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_dmCurrentMode.dwWidth);
+	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_stCurrentMode.dwWidth);
 	Edit_SetText(hResX, szBuffer);
-	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_dmCurrentMode.dwHeight);
+	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_stCurrentMode.dwHeight);
 	Edit_SetText(hResY, szBuffer);
 
-	dmLastMode = g_dmCurrentMode;
+	eLastMode = g_stCurrentMode;
 	
 	ShowWindow(hResolution, SW_HIDE);
 	ShowWindow(hResX, SW_SHOW);
@@ -130,7 +132,7 @@ void ShowCustomRes( void )
 	SetFocus(hResX);
 }
 
-void ToggleAdvanced( BOOL bVisible )
+void fn_vToggleAdvanced( BOOL bVisible )
 {
 	int nCmdShow = bVisible ? SW_SHOW : SW_HIDE;
 
@@ -140,13 +142,13 @@ void ToggleAdvanced( BOOL bVisible )
 	ShowWindow(hRefRate, nCmdShow);
 }
 
-void PopulateDisplayModes( HWND hCB )
+void fn_vPopulateDisplayModes( HWND hCB )
 {
 	int idxSelected = -1;
 
-	for ( int i = 0; i < MAX_MODES; i++ )
+	for ( int i = 0; i < C_MaxModes; i++ )
 	{
-		DISP_MODE *lpMode = &g_aDispModes[i];
+		tdstDisplayMode *lpMode = &g_a_stDispModes[i];
 		char szItemText[60];
 
 		if ( lpMode->dwWidth == 0 )
@@ -154,23 +156,23 @@ void PopulateDisplayModes( HWND hCB )
 
 		sprintf_s(szItemText, sizeof(szItemText), "%d x %d", lpMode->dwWidth, lpMode->dwHeight);
 
-		if ( lpMode->dmfFlags & DMF_SAFE )
+		if ( lpMode->eFlags & e_DMF_Safe )
 			strcat_s(szItemText, sizeof(szItemText), " *");
 
-		if ( lpMode->dmfFlags & DMF_BEST )
+		if ( lpMode->eFlags & e_DMF_Best )
 			strcat_s(szItemText, sizeof(szItemText), " +");
 
-		if ( lpMode->dmfFlags & DMF_CUSTOM )
+		if ( lpMode->eFlags & e_DMF_Custom )
 			strcat_s(szItemText, sizeof(szItemText), " (custom)");
 
 		int idx = ComboBox_AddString(hCB, szItemText);
 		ComboBox_SetItemData(hCB, idx, lpMode);
 
-		if ( lpMode->dmfFlags )
+		if ( lpMode->eFlags )
 			ComboBox_SetCurSel(hCB, idx);
 
-		if ( lpMode->dwWidth == g_dmCurrentMode.dwWidth &&
-			 lpMode->dwHeight == g_dmCurrentMode.dwHeight )
+		if ( lpMode->dwWidth == g_stCurrentMode.dwWidth &&
+			 lpMode->dwHeight == g_stCurrentMode.dwHeight )
 		{
 			idxSelected = idx;
 		}
@@ -179,21 +181,21 @@ void PopulateDisplayModes( HWND hCB )
 	if ( idxSelected >= 0 )
 		ComboBox_SetCurSel(hCB, idxSelected);
 
-	SetDisplayMode(hResolution);
+	fn_vSetDisplayMode(hResolution);
 
 	// Add special "Custom..." item at the end of the combo box
 	lCbCustomIdx = ComboBox_AddString(hCB, "Custom...");
 }
 
-void PopulateRefRates( HWND hCB )
+void fn_vPopulateRefRates( HWND hCB )
 {
 	int lFull = ComboBox_AddString(hCB, "60");
-	ComboBox_SetItemData(hCB, lFull, RR_FULL);
+	ComboBox_SetItemData(hCB, lFull, e_RR_Full);
 
 	int lHalf = ComboBox_AddString(hCB, "30");
-	ComboBox_SetItemData(hCB, lHalf, RR_HALF);
+	ComboBox_SetItemData(hCB, lHalf, e_RR_Half);
 
-	if ( g_lRefRate == RR_HALF )
+	if ( g_eRefRate == e_RR_Half )
 	{
 		ComboBox_SetCurSel(hCB, lHalf);
 	}
@@ -203,12 +205,7 @@ void PopulateRefRates( HWND hCB )
 	}
 }
 
-BOOL CALLBACK GeneralDialogProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam
-	)
+BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch ( uMsg )
 	{
@@ -229,9 +226,9 @@ BOOL CALLBACK GeneralDialogProc(
 		hRefRateLabel = GetDlgItem(hWnd, IDC_REFRATE_LABEL);
 		hRefRate = GetDlgItem(hWnd, IDC_REFRATE);
 
-		UpdateStatus(hStatus, hToggle);
-		PopulateDisplayModes(hResolution);
-		PopulateRefRates(hRefRate);
+		fn_vUpdateStatus(hStatus, hToggle);
+		fn_vPopulateDisplayModes(hResolution);
+		fn_vPopulateRefRates(hRefRate);
 
 		Button_SetCheck(hVsync, g_bForceVsync);
 		Button_SetCheck(hFsModeWin, !g_bFullscreen);
@@ -240,84 +237,81 @@ BOOL CALLBACK GeneralDialogProc(
 		SendMessage(hResX, EM_LIMITTEXT, 7, 0);
 		SendMessage(hResY, EM_LIMITTEXT, 7, 0);
 
-		break;
+		return TRUE;
 
 	case WM_ADVTOGGLE:
-		ToggleAdvanced((BOOL)wParam);
-		break;
+		fn_vToggleAdvanced((BOOL)wParam);
+		return TRUE;
 
 	case WM_COMMAND:
 		switch ( LOWORD(wParam) )
 		{
 		case IDC_MAINTOGGLE:
 			g_bFixState = Button_GetCheck(hToggle);
-			UpdateStatus(hStatus, hToggle);
+			fn_vUpdateStatus(hStatus, hToggle);
 
 			g_bUnsavedChanges = TRUE;
-			break;
+			return TRUE;
 
 		case IDC_RESOLUTION:
 			if ( HIWORD(wParam) == CBN_SELCHANGE )
 			{
 				if ( ComboBox_GetCurSel(hResolution) == lCbCustomIdx )
 				{
-					ShowCustomRes();
-					break;
+					fn_vShowCustomRes();
 				}
-				
-				SetDisplayMode(hResolution);
-				g_bUnsavedChanges = TRUE;
-				break;
+				else
+				{
+					fn_vSetDisplayMode(hResolution);
+					g_bUnsavedChanges = TRUE;
+				}
+				return TRUE;
 			}
-			return FALSE;
+			break;
 
 		case IDC_RESX:
 		case IDC_RESY:
 			if ( HIWORD(wParam) == EN_KILLFOCUS )
 			{
-				if ( SetCustomDisplayMode() )
+				if ( fn_bSetCustomDisplayMode() )
 					g_bUnsavedChanges = TRUE;
 				
-				break;
+				return TRUE;
 			}
-			return FALSE;
+			break;
 
 		case IDC_FSMODE_WND:
 			g_bFullscreen = FALSE;
 			Button_SetCheck(hFsModeWin, BST_CHECKED);
 			Button_SetCheck(hFsModeFs, BST_UNCHECKED);
-			break;
+			return TRUE;
 
 		case IDC_FSMODE_FS:
 			g_bFullscreen = TRUE;
 			Button_SetCheck(hFsModeWin, BST_UNCHECKED);
 			Button_SetCheck(hFsModeFs, BST_CHECKED);
-			break;
+			return TRUE;
 
 		case IDC_VSYNC:
 			g_bForceVsync = Button_GetCheck(hVsync);
 			g_bUnsavedChanges = TRUE;
-			break;
+			return TRUE;
 
 		case IDC_REFRATE:
 			if ( HIWORD(wParam) == CBN_SELCHANGE )
 			{
 				int idx = ComboBox_GetCurSel(hRefRate);
-				REFRATE lRefRate = ComboBox_GetItemData(hRefRate, idx);
+				tdeRefRate lRefRate = ComboBox_GetItemData(hRefRate, idx);
 
 				if ( lRefRate != 0 )
-					g_lRefRate = lRefRate;
+					g_eRefRate = lRefRate;
 
 				g_bUnsavedChanges = TRUE;
-				break;
+				return TRUE;
 			}
-			return FALSE;
-
-		default: return FALSE;
+			break;
 		}
 		break;
-
-	default: return FALSE;
 	}
 
 	return FALSE;

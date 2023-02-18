@@ -1,17 +1,20 @@
 #pragma once
+
 #include "framework.h"
-// TWEAKS enum defined here
-#include "shared.h"
+#include "shared.h" /* tdeTweaks defined here */
 
-#define MAX_MODS 40
 
-typedef struct tagMOD_DATA
+#define C_MaxMods 40
+
+typedef struct tdstModData_
 {
 	HMODULE hDll;
 	void *reserved;
-} MOD_DATA;
+}
+tdstModData;
 
-extern MOD_DATA TWK_aMods[MAX_MODS];
+
+extern tdstModData TWK_a_stMods[C_MaxMods];
 extern int TWK_lModCount;
 
 void TWK_fn_vLoadAllMods( void );

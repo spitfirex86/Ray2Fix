@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "framework.h"
 
+
 typedef enum tdeAnalogAction
 {
 	#define M_DefineAction(Id, szName, szCfg_X, szCfg_Y) Id,
@@ -19,7 +20,6 @@ typedef enum tdeButtonAction
 }
 tdeButtonAction;
 
-
 typedef enum tdePadInput
 {
 	#define M_DefineInput(Id, lCtrl, bAnalog, szCfg) Id,
@@ -28,6 +28,7 @@ typedef enum tdePadInput
 	E_NbPadInput
 }
 tdePadInput;
+
 
 typedef struct tdstPadConfig
 {

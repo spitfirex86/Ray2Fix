@@ -5,18 +5,20 @@
 #include "r2fn.h"
 #include "config.h"
 
+
 char *szConfigMenu = "/C:Ray2Fix Config";
 
 char szVersionString[50];
-JFFTXT txtVersion = {
+tdstJFFTXT txtVersion = {
 	NULL,
 	5, 980, 7, 160,
 	0, 0, 0, 0, 0
 };
 
-//
-// DETOURS
-//
+
+/*
+ * Detours
+ */
 
 BOOL CALLBACK FIX_fn_InputEnum( void *lpddi, void *pvRef )
 {
@@ -38,7 +40,7 @@ BOOL FIX_fn_SuspendGame()
 	return TRUE;
 }
 
-char* FIX_fn_szGetStringFromTextOrStringParam( void *param )
+char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
 {
 	// Call original function
 	char *result = R2_fn_szGetStringFromTextOrStringParam(param);
@@ -55,7 +57,7 @@ char* FIX_fn_szGetStringFromTextOrStringParam( void *param )
 		// Part 2: Open R2FixCfg with ShellExecute.
 		if ( !strcmp(result, "http://www.rayman2.com/") )
 		{
-			if ( CFG_bOpenConfigTool() )
+			if ( CFG_fn_bOpenConfigTool() )
 				SendMessage(R2_GetWindowHandle(), WM_CLOSE, 0, 0);
 		}
 	}
@@ -71,9 +73,10 @@ void FIX_JFFTXT_vAffiche( void *lpContext )
 	R2_JFFTXT_vAffiche(lpContext);
 }
 
-//
-// FUNCTIONS
-//
+
+/*
+ * Functions
+ */
 
 void fn_vPreAttachHooks( void )
 {
@@ -84,7 +87,7 @@ void fn_vPreAttachHooks( void )
 	}
 }
 
-void FIX_vAttachHooks( void )
+void FIX_fn_vAttachHooks( void )
 {
 	fn_vPreAttachHooks();
 
@@ -103,7 +106,7 @@ void FIX_vAttachHooks( void )
 	DetourTransactionCommit();
 }
 
-void FIX_vDetachHooks( void )
+void FIX_fn_vDetachHooks( void )
 {
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
@@ -120,7 +123,7 @@ void FIX_vDetachHooks( void )
 	DetourTransactionCommit();
 }
 
-void FIX_vPatchFramerate( void )
+void FIX_fn_vPatchFramerate( void )
 {
 	typedef struct
 	{
@@ -142,7 +145,7 @@ void FIX_vPatchFramerate( void )
 	VirtualProtect(lpCode, sizeof(FlipDeviceCode), dwOldProtect, &dwNewProtect);
 }
 
-void FIX_vRemoveModeEnum( void )
+void FIX_fn_vRemoveModeEnum( void )
 {
 	typedef struct
 	{

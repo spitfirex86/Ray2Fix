@@ -1,18 +1,21 @@
 #pragma once
+
 #include "framework.h"
 #include "devinfo.h"
 
-void IMP_vLoadGliLibrary( void );
 
-//
-// GLI LIBRARY IMPORTS
-//
+void IMP_fn_vLoadGliLibrary( void );
+
+
+/*
+ * GLI Library imports
+ */
 
 extern BOOL (*Vd_GLI_DRV_lGetDllInfo)( const char *, void * );
-extern BOOL (*Vd_GLI_DRV_fn_lGetAllDisplayConfig)( GliSet );
+extern BOOL (*Vd_GLI_DRV_fn_lGetAllDisplayConfig)( tdfnGliSet );
 
 extern BOOL (*Vd_GLI_DRV_lSetCommonData)( const char *, void * );
-extern BOOL (*Vd_GLI_DRV_lSetCommonFct)( const char *, CommonFct );
+extern BOOL (*Vd_GLI_DRV_lSetCommonFct)( const char *, tdfnCommonFct );
 
 extern BOOL (*Vd_GLI_DRV_fnl_EnumModes)( char *, char * );
 

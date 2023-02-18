@@ -23,7 +23,7 @@ tdstPadConfig a_stPadInput[E_NbPadInput] = {
 HWND hDlg;
 
 
-void PopulateInputCB( tdstPadConfig *pInput )
+void fn_vPopulateInputCB( tdstPadConfig *pInput )
 {
 	HWND hCtrl = pInput->hCtrl;
 
@@ -45,7 +45,7 @@ void PopulateInputCB( tdstPadConfig *pInput )
 	}
 }
 
-BOOL CALLBACK PadDialogProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+BOOL CALLBACK DLG_fn_bProc_Pad( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch ( uMsg )
 	{
@@ -57,7 +57,7 @@ BOOL CALLBACK PadDialogProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 				tdstPadConfig *pInput = &a_stPadInput[i];
 				pInput->hCtrl = GetDlgItem(hWnd, pInput->lCtrlId);
 
-				PopulateInputCB(pInput);
+				fn_vPopulateInputCB(pInput);
 			}
 			return TRUE;
 

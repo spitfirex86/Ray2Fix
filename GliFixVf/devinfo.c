@@ -1,29 +1,31 @@
 #include "devinfo.h"
 
-//
-// RENDERER INFO
-//
 
-const char *GLI_szName			= "Ray2Fix";
-const char *GLI_szDesc			= "Spitfire's Graphics Fix GLI Passthrough";
-const char *GLI_szVersion		= "1.2.1";
-const int GLI_lCode				= 8;
+/*
+ * Renderer Info
+ */
 
-//
-// GLISET ACTIONS
-//
+char const *GLI_szName			= "Ray2Fix";
+char const *GLI_szDesc			= "Spitfire's Graphics Fix GLI Passthrough";
+char const *GLI_szVersion		= "1.3.0";
+int const GLI_lCode				= 8;
 
-const char *GS_BMP				= "dll_bmp";
-const char *GS_ADD_DISPLAY		= "dispadd";
-const char *GS_DISPLAY_NAME		= "dispname";
-const char *GS_DISPLAY_DESC		= "dispdesc";
 
-const char *GS_ADD_DEVICE		= "dev_add";
-const char *GS_DEVICE_NAME		= "dev_name";
-const char *GS_DEVICE_DESC		= "dev_desc";
+/*
+ * GliSet Actions
+ */
 
-const char *GS_ADD_MODE			= "modeadd";
-const char *GS_MODE_FULLSCREEN	= "modefs";
-const char *GS_MODE_BITDEPTH	= "modebpp";
-const char *GS_MODE_WIDTH		= "modew";
-const char *GS_MODE_HEIGHT		= "modeh";
+char const *GS_BMP				= "dll_bmp";
+char const *GS_ADD_DISPLAY		= "dispadd";
+char const *GS_DISPLAY_NAME		= "dispname";
+char const *GS_DISPLAY_DESC		= "dispdesc";
+
+char const *GS_ADD_DEVICE		= "dev_add";
+char const *GS_DEVICE_NAME		= "dev_name";
+char const *GS_DEVICE_DESC		= "dev_desc";
+
+char const *GS_ADD_MODE			= "modeadd";
+char const *GS_MODE_FULLSCREEN	= "modefs";
+char const *GS_MODE_BITDEPTH	= "modebpp";
+char const *GS_MODE_WIDTH		= "modew";
+char const *GS_MODE_HEIGHT		= "modeh";

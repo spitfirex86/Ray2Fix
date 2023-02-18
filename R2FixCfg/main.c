@@ -4,6 +4,7 @@
 #include "config.h"
 #include "main.h"
 
+
 HINSTANCE g_hInst;
 BOOL g_bUnsavedChanges = FALSE;
 
@@ -13,15 +14,16 @@ HWND hTC;
 HWND hAdvanced;
 HWND hCurrentTab;
 
-HWND a_hTabs[NUM_TABS];
+HWND a_hTabs[e_NbTab];
 
-TAB_INFO a_tiTabs[NUM_TABS] = {
-	[TAB_GENERAL] = { IDD_GENERAL, "General", GeneralDialogProc },
-	[TAB_PAD] = { IDD_PAD, "Gamepad", PadDialogProc },
-	[TAB_TWEAKS] = { IDD_TWEAKS, "Tweaks", TweaksDialogProc }
+tdstTabInfo a_stTabs[e_NbTab] = {
+	[e_TAB_General] = { IDD_GENERAL, "General", DLG_fn_bProc_General },
+	[e_TAB_Pad] = { IDD_PAD, "Gamepad", DLG_fn_bProc_Pad },
+	[e_TAB_Tweaks] = { IDD_TWEAKS, "Tweaks", DLG_fn_bProc_Tweaks }
 };
 
-void CreateTabDialogs( HWND hParent, HWND hTabCtrl )
+
+void fn_vCreateTabDialogs( HWND hParent, HWND hTabCtrl )
 {
 	RECT rcTabArea, rcHeaderArea;
 	GetClientRect(hTabCtrl, &rcTabArea);
@@ -35,11 +37,11 @@ void CreateTabDialogs( HWND hParent, HWND hTabCtrl )
 	TCITEM tci = { 0 };
 	tci.mask = TCIF_TEXT;
 
-	for ( int i = 0; i < NUM_TABS; i++ )
+	for ( int i = 0; i < e_NbTab; i++ )
 	{
-		TAB_INFO *lpTab = &a_tiTabs[i];
+		tdstTabInfo *lpTab = &a_stTabs[i];
 
-		a_hTabs[i] = CreateDialog(g_hInst, MAKEINTRESOURCE(lpTab->lDlgId), hParent, lpTab->lpDlgProc);
+		a_hTabs[i] = CreateDialog(g_hInst, MAKEINTRESOURCE(lpTab->lDlgId), hParent, lpTab->pfnDlgProc);
 
 		tci.pszText = lpTab->szTabName;
 		TabCtrl_InsertItem(hTabCtrl, i, &tci);
@@ -57,7 +59,7 @@ void CreateTabDialogs( HWND hParent, HWND hTabCtrl )
 	ShowWindow(hCurrentTab, SW_SHOW);
 }
 
-BOOL AskSaveBeforeClose( HWND hWnd )
+BOOL fn_bAskSaveBeforeClose( HWND hWnd )
 {
 	char szPrompt[250];
 	LoadString(g_hInst, IDS_ASKTOSAVE, szPrompt, sizeof(szPrompt));
@@ -68,7 +70,7 @@ BOOL AskSaveBeforeClose( HWND hWnd )
 	{
 	case IDYES:
 		// Save and quit
-		WriteConfig();
+		CFG_fn_vWrite();
 		g_bUnsavedChanges = FALSE;
 		return TRUE;
 
@@ -82,12 +84,7 @@ BOOL AskSaveBeforeClose( HWND hWnd )
 	}
 }
 
-BOOL CALLBACK MainDialogProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam
-	)
+BOOL CALLBACK fn_bProc_Main( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	HICON hIcon;
 	int nIndex;
@@ -102,10 +99,10 @@ BOOL CALLBACK MainDialogProc(
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 
 		hTC = GetDlgItem(hWnd, IDC_TAB1);
-		CreateTabDialogs(hWnd, hTC);
+		fn_vCreateTabDialogs(hWnd, hTC);
 
 		hAdvanced = GetDlgItem(hWnd, IDC_ADVANCED);
-		break;
+		return TRUE;
 
 	case WM_SHOWWINDOW:
 		if ( wParam == TRUE && lParam == 0 )
@@ -113,7 +110,7 @@ BOOL CALLBACK MainDialogProc(
 			HWND hBtn = GetDlgItem(hWnd, IDOK);
 			SetFocus(hBtn);
 		}
-		break;
+		return TRUE;
 
 	case WM_NOTIFY:
 		switch ( ((LPNMHDR)lParam)->code )
@@ -126,9 +123,7 @@ BOOL CALLBACK MainDialogProc(
 				hCurrentTab = a_hTabs[nIndex];
 				ShowWindow(hCurrentTab, SW_SHOW);
 			}
-			break;
-
-		default: return FALSE;
+			return TRUE;
 		}
 		break;
 
@@ -137,57 +132,48 @@ BOOL CALLBACK MainDialogProc(
 		{
 		case ID_DEBUG:
 			// TODO: debug stuff
-			break;
+			return TRUE;
 
 		case IDC_ADVANCED:
 			bAdvToggle = Button_GetCheck(hAdvanced);
-			for ( int i = 0; i < NUM_TABS; i++ )
+			for ( int i = 0; i < e_NbTab; i++ )
 			{
 				SendMessage(a_hTabs[i], WM_ADVTOGGLE, bAdvToggle, 0);
 			}
-			break;
+			return TRUE;
 
 		case IDOK:
 			SetFocus(NULL);
-			WriteConfig();
+			CFG_fn_vWrite();
 			g_bUnsavedChanges = FALSE;
 			// fall-through
 		case IDCANCEL:
 			SendMessage(hWnd, WM_CLOSE, 0, 0);
-			break;
-
-		default: return FALSE;
+			return TRUE;
 		}
 		break;
 
 	case WM_CLOSE:
 		if ( g_bUnsavedChanges )
 		{
-			if ( AskSaveBeforeClose(hWnd) )
+			if ( fn_bAskSaveBeforeClose(hWnd) )
 				DestroyWindow(hWnd);
 		}
 		else
 		{
 			DestroyWindow(hWnd);
 		}
-		break;
+		return TRUE;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
-
-	default: return FALSE;
+		return TRUE;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
-int WINAPI WinMain(
-	HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine,
-	INT nCmdShow
-	)
+int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow )
 {
 	HWND hDlg;
 	MSG msg;
@@ -212,11 +198,11 @@ int WINAPI WinMain(
 		return 0;
 	}
 
-	VerifyFiles();
-	ReadConfig();
-	EnumResolutions();
+	CFG_fn_vVerify();
+	CFG_fn_vRead();
+	DSP_fn_vEnumResolutions();
 
-	hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_MAIN), NULL, MainDialogProc);
+	hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_MAIN), NULL, fn_bProc_Main);
 
 	if ( hDlg == NULL )
 		return 1;

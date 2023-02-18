@@ -4,18 +4,19 @@
 #include "config.h"
 #include "tweaks.h"
 
+
 void fn_vInitDll( void )
 {
-	CFG_vInitGlobals();
-	IMP_vLoadGliLibrary();
+	CFG_fn_vInitGlobals();
+	IMP_fn_vLoadGliLibrary();
 
 	if ( CFG_bIsMainModuleR2 )
 	{
 		// Game is running, fix stuff
-		FIX_vPatchFramerate();
-		FIX_vAttachHooks();
+		FIX_fn_vPatchFramerate();
+		FIX_fn_vAttachHooks();
 
-		if ( CFG_lTweaks )
+		if ( CFG_eTweaks )
 		{
 			TWK_fn_vInitTweaks();
 		}
@@ -23,7 +24,7 @@ void fn_vInitDll( void )
 	else
 	{
 		// Most likely GxSetup/GliDetect
-		FIX_vRemoveModeEnum();
+		FIX_fn_vRemoveModeEnum();
 	}
 }
 
@@ -31,15 +32,11 @@ void fn_vDeInitDll( void )
 {
 	if ( CFG_bIsMainModuleR2 )
 	{
-		FIX_vDetachHooks();
+		FIX_fn_vDetachHooks();
 	}
 }
 
-BOOL APIENTRY DllMain(
-	HMODULE hModule,
-	DWORD dwReason,
-	LPVOID lpReserved
-	)
+BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved )
 {
 	switch ( dwReason )
 	{

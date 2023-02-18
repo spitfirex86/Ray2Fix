@@ -1,37 +1,44 @@
 #pragma once
+
 #include "framework.h"
 
-typedef enum tagDM_FLAGS
-{
-	DMF_NONE = 0,
-	DMF_SAFE = 1 << 0,
-	DMF_BEST = 1 << 1,
-	DMF_CUSTOM = 1 << 2
-} DM_FLAGS;
 
-typedef enum tagREFRATE
+typedef enum tdeDisplayModeFlags_
 {
-	RR_HALF = 30,
-	RR_FULL = 60
-} REFRATE;
+	e_DMF_None = 0,
+	e_DMF_Safe = 1 << 0,
+	e_DMF_Best = 1 << 1,
+	e_DMF_Custom = 1 << 2
+}
+tdeDisplayModeFlags;
 
-typedef struct tagDISP_MODE
+typedef enum tdeRefRate_
+{
+	e_RR_Half = 30,
+	e_RR_Full = 60
+}
+tdeRefRate;
+
+typedef struct tdstDisplayMode_
 {
 	DWORD dwWidth;
 	DWORD dwHeight;
-	DM_FLAGS dmfFlags;
-} DISP_MODE;
+	tdeDisplayModeFlags eFlags;
+}
+tdstDisplayMode;
 
-//
-// GLOBAL VARS
-//
 
-#define MAX_MODES 64
+/*
+ * Global Vars
+ */
 
-extern DISP_MODE g_aDispModes[MAX_MODES];
+#define C_MaxModes 64
 
-//
-// FUNCTIONS
-//
+extern tdstDisplayMode g_a_stDispModes[C_MaxModes];
 
-void EnumResolutions( void );
+
+/*
+ * Functions
+ */
+
+void DSP_fn_vEnumResolutions( void );

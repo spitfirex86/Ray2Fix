@@ -2,10 +2,12 @@
 #include "tweaks.h"
 #include "config.h"
 
+
 char *szModsFolder = ".\\Mods";
 
-MOD_DATA TWK_aMods[MAX_MODS] = { 0 };
+tdstModData TWK_a_stMods[C_MaxMods] = { 0 };
 int TWK_lModCount = 0;
+
 
 BOOL TWK_fn_bLoadSingleMod( char *szDllName )
 {
@@ -16,8 +18,8 @@ BOOL TWK_fn_bLoadSingleMod( char *szDllName )
 
 	if ( hMod )
 	{
-		MOD_DATA mod = { hMod, NULL };
-		TWK_aMods[TWK_lModCount++] = mod;
+		tdstModData mod = { hMod, NULL };
+		TWK_a_stMods[TWK_lModCount++] = mod;
 		return TRUE;
 	}
 
@@ -52,7 +54,7 @@ void TWK_fn_vLoadAllMods( void )
 
 void TWK_fn_vInitTweaks( void )
 {
-	if ( CFG_lTweaks & TWK_MODLOADER )
+	if ( CFG_eTweaks & e_TWK_ModLoader )
 	{
 		TWK_fn_vLoadAllMods();
 	}

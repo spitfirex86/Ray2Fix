@@ -1,38 +1,38 @@
 #include "framework.h"
 #include "config.h"
 
-//
-// GLOBAL VARS
-//
+
+/*
+ * Global Vars
+ */
 
 BOOL g_bFixState = FALSE;
 BOOL g_bFixPrevState = FALSE;
 
-TWEAKS g_lTweaks = TWK_NO_TWEAKS;
+tdeTweaks g_eTweaks = e_TWK_NoTweaks;
 
-DISP_MODE g_dmCurrentMode = { 0 };
-REFRATE g_lRefRate = RR_FULL;
+tdstDisplayMode g_stCurrentMode = { 0 };
+tdeRefRate g_eRefRate = e_RR_Full;
 BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
 
-VERIFY_ERR g_veMissingFiles = VE_OK;
+tdeVerifyErr g_eMissingFiles = e_VE_Ok;
 
-//
-// STRINGS
-//
 
-char *szDegePath = ".\\dgVoodoo.conf";
-char *szUbiPath = ".\\Ubi.ini";
+/*
+ * Strings
+ */
 
-char *szUbiR2 = "Rayman2";
-char *szUbiFix = "Ray2Fix";
-char *szDegeGlide = "Glide";
-char *szDegeGeneral = "General";
+char const *szDegePath = ".\\dgVoodoo.conf";
+char const *szUbiPath = ".\\Ubi.ini";
 
-char *szTrue = "true";
-char *szFalse = "false";
+char const *szUbiR2 = "Rayman2";
+char const *szUbiFix = "Ray2Fix";
 
-char *a_szFilesToDelete[] = {
+char const *szTrue = "true";
+char const *szFalse = "false";
+
+char const *a_szFilesToDelete[] = {
 	"goggame.sdb",
 	"goglog.ini",
 	"gog.ico",
@@ -48,11 +48,13 @@ char *a_szFilesToDelete[] = {
 	"glide3x.dll"
 };
 
-//
-// FUNCTIONS
-//
 
-void ReadUbiIni( void )
+/*
+ * Functions
+ */
+
+
+void fn_vReadUbiIni( void )
 {
 	char szBuffer[128];
 
@@ -72,22 +74,22 @@ void ReadUbiIni( void )
 
 	if ( nParsed == 2 && dwWidth > 0 && dwHeight > 0 )
 	{
-		g_dmCurrentMode.dwWidth = dwWidth;
-		g_dmCurrentMode.dwHeight = dwHeight;
+		g_stCurrentMode.dwWidth = dwWidth;
+		g_stCurrentMode.dwHeight = dwHeight;
 	}
 
 	// Tweaks
-	g_lTweaks = GetPrivateProfileInt(szUbiFix, "Tweaks", 0, szUbiPath);
+	g_eTweaks = GetPrivateProfileInt(szUbiFix, "Tweaks", 0, szUbiPath);
 }
 
-void ReadDegeIni( void )
+void fn_vReadDegeIni( void )
 {
 	char szBuffer[128];
 
 	DWORD dwRefRate = 0;
 
 	// Refresh rate
-	GetPrivateProfileString(szDegeGlide, "Resolution", NULL, szBuffer, sizeof(szBuffer), szDegePath);
+	GetPrivateProfileString("Glide", "Resolution", NULL, szBuffer, sizeof(szBuffer), szDegePath);
 	char *lpLastComma = strrchr(szBuffer, ',');
 
 	if ( lpLastComma != NULL )
@@ -95,21 +97,21 @@ void ReadDegeIni( void )
 		int nParsed = sscanf_s(++lpLastComma, " refrate:%d", &dwRefRate);
 
 		if ( nParsed == 1 && dwRefRate > 0 )
-			g_lRefRate = dwRefRate;
+			g_eRefRate = dwRefRate;
 	}
 
 	// Force VSync
-	GetPrivateProfileString(szDegeGlide, "ForceVerticalSync", NULL, szBuffer, sizeof(szBuffer), szDegePath);
+	GetPrivateProfileString("Glide", "ForceVerticalSync", NULL, szBuffer, sizeof(szBuffer), szDegePath);
 	if ( !strcmp(szBuffer, szTrue) )
 		g_bForceVsync = TRUE;
 
 	// Fullscreen mode
-	GetPrivateProfileString(szDegeGeneral, "FullScreenMode", NULL, szBuffer, sizeof(szBuffer), szDegePath);
+	GetPrivateProfileString("General", "FullScreenMode", NULL, szBuffer, sizeof(szBuffer), szDegePath);
 	if ( !strcmp(szBuffer, szTrue) )
 		g_bFullscreen = TRUE;
 }
 
-void WriteUbiIni( void )
+void fn_vWriteUbiIni( void )
 {
 	char szBuffer[128];
 
@@ -126,49 +128,49 @@ void WriteUbiIni( void )
 	WritePrivateProfileString(szUbiR2, "GLI_Device", szDevice, szUbiPath);
 
 	// Display mode
-	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x 16", g_dmCurrentMode.dwWidth, g_dmCurrentMode.dwHeight);
+	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x 16", g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight);
 	WritePrivateProfileString(szUbiR2, "GLI_Mode", szBuffer, szUbiPath);
 
 	// Tweaks
-	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_lTweaks);
+	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_eTweaks);
 	WritePrivateProfileString(szUbiFix, "Tweaks", szBuffer, szUbiPath);
 
 	// Refresh rate
-	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_lRefRate == RR_HALF));
+	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_eRefRate == e_RR_Half));
 	WritePrivateProfileString(szUbiFix, "HalfRefRate", szBuffer, szUbiPath);
 }
 
-void WriteDegeIni( void )
+void fn_vWriteDegeIni( void )
 {
 	char szBuffer[128];
 
 	// These values should never change, but write them anyway in case the user messes up the config
-	WritePrivateProfileString(szDegeGeneral, "ProgressiveScanlineOrder", szTrue, szDegePath);
-	WritePrivateProfileString(szDegeGeneral, "EnumerateRefreshRates", szTrue, szDegePath);
-	WritePrivateProfileString(szDegeGeneral, "ScalingMode", "stretched_ar", szDegePath);
-	WritePrivateProfileString(szDegeGeneral, "KeepWindowAspectRatio", szTrue, szDegePath);
-	WritePrivateProfileString(szDegeGlide, "VideoCard", "voodoo_2", szDegePath);
-	WritePrivateProfileString(szDegeGlide, "OnboardRAM", "12", szDegePath);
-	WritePrivateProfileString(szDegeGlide, "MemorySizeOfTMU", "4096", szDegePath);
-	WritePrivateProfileString(szDegeGlide, "NumberOfTMUs", "2", szDegePath);
-	WritePrivateProfileString(szDegeGlide, "EnableGlideGammaRamp", szTrue, szDegePath);
-	WritePrivateProfileString(szDegeGlide, "EnableInactiveAppState", szFalse, szDegePath);
+	WritePrivateProfileString("General", "ProgressiveScanlineOrder", szTrue, szDegePath);
+	WritePrivateProfileString("General", "EnumerateRefreshRates", szTrue, szDegePath);
+	WritePrivateProfileString("General", "ScalingMode", "stretched_ar", szDegePath);
+	WritePrivateProfileString("General", "KeepWindowAspectRatio", szTrue, szDegePath);
+	WritePrivateProfileString("Glide", "VideoCard", "voodoo_2", szDegePath);
+	WritePrivateProfileString("Glide", "OnboardRAM", "12", szDegePath);
+	WritePrivateProfileString("Glide", "MemorySizeOfTMU", "4096", szDegePath);
+	WritePrivateProfileString("Glide", "NumberOfTMUs", "2", szDegePath);
+	WritePrivateProfileString("Glide", "EnableGlideGammaRamp", szTrue, szDegePath);
+	WritePrivateProfileString("Glide", "EnableInactiveAppState", szFalse, szDegePath);
 
 	// Display mode & refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "h:%i, v:%i, refrate:%i",
-	          g_dmCurrentMode.dwWidth, g_dmCurrentMode.dwHeight, g_lRefRate);
-	WritePrivateProfileString(szDegeGlide, "Resolution", szBuffer, szDegePath);
+	          g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight, g_eRefRate);
+	WritePrivateProfileString("Glide", "Resolution", szBuffer, szDegePath);
 
 	// Force VSync
-	char *szVsync = g_bForceVsync ? szTrue : szFalse;
-	WritePrivateProfileString(szDegeGlide, "ForceVerticalSync", szVsync, szDegePath);
+	char const *szVsync = g_bForceVsync ? szTrue : szFalse;
+	WritePrivateProfileString("Glide", "ForceVerticalSync", szVsync, szDegePath);
 
 	// Fullscreen mode
-	char *szFullScreen = g_bFullscreen ? szTrue : szFalse;
-	WritePrivateProfileString(szDegeGeneral, "FullScreenMode", szFullScreen, szDegePath);
+	char const *szFullScreen = g_bFullscreen ? szTrue : szFalse;
+	WritePrivateProfileString("General", "FullScreenMode", szFullScreen, szDegePath);
 }
 
-void CleanUpGogMess( void )
+void fn_vCleanUpGogMess( void )
 {
 	for ( DWORD i = 0; i < ARRAYSIZE(a_szFilesToDelete); i++ )
 	{
@@ -179,38 +181,38 @@ void CleanUpGogMess( void )
 	}
 }
 
-void ReadConfig( void )
+void CFG_fn_vRead( void )
 {
-	ReadUbiIni();
-	ReadDegeIni();
+	fn_vReadUbiIni();
+	fn_vReadDegeIni();
 }
 
-void WriteConfig( void )
+void CFG_fn_vWrite( void )
 {
-	WriteUbiIni();
-	WriteDegeIni();
+	fn_vWriteUbiIni();
+	fn_vWriteDegeIni();
 }
 
-void VerifyFiles( void )
+void CFG_fn_vVerify( void )
 {
 	if ( GetFileAttributes(".\\goglog.ini") != INVALID_FILE_ATTRIBUTES )
 	{
 		// Delete unnecessary GOG/nGlide files
-		CleanUpGogMess();
+		fn_vCleanUpGogMess();
 	}
 
 	if ( GetFileAttributes(szUbiPath) == INVALID_FILE_ATTRIBUTES )
-		g_veMissingFiles |= VE_UBI_MISSING;
+		g_eMissingFiles |= e_VE_UbiMissing;
 
 	if ( GetFileAttributes(szDegePath) == INVALID_FILE_ATTRIBUTES )
-		g_veMissingFiles |= VE_DEGE_MISSING | VE_FIX_ERROR;
+		g_eMissingFiles |= e_VE_DegeMissing | e_VE_FixError;
 
 	if ( GetFileAttributes(".\\DLL\\GliVd1Vf.dll") == INVALID_FILE_ATTRIBUTES )
-		g_veMissingFiles |= VE_GLIDE_MISSING | VE_GAME_ERROR;
+		g_eMissingFiles |= e_VE_GlideMissing | e_VE_GameError;
 
 	if ( GetFileAttributes(".\\DLL\\GliFixVf.dll") == INVALID_FILE_ATTRIBUTES )
-		g_veMissingFiles |= VE_FIX_MISSING | VE_FIX_ERROR;
+		g_eMissingFiles |= e_VE_FixMissing | e_VE_FixError;
 
 	if ( GetFileAttributes(".\\dinput.dll") == INVALID_FILE_ATTRIBUTES )
-		g_veMissingFiles |= VE_DINPUT_MISSING | VE_FIX_ERROR;
+		g_eMissingFiles |= e_VE_DinputMissing | e_VE_FixError;
 }

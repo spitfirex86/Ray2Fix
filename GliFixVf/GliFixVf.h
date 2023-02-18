@@ -1,24 +1,28 @@
 #pragma once
+
 #include "framework.h"
 #include "devinfo.h"
 
-#define NAKED __declspec(naked)
-#define JUMP(lpfn) do { __asm { jmp lpfn } } while(0)
 
-//
-// EXPORTED FUNCTIONS
-//
+#define NAKED __declspec(naked)
+#define JMP(lpfn) do { __asm { jmp lpfn } } while(0)
+
+
+/*
+ * Exported functions
+ */
 
 EXPORT BOOL GLI_DRV_lGetDllInfo( const char *szType, void *lpDst );
-EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( GliSet gliSet );
+EXPORT BOOL GLI_DRV_fn_lGetAllDisplayConfig( tdfnGliSet p_fn_vGliSet );
 EXPORT BOOL GLI_DRV_lSetCommonData( const char *szName, void *value );
-EXPORT BOOL GLI_DRV_lSetCommonFct( const char *szName, CommonFct lpFn );
+EXPORT BOOL GLI_DRV_lSetCommonFct( const char *szName, tdfnCommonFct lpFn );
 EXPORT BOOL GLI_DRV_fnl_EnumModes( char *szDrvDspName, char *szDevName );
 EXPORT DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int yBottom, int lBitDepth );
 
-//
-// REDIRECTED EXPORTS
-//
+
+/*
+ * Redirected exports
+ */
 
 EXPORT void GLI_DRV_vCloseDriver();
 EXPORT BOOL GLI_DRV_bBeginScene();

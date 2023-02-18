@@ -1,12 +1,14 @@
 #pragma once
 
-typedef enum tagTWEAKS
+
+typedef enum tdeTweaks_
 {
-	TWK_NO_TWEAKS = 0,
+	e_TWK_NoTweaks = 0,
 	
-	TWK_SHOWPOS = 1 << 0,
-	TWK_LUMCONTROL = 1 << 1,
-	TWK_MODLOADER = 1 << 2,
+	e_TWK_ShowPos = 1 << 0,
+	e_TWK_LuminosityKeys = 1 << 1,
+	e_TWK_ModLoader = 1 << 2,
 	
-	TWK_ALL_TWEAKS = (1 << 3) - 1
-} TWEAKS;
+	e_TWK_AllTweaks = (1 << 3) - 1
+}
+tdeTweaks;

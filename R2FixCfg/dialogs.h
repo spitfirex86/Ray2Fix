@@ -1,21 +1,26 @@
 #pragma once
+
 #include "framework.h"
 
-typedef enum tagTAB_ID
-{
-	TAB_GENERAL,
-	TAB_PAD,
-	TAB_TWEAKS,
-	NUM_TABS
-} TAB_ID;
 
-typedef struct tagTAB_INFO
+typedef enum tdeTabID_
+{
+	e_TAB_General,
+	e_TAB_Pad,
+	e_TAB_Tweaks,
+	e_NbTab
+}
+tdeTabID;
+
+typedef struct tdstTabInfo_
 {
 	int lDlgId;
 	char szTabName[50];
-	DLGPROC lpDlgProc;
-} TAB_INFO;
+	DLGPROC pfnDlgProc;
+}
+tdstTabInfo;
 
-BOOL CALLBACK GeneralDialogProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-BOOL CALLBACK PadDialogProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-BOOL CALLBACK TweaksDialogProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+
+BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+BOOL CALLBACK DLG_fn_bProc_Pad( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+BOOL CALLBACK DLG_fn_bProc_Tweaks( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

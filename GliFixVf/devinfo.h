@@ -1,70 +1,73 @@
 #pragma once
+
 #include "framework.h"
 
-//
-// RENDERER INFO
-//
 
-extern const char *GLI_szName;
-extern const char *GLI_szDesc;
-extern const char *GLI_szVersion;
-extern const int GLI_lCode;
+/*
+ * Renderer Info
+ */
 
-//
-// DEVICE CAPABILITIES
-//
+extern char const *GLI_szName;
+extern char const *GLI_szDesc;
+extern char const *GLI_szVersion;
+extern int const GLI_lCode;
+
+
+/*
+ * Device Capabilities
+ */
 
 // Device capability flags
-typedef enum tagDC_DEVICE
+typedef enum tdeDeviceFlags_
 {
-	DF_HARDWARE_ACCEL = 1 << 0,
-	DF_AGP_MEM = 1 << 1,
-	DF_SYS_MEM = 1 << 2,
-	DF_WINDOWED = 1 << 3,
-	DF_ALPHA_TEST = 1 << 4,
-	DF_READJUST_VIEWPORT = 1 << 5
+	e_DF_HardwareAccel = 1 << 0,
+	e_DF_AgpMem = 1 << 1,
+	e_DF_SysMem = 1 << 2,
+	e_DF_Windowed = 1 << 3,
+	e_DF_AlphaTest = 1 << 4,
+	e_DF_ReadjustViewport = 1 << 5
 	// ...
-} DC_DEVICE;
+}
+tdeDeviceFlags;
 
 // Texture capability flags
-typedef enum tagDC_TEXTURE
+typedef enum tdeTextureFlags_
 {
-	TF_PALETTIZED = 1 << 0,
-	TF_NONSQUARE = 1 << 1,
-	TF_MIPMAP = 1 << 2,
-	TF_MIRROR = 1 << 3
+	e_TF_Palettized = 1 << 0,
+	e_TF_NonSquare = 1 << 1,
+	e_TF_MipMap = 1 << 2,
+	e_TF_Mirror = 1 << 3
 	// ...
-} DC_TEXTURE;
+}
+tdeTextureFlags;
 
 // Device capabilites
-typedef struct tagDEV_CAPS
+typedef struct tdstDevCaps_
 {
 	char _char0; // ?
-	DC_DEVICE DeviceFlags;
-	DC_TEXTURE TextureFlags;
+	tdeDeviceFlags eDeviceFlags;
+	tdeTextureFlags eTextureFlags;
 	BYTE _gapC[8]; // ?
-	DWORD TextureMaxSize;
-	DWORD TextureMem;
-	DWORD VideoMemLocal;
-	DWORD VideoMemNonLocal;
+	DWORD ulTextureMaxSize;
+	DWORD ulTextureMem;
+	DWORD ulVideoMemLocal;
+	DWORD ulVideoMemNonLocal;
 	BYTE _byte24; // ?
-	float RefreshRate;
-} DEV_CAPS;
+	float xRefreshRate;
+}
+tdstDevCaps;
 
-
-//
-// FUNCTION POINTER TYPES
-//
 
 // GLI property set function, used in GLI_DRV_fn_lGetAllDisplayConfig
-typedef int (*GliSet)(DWORD display, DWORD device, DWORD mode, const char *szAction, const void *value);
+typedef int (*tdfnGliSet)( DWORD display, DWORD device, DWORD mode, const char *szAction, const void *value );
 
 // Common function, used in GLI_DRV_lSetCommonFct
-typedef int (*CommonFct)();
+typedef int (*tdfnCommonFct)();
 
-//
-// GLISET ACTIONS
-//
+
+/*
+ * GliSet Actions
+ */
 
 extern const char *GS_BMP;
 extern const char *GS_ADD_DISPLAY;

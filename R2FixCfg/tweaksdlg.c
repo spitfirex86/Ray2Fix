@@ -4,6 +4,7 @@
 #include "config.h"
 #include "main.h"
 
+
 HWND hDlg;
 
 HWND hShowPos;
@@ -12,12 +13,8 @@ HWND hModLoader;
 
 // TODO: reenable checkboxes after adding missing tweaks
 
-BOOL CALLBACK TweaksDialogProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam
-	)
+
+BOOL CALLBACK DLG_fn_bProc_Tweaks( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch ( uMsg )
 	{
@@ -28,10 +25,10 @@ BOOL CALLBACK TweaksDialogProc(
 		hLumControl = GetDlgItem(hWnd, IDC_LUMCONTROL);
 		hModLoader = GetDlgItem(hWnd, IDC_MODLOADER);
 
-		Button_SetCheck(hShowPos, (g_lTweaks & TWK_SHOWPOS) ? TRUE : FALSE);
-		Button_SetCheck(hLumControl, (g_lTweaks & TWK_LUMCONTROL) ? TRUE : FALSE);
-		Button_SetCheck(hModLoader, (g_lTweaks & TWK_MODLOADER) ? TRUE : FALSE);
-		break;
+		Button_SetCheck(hShowPos, (g_eTweaks & e_TWK_ShowPos) ? TRUE : FALSE);
+		Button_SetCheck(hLumControl, (g_eTweaks & e_TWK_LuminosityKeys) ? TRUE : FALSE);
+		Button_SetCheck(hModLoader, (g_eTweaks & e_TWK_ModLoader) ? TRUE : FALSE);
+		return TRUE;
 
 	case WM_COMMAND:
 		switch ( LOWORD(wParam) )
@@ -39,45 +36,41 @@ BOOL CALLBACK TweaksDialogProc(
 		case IDC_SHOWPOS:
 			if ( Button_GetCheck(hShowPos) )
 			{
-				g_lTweaks |= TWK_SHOWPOS;
+				g_eTweaks |= e_TWK_ShowPos;
 			}
 			else
 			{
-				g_lTweaks &= ~TWK_SHOWPOS;
+				g_eTweaks &= ~e_TWK_ShowPos;
 			}
 			g_bUnsavedChanges = TRUE;
-			break;
+			return TRUE;
 			
 		case IDC_LUMCONTROL:
 			if ( Button_GetCheck(hLumControl) )
 			{
-				g_lTweaks |= TWK_LUMCONTROL;
+				g_eTweaks |= e_TWK_LuminosityKeys;
 			}
 			else
 			{
-				g_lTweaks &= ~TWK_LUMCONTROL;
+				g_eTweaks &= ~e_TWK_LuminosityKeys;
 			}
 			g_bUnsavedChanges = TRUE;
-			break;
+			return TRUE;
 			
 		case IDC_MODLOADER:
 			if ( Button_GetCheck(hModLoader) )
 			{
-				g_lTweaks |= TWK_MODLOADER;
+				g_eTweaks |= e_TWK_ModLoader;
 			}
 			else
 			{
-				g_lTweaks &= ~TWK_MODLOADER;
+				g_eTweaks &= ~e_TWK_ModLoader;
 			}
 			g_bUnsavedChanges = TRUE;
-			break;
-			
-		default: return FALSE;
+			return TRUE;
 		}
 		break;
-
-	default: return FALSE;
 	}
 
-	return TRUE;
+	return FALSE;
 }

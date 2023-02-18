@@ -1,40 +1,45 @@
 #pragma once
+
 #include "framework.h"
 #include "../GliFixVf/shared.h"
 #include "display.h"
 
-typedef enum tagVERIFY_ERR
-{
-	VE_OK = 0,
-	VE_GAME_ERROR = 1 << 0,
-	VE_FIX_ERROR = 1 << 1,
-	VE_UBI_MISSING = 1 << 2,
-	VE_DEGE_MISSING = 1 << 3,
-	VE_GLIDE_MISSING = 1 << 4,
-	VE_FIX_MISSING = 1 << 5,
-	VE_DINPUT_MISSING = 1 << 6
-} VERIFY_ERR;
 
-//
-// GLOBAL VARS
-//
+typedef enum tdeVerifyErr_
+{
+	e_VE_Ok = 0,
+	e_VE_GameError = 1 << 0,
+	e_VE_FixError = 1 << 1,
+	e_VE_UbiMissing = 1 << 2,
+	e_VE_DegeMissing = 1 << 3,
+	e_VE_GlideMissing = 1 << 4,
+	e_VE_FixMissing = 1 << 5,
+	e_VE_DinputMissing = 1 << 6
+}
+tdeVerifyErr;
+
+
+/*
+ * Global Vars
+ */
 
 extern BOOL g_bFixState;
 extern BOOL g_bFixPrevState;
 
-extern TWEAKS g_lTweaks;
+extern tdeTweaks g_eTweaks;
 
-extern DISP_MODE g_dmCurrentMode;
-extern REFRATE g_lRefRate;
+extern tdstDisplayMode g_stCurrentMode;
+extern tdeRefRate g_eRefRate;
 extern BOOL g_bForceVsync;
 extern BOOL g_bFullscreen;
 
-extern VERIFY_ERR g_veMissingFiles;
+extern tdeVerifyErr g_eMissingFiles;
 
-//
-// FUNCTIONS
-//
 
-void ReadConfig( void );
-void WriteConfig( void );
-void VerifyFiles( void );
+/*
+ * Functions
+ */
+
+void CFG_fn_vRead( void );
+void CFG_fn_vWrite( void );
+void CFG_fn_vVerify( void );

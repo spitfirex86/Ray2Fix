@@ -1,15 +1,16 @@
 #include "framework.h"
 #include "imports.h"
 
-//
-// GLI LIBRARY IMPORTS
-//
+
+/*
+ * GLI Library imports
+ */
 
 BOOL (*Vd_GLI_DRV_lGetDllInfo)( const char *, void * ) = NULL;
-BOOL (*Vd_GLI_DRV_fn_lGetAllDisplayConfig)( GliSet ) = NULL;
+BOOL (*Vd_GLI_DRV_fn_lGetAllDisplayConfig)( tdfnGliSet ) = NULL;
 
 BOOL (*Vd_GLI_DRV_lSetCommonData)( const char *, void * ) = NULL;
-BOOL (*Vd_GLI_DRV_lSetCommonFct)( const char *, CommonFct ) = NULL;
+BOOL (*Vd_GLI_DRV_lSetCommonFct)( const char *, tdfnCommonFct ) = NULL;
 
 BOOL (*Vd_GLI_DRV_fnl_EnumModes)( char *, char * ) = NULL;
 
@@ -52,12 +53,13 @@ void (*Vd_GLI_DRV_vWrite16bBitmapToBackBuffer)( int, int, int, int, int, int, in
 
 HMODULE hGliVd = NULL;
 
+
 void *fn_lpGetFn( LPCSTR szName )
 {
 	return (void*)GetProcAddress(hGliVd, szName);
 }
 
-void IMP_vLoadGliLibrary( void )
+void IMP_fn_vLoadGliLibrary( void )
 {
 	hGliVd = LoadLibrary(".\\DLL\\GliVd1vf.dll");
 

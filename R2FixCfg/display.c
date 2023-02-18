@@ -1,9 +1,11 @@
 #include "framework.h"
 #include "config.h"
 
-DISP_MODE g_aDispModes[MAX_MODES];
 
-BOOL IsSafeResolution( DISP_MODE *lpMode )
+tdstDisplayMode g_a_stDispModes[C_MaxModes];
+
+
+BOOL fn_bIsSafeResolution( tdstDisplayMode *lpMode )
 {
 	// Safe resolutions are the two most commonly used in speedruns: 1024x768 and 1280x1024.
 	// They're the most likely to work without any issues on most PCs.
@@ -17,7 +19,7 @@ BOOL IsSafeResolution( DISP_MODE *lpMode )
 	return FALSE;
 }
 
-BOOL IsDuplicateMode( DISP_MODE *lpMode, int nModes )
+BOOL fn_bIsDuplicateMode( tdstDisplayMode *lpMode, int nModes )
 {
 	// This is dumb, but apparently EnumDisplaySettings does not always return the resolutions
 	// in an order that makes sense. Which means we can't just compare it to the previous one
@@ -25,7 +27,7 @@ BOOL IsDuplicateMode( DISP_MODE *lpMode, int nModes )
 
 	for ( int i = 0; i < nModes; i++ )
 	{
-		DISP_MODE *prevMode = &g_aDispModes[i];
+		tdstDisplayMode *prevMode = &g_a_stDispModes[i];
 
 		if ( lpMode->dwWidth == prevMode->dwWidth && lpMode->dwHeight == prevMode->dwHeight )
 			return TRUE;
@@ -34,35 +36,35 @@ BOOL IsDuplicateMode( DISP_MODE *lpMode, int nModes )
 	return FALSE;
 }
 
-void AddCustomModeIfSet( int nModes )
+void fn_vAddCustomModeIfSet( int nModes )
 {
-	if ( g_dmCurrentMode.dwWidth <= 0 || g_dmCurrentMode.dwHeight <= 0 ||
-		 IsDuplicateMode(&g_dmCurrentMode, nModes) )
+	if ( g_stCurrentMode.dwWidth <= 0 || g_stCurrentMode.dwHeight <= 0 ||
+		 fn_bIsDuplicateMode(&g_stCurrentMode, nModes) )
 		return;
 
-	g_dmCurrentMode.dmfFlags |= DMF_CUSTOM;
-	g_aDispModes[nModes] = g_dmCurrentMode;
+	g_stCurrentMode.eFlags |= e_DMF_Custom;
+	g_a_stDispModes[nModes] = g_stCurrentMode;
 }
 
-void FindBestResolution( int nModes )
+void fn_vFindBestResolution( int nModes )
 {
 	RECT rcWorkArea = { 0 };
 	SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
 
 	for ( int i = nModes - 1; i >= 0; i-- )
 	{
-		DISP_MODE *mode = &g_aDispModes[i];
+		tdstDisplayMode *mode = &g_a_stDispModes[i];
 
 		// Find the largest resolution that fits in the work area
 		if ( (int)mode->dwWidth <= rcWorkArea.right && (int)mode->dwHeight <= rcWorkArea.bottom )
 		{
-			mode->dmfFlags |= DMF_BEST;
+			mode->eFlags |= e_DMF_Best;
 			return;
 		}
 	}
 }
 
-void EnumResolutions( void )
+void DSP_fn_vEnumResolutions( void )
 {
 	DEVMODE dm = { 0 };
 	dm.dmSize = sizeof(dm);
@@ -71,16 +73,16 @@ void EnumResolutions( void )
 
 	for ( int i = 0; EnumDisplaySettings(NULL, i, &dm) != 0; i++ )
 	{
-		DISP_MODE mode = {
+		tdstDisplayMode mode = {
 			dm.dmPelsWidth,
 			dm.dmPelsHeight,
-			DMF_NONE
+			e_DMF_None
 		};
 
 		if ( mode.dwWidth <= 0 || mode.dwHeight <= 0 )
 			continue;
 
-		if ( IsDuplicateMode(&mode, nModes) )
+		if ( fn_bIsDuplicateMode(&mode, nModes) )
 			continue;
 
 		DWORD ratio = 100 * dm.dmPelsHeight / dm.dmPelsWidth;
@@ -88,13 +90,13 @@ void EnumResolutions( void )
 		// Only add resolutions "close" to 4:3 or 5:4 ratio
 		if ( ratio > 73 && ratio < 82 )
 		{
-			if ( IsSafeResolution(&mode) )
-				mode.dmfFlags |= DMF_SAFE;
+			if ( fn_bIsSafeResolution(&mode) )
+				mode.eFlags |= e_DMF_Safe;
 
-			g_aDispModes[nModes++] = mode;
+			g_a_stDispModes[nModes++] = mode;
 		}
 	}
 
-	FindBestResolution(nModes);
-	AddCustomModeIfSet(nModes);
+	fn_vFindBestResolution(nModes);
+	fn_vAddCustomModeIfSet(nModes);
 }
