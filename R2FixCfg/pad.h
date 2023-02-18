@@ -2,7 +2,12 @@
 #include "framework.h"
 
 
-typedef enum tdeAnalogAction
+#define C_Pad_InvalidAction (-1)
+#define C_Pad_MaxName 40
+#define C_Pad_MaxCfgString 80
+
+
+typedef enum tdeAnalogAction_
 {
 	#define M_DefineAction(Id, szName, szCfg_X, szCfg_Y) Id,
 	#include "def_analog.h"
@@ -11,7 +16,7 @@ typedef enum tdeAnalogAction
 }
 tdeAnalogAction;
 
-typedef enum tdeButtonAction
+typedef enum tdeButtonAction_
 {
 	#define M_DefineAction(Id, szName, szCfg) Id,
 	#include "def_button.h"
@@ -20,7 +25,7 @@ typedef enum tdeButtonAction
 }
 tdeButtonAction;
 
-typedef enum tdePadInput
+typedef enum tdePadInput_
 {
 	#define M_DefineInput(Id, lCtrl, bAnalog, szCfg) Id,
 	#include "def_pad.h"
@@ -30,29 +35,48 @@ typedef enum tdePadInput
 tdePadInput;
 
 
-typedef struct tdstPadConfig
+typedef struct tdstAnalogAction_
 {
-	int lCtrlId;
-	HWND hCtrl;
-
-	BOOL bIsAnalog;
-	int lAction;
-
-	char szName[40];
+	int lId;
+	char szName[C_Pad_MaxName];
+	char szConfigString_X[C_Pad_MaxCfgString];
+	char szConfigString_Y[C_Pad_MaxCfgString];
 }
-tdstPadConfig;
+tdstAnalogAction;
 
-typedef struct tdstAction
+typedef struct tdstAction_
 {
-	char szName[40];
-	char szConfigString[80];
+	int lId;
+	char szName[C_Pad_MaxName];
+	char szConfigString[C_Pad_MaxCfgString];
 }
 tdstAction;
 
-typedef struct tdstAnalogAction
+typedef struct tdstPadConfig_
 {
-	char szName[40];
-	char szConfigString_X[80];
-	char szConfigString_Y[80];
+	int lId;
+	int lAction;
+	BOOL bIsAnalog;
+	char szName[C_Pad_MaxName];
 }
-tdstAnalogAction;
+tdstPadConfig;
+
+typedef struct tdstPadDlgItem_
+{
+	int lId;
+	int lCtrlId;
+	HWND hCtrl;
+	BOOL bIsAnalog;
+}
+tdstPadDlgItem;
+
+
+extern char const *g_szXidiPath;
+
+extern tdstAnalogAction g_a_stAnalogAction[E_NbAnalogAction];
+extern tdstAction g_a_stButtonAction[E_NbButtonAction];
+extern tdstPadConfig g_a_stPadInput[E_NbPadInput];
+
+
+void PAD_fn_vRead( void );
+void PAD_fn_vWrite( void );

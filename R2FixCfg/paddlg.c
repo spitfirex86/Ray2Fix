@@ -6,32 +6,23 @@
 #include "pad.h"
 
 
-tdstAnalogAction a_stAnalogAction[E_NbAnalogAction] = {
-	#define M_DefineAction(Id, szName, szCfg_X, szCfg_Y) [Id] = { szName, szCfg_X, szCfg_Y },
-	#include "def_analog.h"
-};
-tdstAction a_stButtonAction[E_NbButtonAction] = {
-	#define M_DefineAction(Id, szName, szCfg) { szName, szCfg },
-	#include "def_button.h"
-};
+HWND hDlg;
 
-tdstPadConfig a_stPadInput[E_NbPadInput] = {
-	#define M_DefineInput(Id, lCtrl, bAnalog, szCfg) { lCtrl, NULL, bAnalog, 0, szCfg },
+tdstPadDlgItem a_stPadDlgItem[E_NbPadInput] = {
+	#define M_DefineInput(Id, lCtrl, bAnalog, szCfg) { Id, lCtrl, NULL, bAnalog },
 	#include "def_pad.h"
 };
 
-HWND hDlg;
 
-
-void fn_vPopulateInputCB( tdstPadConfig *pInput )
+void fn_vPopulateInputCB( tdstPadDlgItem *pItem )
 {
-	HWND hCtrl = pInput->hCtrl;
+	HWND hCtrl = pItem->hCtrl;
 
-	if ( pInput->bIsAnalog )
+	if ( pItem->bIsAnalog )
 	{
 		for ( int i = 0; i < E_NbAnalogAction; i++ )
 		{
-			int lId = ComboBox_AddString(hCtrl, a_stAnalogAction[i].szName);
+			int lId = ComboBox_AddString(hCtrl, g_a_stAnalogAction[i].szName);
 			ComboBox_SetItemData(hCtrl, lId, i);
 		}
 	}
@@ -39,9 +30,40 @@ void fn_vPopulateInputCB( tdstPadConfig *pInput )
 	{
 		for ( int i = 0; i < E_NbButtonAction; i++ )
 		{
-			int lId = ComboBox_AddString(hCtrl, a_stButtonAction[i].szName);
+			int lId = ComboBox_AddString(hCtrl, g_a_stButtonAction[i].szName);
 			ComboBox_SetItemData(hCtrl, lId, i);
 		}
+	}
+
+	ComboBox_SetCurSel(hCtrl, g_a_stPadInput[pItem->lId].lAction);
+}
+
+tdstPadDlgItem * fn_p_stGetPadDlgItem( int lCtrlId )
+{
+	for ( int i = 0; i < E_NbPadInput; i++ )
+	{
+		tdstPadDlgItem *pItem = &a_stPadDlgItem[i];
+
+		if ( pItem->lCtrlId == lCtrlId )
+			return pItem;
+	}
+
+	return NULL;
+}
+
+void fn_vUpdatePadInput( tdstPadDlgItem *pItem )
+{
+	tdstPadConfig *pInput = &g_a_stPadInput[pItem->lId];
+
+	int lIdx = ComboBox_GetCurSel(pItem->hCtrl);
+	if ( lIdx > -1 )
+	{
+		int lActionId = ComboBox_GetItemData(pItem->hCtrl, lIdx);
+		pInput->lAction = lActionId;
+	}
+	else
+	{
+		pInput->lAction = C_Pad_InvalidAction;
 	}
 }
 
@@ -54,18 +76,24 @@ BOOL CALLBACK DLG_fn_bProc_Pad( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 			for ( int i = 0; i < E_NbPadInput; i++ )
 			{
-				tdstPadConfig *pInput = &a_stPadInput[i];
-				pInput->hCtrl = GetDlgItem(hWnd, pInput->lCtrlId);
+				tdstPadDlgItem *pItem = &a_stPadDlgItem[i];
+				pItem->hCtrl = GetDlgItem(hWnd, pItem->lCtrlId);
 
-				fn_vPopulateInputCB(pInput);
+				fn_vPopulateInputCB(pItem);
 			}
 			return TRUE;
 
 		case WM_COMMAND:
-			switch ( LOWORD(wParam) )
+		{
+			tdstPadDlgItem *pItem = fn_p_stGetPadDlgItem(LOWORD(wParam));
+			if ( pItem && HIWORD(wParam) == CBN_SELCHANGE )
 			{
+				fn_vUpdatePadInput(pItem);
+				g_bUnsavedChanges = TRUE;
+				return TRUE;
 			}
 			break;
+		}
 	}
 
 	return FALSE;

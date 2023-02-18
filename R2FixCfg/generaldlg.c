@@ -82,32 +82,56 @@ void fn_vUpdateStatus( HWND hEdit, HWND hButton )
 
 	int nChars = 0;
 
-	if ( g_eMissingFiles == e_VE_Ok )
+	if ( g_eError == e_ES_Ok )
 	{
 		nChars += sprintf_s(szStatusLine, sizeof(szStatusLine), szMsgTemplate, szCurrentStatus);
 		nChars += LoadStringAtChar(IDS_VE_OK, szStatusLine, nChars);
 	}
-	else
+	else if ( g_eError == e_ES_Warning )
 	{
-		nChars += LoadStringAtChar(IDS_VE_HEADER, szStatusLine, nChars);
+		nChars += sprintf_s(szStatusLine, sizeof(szStatusLine), szMsgTemplate, szCurrentStatus);
+	}
 
-		if ( g_eMissingFiles & e_VE_DegeMissing )
-			nChars += LoadStringAtChar(IDS_VE_DEGE, szStatusLine, nChars);
+	if ( g_eError >= e_ES_Warning )
+	{
+		if ( g_eErrorDetails & e_VE_FilesMissing )
+		{
+			nChars += LoadStringAtChar(IDS_VE_HEADER, szStatusLine, nChars);
 
-		if ( g_eMissingFiles & e_VE_FixMissing )
-			nChars += LoadStringAtChar(IDS_VE_FIX, szStatusLine, nChars);
+			if ( g_eErrorDetails & e_VE_DegeMissing )
+				nChars += LoadStringAtChar(IDS_VE_DEGE, szStatusLine, nChars);
 
-		if ( g_eMissingFiles & e_VE_DinputMissing )
-			nChars += LoadStringAtChar(IDS_VE_DINPUT, szStatusLine, nChars);
+			if ( g_eErrorDetails & e_VE_FixMissing )
+				nChars += LoadStringAtChar(IDS_VE_FIX, szStatusLine, nChars);
 
-		if ( g_eMissingFiles & e_VE_GlideMissing )
-			nChars += LoadStringAtChar(IDS_VE_GLIDE, szStatusLine, nChars);
+			if ( g_eErrorDetails & e_VE_DinputMissing )
+				nChars += LoadStringAtChar(IDS_VE_DINPUT, szStatusLine, nChars);
 
-		if ( g_eMissingFiles & e_VE_FixError )
+			if ( g_eErrorDetails & e_VE_GlideMissing )
+				nChars += LoadStringAtChar(IDS_VE_GLIDE, szStatusLine, nChars);
+
+			if ( g_eErrorDetails & e_VE_XidiMissing )
+				nChars += LoadStringAtChar(IDS_VE_XIDI, szStatusLine, nChars);
+		}
+		else
+		{
+			nChars += LoadStringAtChar(IDS_VE_OKWARN, szStatusLine, nChars);
+		}
+
+		if ( g_eError & e_ES_FixError )
 			nChars += LoadStringAtChar(IDS_VE_REINSTALLFIX, szStatusLine, nChars);
 
-		if ( g_eMissingFiles & e_VE_GameError )
+		if ( g_eError & e_ES_GameError )
 			nChars += LoadStringAtChar(IDS_VE_REINSTALLR2, szStatusLine, nChars);
+
+		if ( g_eError & e_ES_Warning )
+		{
+			if ( g_eErrorDetails & e_VE_XidiMissing )
+				nChars += LoadStringAtChar(IDS_VE_SETPAD, szStatusLine, nChars);
+
+			if ( g_eErrorDetails & e_VE_XidiModified )
+				nChars += LoadStringAtChar(IDS_VE_XIDICHANGED, szStatusLine, nChars);
+		}
 	}
 
 	Edit_SetText(hEdit, szStatusLine);

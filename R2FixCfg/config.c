@@ -1,5 +1,6 @@
 #include "framework.h"
 #include "config.h"
+#include "pad.h"
 
 
 /*
@@ -16,7 +17,8 @@ tdeRefRate g_eRefRate = e_RR_Full;
 BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
 
-tdeVerifyErr g_eMissingFiles = e_VE_Ok;
+tdeErrorState g_eError = e_ES_Ok;
+tdeVerifyErr g_eErrorDetails = e_VE_Ok;
 
 
 /*
@@ -25,9 +27,6 @@ tdeVerifyErr g_eMissingFiles = e_VE_Ok;
 
 char const *szDegePath = ".\\dgVoodoo.conf";
 char const *szUbiPath = ".\\Ubi.ini";
-
-char const *szUbiR2 = "Rayman2";
-char const *szUbiFix = "Ray2Fix";
 
 char const *szTrue = "true";
 char const *szFalse = "false";
@@ -59,7 +58,7 @@ void fn_vReadUbiIni( void )
 	char szBuffer[128];
 
 	// GLI library
-	GetPrivateProfileString(szUbiR2, "GLI_Dll", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	GetPrivateProfileString("Rayman2", "GLI_Dll", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
 	if ( !strcmp(szBuffer, "Ray2Fix") )
 	{
 		g_bFixState = g_bFixPrevState = TRUE;
@@ -69,7 +68,7 @@ void fn_vReadUbiIni( void )
 	DWORD dwHeight = 0;
 
 	// Display mode
-	GetPrivateProfileString(szUbiR2, "GLI_Mode", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	GetPrivateProfileString("Rayman2", "GLI_Mode", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
 	int nParsed = sscanf_s(szBuffer, "1 - %d x %d", &dwWidth, &dwHeight);
 
 	if ( nParsed == 2 && dwWidth > 0 && dwHeight > 0 )
@@ -79,7 +78,7 @@ void fn_vReadUbiIni( void )
 	}
 
 	// Tweaks
-	g_eTweaks = GetPrivateProfileInt(szUbiFix, "Tweaks", 0, szUbiPath);
+	g_eTweaks = GetPrivateProfileInt("Ray2Fix", "Tweaks", 0, szUbiPath);
 }
 
 void fn_vReadDegeIni( void )
@@ -117,27 +116,27 @@ void fn_vWriteUbiIni( void )
 
 	// GLI library path & name
 	char *szDllFile = g_bFixState ? "GliFix" : "GliVd1";
-	WritePrivateProfileString(szUbiR2, "GLI_DllFile", szDllFile, szUbiPath);
+	WritePrivateProfileString("Rayman2", "GLI_DllFile", szDllFile, szUbiPath);
 
 	char *szDll = g_bFixState ? "Ray2Fix" : "Glide2";
-	WritePrivateProfileString(szUbiR2, "GLI_Dll", szDll, szUbiPath);
+	WritePrivateProfileString("Rayman2", "GLI_Dll", szDll, szUbiPath);
 
 	// Doesn't really matter but write "Default" anyway
 	char *szDevice = "Default";
-	WritePrivateProfileString(szUbiR2, "GLI_Driver", szDevice, szUbiPath);
-	WritePrivateProfileString(szUbiR2, "GLI_Device", szDevice, szUbiPath);
+	WritePrivateProfileString("Rayman2", "GLI_Driver", szDevice, szUbiPath);
+	WritePrivateProfileString("Rayman2", "GLI_Device", szDevice, szUbiPath);
 
 	// Display mode
 	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x 16", g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight);
-	WritePrivateProfileString(szUbiR2, "GLI_Mode", szBuffer, szUbiPath);
+	WritePrivateProfileString("Rayman2", "GLI_Mode", szBuffer, szUbiPath);
 
 	// Tweaks
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_eTweaks);
-	WritePrivateProfileString(szUbiFix, "Tweaks", szBuffer, szUbiPath);
+	WritePrivateProfileString("Ray2Fix", "Tweaks", szBuffer, szUbiPath);
 
 	// Refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_eRefRate == e_RR_Half));
-	WritePrivateProfileString(szUbiFix, "HalfRefRate", szBuffer, szUbiPath);
+	WritePrivateProfileString("Ray2Fix", "HalfRefRate", szBuffer, szUbiPath);
 }
 
 void fn_vWriteDegeIni( void )
@@ -185,12 +184,14 @@ void CFG_fn_vRead( void )
 {
 	fn_vReadUbiIni();
 	fn_vReadDegeIni();
+	PAD_fn_vRead();
 }
 
 void CFG_fn_vWrite( void )
 {
 	fn_vWriteUbiIni();
 	fn_vWriteDegeIni();
+	PAD_fn_vWrite();
 }
 
 void CFG_fn_vVerify( void )
@@ -202,17 +203,37 @@ void CFG_fn_vVerify( void )
 	}
 
 	if ( GetFileAttributes(szUbiPath) == INVALID_FILE_ATTRIBUTES )
-		g_eMissingFiles |= e_VE_UbiMissing;
+	{
+		g_eErrorDetails |= e_VE_FilesMissing | e_VE_UbiMissing;
+	}
 
 	if ( GetFileAttributes(szDegePath) == INVALID_FILE_ATTRIBUTES )
-		g_eMissingFiles |= e_VE_DegeMissing | e_VE_FixError;
+	{
+		g_eError |= e_ES_FixError;
+		g_eErrorDetails |= e_VE_FilesMissing | e_VE_DegeMissing;
+	}
 
 	if ( GetFileAttributes(".\\DLL\\GliVd1Vf.dll") == INVALID_FILE_ATTRIBUTES )
-		g_eMissingFiles |= e_VE_GlideMissing | e_VE_GameError;
+	{
+		g_eError |= e_ES_GameError;
+		g_eErrorDetails |= e_VE_FilesMissing | e_VE_GlideMissing;
+	}
 
 	if ( GetFileAttributes(".\\DLL\\GliFixVf.dll") == INVALID_FILE_ATTRIBUTES )
-		g_eMissingFiles |= e_VE_FixMissing | e_VE_FixError;
+	{
+		g_eError |= e_ES_FixError;
+		g_eErrorDetails |= e_VE_FilesMissing | e_VE_FixMissing;
+	}
 
 	if ( GetFileAttributes(".\\dinput.dll") == INVALID_FILE_ATTRIBUTES )
-		g_eMissingFiles |= e_VE_DinputMissing | e_VE_FixError;
+	{
+		g_eError |= e_ES_FixError;
+		g_eErrorDetails |= e_VE_FilesMissing | e_VE_DinputMissing;
+	}
+
+	if ( GetFileAttributes(g_szXidiPath) == INVALID_FILE_ATTRIBUTES )
+	{
+		g_eError |= e_ES_Warning;
+		g_eErrorDetails |= e_VE_FilesMissing | e_VE_XidiMissing;
+	}
 }

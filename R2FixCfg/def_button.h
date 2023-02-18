@@ -30,8 +30,13 @@
 
 	M_DefineAction( E_BAc_Think,			"Think (F1)",				"Keyboard(F1)" )
 	M_DefineAction( E_BAc_HUD,				"HUD (J)",					"Button(6)" )
+	M_DefineAction( E_BAc_HUD_Accept,		"HUD / Accept",				"Compound(Button(6),Keyboard(Enter))" )
 	M_DefineAction( E_BAc_ScreenShot,		"Screenshot",				"Keyboard(F8)" )
 	M_DefineAction( E_BAc_Pause,			"Pause",					"Keyboard(Esc)" )
+
+	M_DefineAction( E_BAc_Accept,			"Accept (Enter)",			"Keyboard(Enter)" )
+	M_DefineAction( E_BAc_Cancel,			"Cancel (Backspace)",		"Keyboard(Backspace)" )
+
 
 /********************************************************************************************************************/
 

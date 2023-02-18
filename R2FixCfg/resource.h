@@ -29,6 +29,12 @@
 #define IDS_VE_GLIDE                    121
 #define IDS_VE_FIX                      122
 #define IDS_VE_DINPUT                   123
+#define IDS_VE_XIDI                     124
+#define IDS_VE_SETPAD                   125
+#define IDS_VE_XIDICHANGED              126
+#define IDS_WARNING                     127
+#define IDS_VE_OKWARN                   128
+#define IDS_NEWLINE                     129
 #define IDC_MAINTOGGLE                  1001
 #define IDC_STATUSLINE                  1002
 #define IDC_TAB1                        1006
