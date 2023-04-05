@@ -12,18 +12,15 @@ void fn_vInitDll( void )
 
 	if ( CFG_bIsMainModuleR2 )
 	{
-		// Game is running, fix stuff
-		FIX_fn_vPatchFramerate();
+		/* Loaded in the game, patch all */
 		FIX_fn_vAttachHooks();
 
 		if ( CFG_eTweaks )
-		{
 			TWK_fn_vInitTweaks();
-		}
 	}
 	else
 	{
-		// Most likely GxSetup/GliDetect
+		/* Probably loaded in GxSetup/GliDetect, only patch mode enum */
 		FIX_fn_vRemoveModeEnum();
 	}
 }

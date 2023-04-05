@@ -25,7 +25,7 @@ BOOL CALLBACK FIX_fn_InputEnum( void *lpddi, void *pvRef )
 	// Call original function
 	R2_fn_InputEnum(lpddi, pvRef);
 
-	// HACK: Input defice enumeration fix
+	// HACK: Input device enumeration fix
 	// Rayman2 returns DIENUM_STOP when it encounters a device type it cannot handle.
 	// This usually causes it to skip enumeration of gamepads on modern PCs.
 	// Here we fix this by always returning DIENUM_CONTINUE.
@@ -125,6 +125,8 @@ void FIX_fn_vDetachHooks( void )
 
 void FIX_fn_vPatchFramerate( void )
 {
+	return; /* no longer necessary */
+
 	typedef struct
 	{
 		char _code1[54];
