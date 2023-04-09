@@ -17,69 +17,65 @@ extern int const GLI_lCode;
  * Device Capabilities
  */
 
-// Device capability flags
-typedef enum tdeDeviceFlags_
+#define C_DI_DllBmp				"dll_bmp"
+#define C_DI_DevCaps			"dev_caps"
+
+#define C_DI_DisplayAdd			"dispadd"
+#define C_DI_DisplayName		"dispname"
+#define C_DI_DisplayDesc		"dispdesc"
+
+#define C_DI_DeviceAdd			"dev_add"
+#define C_DI_DeviceName			"dev_name"
+#define C_DI_DeviceDesc			"dev_desc"
+
+#define C_DI_ModeAdd			"modeadd"
+#define C_DI_ModeFullscreen		"modefs"
+#define C_DI_ModeBpp			"modebpp"
+#define C_DI_ModeWidth			"modew"
+#define C_DI_ModeHeight			"modeh"
+
+
+typedef enum tdeDriverCaps
 {
-	e_DF_HardwareAccel = 1 << 0,
-	e_DF_AgpMem = 1 << 1,
-	e_DF_SysMem = 1 << 2,
-	e_DF_Windowed = 1 << 3,
-	e_DF_AlphaTest = 1 << 4,
-	e_DF_ReadjustViewport = 1 << 5
+	E_DRV_IsHardware = 1 << 0,
+	E_DRV_CanUseAGP = 1 << 1,
+	E_DRV_CanUseSystemMemory = 1 << 2,
+	E_DRV_CanBeWindowed = 1 << 3,
+	E_DRV_SupportAlphaTest = 1 << 4,
+	E_DRV_ReadjustViewport = 1 << 5
 	// ...
 }
-tdeDeviceFlags;
+tdeDriverCaps;
 
-// Texture capability flags
-typedef enum tdeTextureFlags_
+typedef enum tdeTextureCaps
 {
-	e_TF_Palettized = 1 << 0,
-	e_TF_NonSquare = 1 << 1,
-	e_TF_MipMap = 1 << 2,
-	e_TF_Mirror = 1 << 3
+	E_TEX_Support8P = 1 << 0,
+	E_TEX_SupportNonSquare = 1 << 1,
+	E_TEX_SupportMipMap = 1 << 2,
+	E_TEX_SupportMirror = 1 << 3
 	// ...
 }
-tdeTextureFlags;
+tdeTextureCaps;
 
-// Device capabilites
-typedef struct tdstDevCaps_
+typedef struct tdstGliCaps
 {
-	char _char0; // ?
-	tdeDeviceFlags eDeviceFlags;
-	tdeTextureFlags eTextureFlags;
-	BYTE _gapC[8]; // ?
-	DWORD ulTextureMaxSize;
-	DWORD ulTextureMem;
-	DWORD ulVideoMemLocal;
-	DWORD ulVideoMemNonLocal;
-	BYTE _byte24; // ?
+	unsigned long ulSize;
+	tdeDriverCaps ulDriverCaps;
+	tdeTextureCaps ulTextureCaps;
+	unsigned long ulSurfaceCaps;
+	unsigned long ulMemoryCaps;
+	unsigned long ulTextureMaxSize;
+	unsigned long ulTotalTextureMemory;
+	unsigned long ulTotalVideoMemory; /* mem local */
+	unsigned long ulTotalAGPMemory; /* mem non-local */
+	unsigned char ucPrimarySurfacePixelFormat;
 	float xRefreshRate;
 }
-tdstDevCaps;
+tdstGliCaps;
 
 
-// GLI property set function, used in GLI_DRV_fn_lGetAllDisplayConfig
-typedef int (*tdfnGliSet)( DWORD display, DWORD device, DWORD mode, const char *szAction, const void *value );
+/* GLI property set function, used in GLI_DRV_fn_lGetAllDisplayConfig */
+typedef int (*tdfn_lAddDisplayInfo)( DWORD lDisplay, DWORD lDevice, DWORD lMode, const char *szName, long Value );
 
-// Common function, used in GLI_DRV_lSetCommonFct
-typedef int (*tdfnCommonFct)();
-
-
-/*
- * GliSet Actions
- */
-
-extern const char *GS_BMP;
-extern const char *GS_ADD_DISPLAY;
-extern const char *GS_DISPLAY_NAME;
-extern const char *GS_DISPLAY_DESC;
-
-extern const char *GS_ADD_DEVICE;
-extern const char *GS_DEVICE_NAME;
-extern const char *GS_DEVICE_DESC;
-
-extern const char *GS_ADD_MODE;
-extern const char *GS_MODE_FULLSCREEN;
-extern const char *GS_MODE_BITDEPTH;
-extern const char *GS_MODE_WIDTH;
-extern const char *GS_MODE_HEIGHT;
+/* Common function, used in GLI_DRV_lSetCommonFct */
+typedef int (*tdfn_CommonFct)();

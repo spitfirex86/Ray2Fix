@@ -5,77 +5,78 @@
 #include "imports.h"
 
 
-tdstDevCaps *g_p_stCaps = NULL;
+tdstGliCaps *g_p_stCaps = NULL;
 
-int (*p_fn_lAddDiplayMode)( BOOL bFullscreen, int x, int y, int lBitDepth ) = NULL;
+int (*p_fn_lAddDisplayMode)( BOOL bFullscreen, int x, int y, int lBitDepth ) = NULL;
 int (*p_fn_lComputeWaitFrameForSmoothSynchro)( int ) = NULL;
 int (*p_fn_xIsGliInit)( void ) = NULL;
 
 
-void fn_vCopyString( char *dst, const char *src )
+#define M_CopyString(dst, src) strcpy_s(dst, strlen(src)+1, src)
+
+/* copies renderer info (first listbox in GxSetup) to specified memory address */
+long GLI_DRV_lGetDllInfo( char const *szName, void *pData )
 {
-	size_t len = strlen(src) + 1;
-	strcpy_s(dst, len, src);
-}
-
-
-/*
- * Exported functions
- */
-
-// Copies renderer info (first listbox in GxSetup) to specified memory address
-BOOL GLI_DRV_lGetDllInfo( const char *szType, void *lpDst )
-{
-	if ( !strcmp(szType, "Name") )
-	{
-		fn_vCopyString(lpDst, GLI_szName);
-	}
-	else if ( !strcmp(szType, "Description") )
-	{
-		fn_vCopyString(lpDst, GLI_szDesc);
-	}
-	else if ( !strcmp(szType, "Version") )
-	{
-		fn_vCopyString(lpDst, GLI_szVersion);
-	}
-	else if ( !strcmp(szType, "Code") )
-	{
-		*(DWORD*)lpDst = GLI_lCode;
-	}
+	if ( !strcmp(szName, "Name") )
+		M_CopyString(pData, GLI_szName);
+	else if ( !strcmp(szName, "Description") )
+		M_CopyString(pData, GLI_szDesc);
+	else if ( !strcmp(szName, "Version") )
+		M_CopyString(pData, GLI_szVersion);
+	else if ( !strcmp(szName, "Code") )
+		*(DWORD *)pData = GLI_lCode;
 	else
-	{
-		return FALSE;
-	}
+		return 0;
 
-	return TRUE;
+	return 1;
 }
 
-// Sets capability flags and populates displays, devices and resolutions
-BOOL GLI_DRV_fn_lGetAllDisplayConfig( tdfnGliSet p_fn_vGliSet )
+long GLI_DRV_lSetCommonData( char const *szName, void *pData )
 {
-	int disp, dev, mode;
-	tdstDevCaps stCaps = { 0 };
+	if ( !strcmp(szName, "GliCaps") )
+		g_p_stCaps = pData;
 
-	p_fn_vGliSet(0, 0, 0, GS_BMP, 0);
+	return Vd_GLI_DRV_lSetCommonData(szName, pData);
+}
 
-	// display info
-	disp = p_fn_vGliSet(0, 0, 0, GS_ADD_DISPLAY, NULL);
-	p_fn_vGliSet(disp, 0, 0, GS_DISPLAY_NAME, "Default");
-	p_fn_vGliSet(disp, 0, 0, GS_DISPLAY_DESC, "Default");
+long GLI_DRV_lSetCommonFct( char const *szName, tdfn_CommonFct pData )
+{
+	if ( !strcmp(szName, "AddDisplayMode") ) /* for GLI_DRV_fnl_EnumModes */
+		p_fn_lAddDisplayMode = pData;
+	else if ( !strcmp(szName, "IsGliInit") ) /* for GLI_DRV_vFlipDeviceWithSyncro */
+		p_fn_xIsGliInit = pData;
+	else if ( !strcmp(szName, "ComputeWaitFrameForSmoothSynchro") )
+		p_fn_lComputeWaitFrameForSmoothSynchro = pData;
 
-	// device info
-	dev = p_fn_vGliSet(disp, 0, 0, GS_ADD_DEVICE, NULL);
-	p_fn_vGliSet(disp, dev, 0, GS_DEVICE_NAME, "Default");
-	p_fn_vGliSet(disp, dev, 0, GS_DEVICE_DESC, "Default");
+	return Vd_GLI_DRV_lSetCommonFct(szName, pData);
+}
 
-	// display mode (resolution)
-	mode = p_fn_vGliSet(disp, dev, 0, GS_ADD_MODE, NULL);
-	p_fn_vGliSet(disp, dev, mode, GS_MODE_FULLSCREEN, 1);
-	p_fn_vGliSet(disp, dev, mode, GS_MODE_BITDEPTH, 16);
-	p_fn_vGliSet(disp, dev, mode, GS_MODE_WIDTH, CFG_stDispMode.dwWidth);
-	p_fn_vGliSet(disp, dev, mode, GS_MODE_HEIGHT, CFG_stDispMode.dwHeight);
+/* sets capability flags and populates displays, devices and resolutions */
+long GLI_DRV_fn_lGetAllDisplayConfig( tdfn_lAddDisplayInfo p_fn_lAddDisplayInfo )
+{
+	long lDisp, lDev, lMode;
+	tdstGliCaps stCaps = { 0 };
 
-	p_fn_vGliSet(disp, dev, 0, "dev_caps", &stCaps);
+	p_fn_lAddDisplayInfo(0, 0, 0, C_DI_DllBmp, 0);
+
+	/* display info */
+	lDisp = p_fn_lAddDisplayInfo(0, 0, 0, C_DI_DisplayAdd, 0);
+	p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DisplayName, (long)"Default");
+	p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DisplayDesc, (long)"Default");
+
+	/* device info */
+	lDev = p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DeviceAdd, 0);
+	p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DeviceName, (long)"Default");
+	p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DeviceDesc, (long)"Default");
+
+	/* display mode (resolution) */
+	lMode = p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_ModeAdd, 0);
+	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeFullscreen, 1);
+	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeBpp, 16);
+	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeWidth, CFG_stDispMode.dwWidth);
+	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeHeight, CFG_stDispMode.dwHeight);
+
+	p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DevCaps, (long)&stCaps);
 
 
 	/* If fix is enabled, always open R2FixCfg,
@@ -99,55 +100,32 @@ BOOL GLI_DRV_fn_lGetAllDisplayConfig( tdfnGliSet p_fn_vGliSet )
 	return TRUE;
 }
 
-BOOL GLI_DRV_lSetCommonData( const char *szName, void *value )
+long GLI_DRV_fnl_EnumModes( char *szDriverName, char *szDeviceName )
 {
-	if ( !strcmp(szName, "GliCaps") )
-	{
-		g_p_stCaps = value;
-	}
-	return Vd_GLI_DRV_lSetCommonData(szName, value);
-}
-
-BOOL GLI_DRV_lSetCommonFct( const char *szName, tdfnCommonFct pFct )
-{
-	if ( !strcmp(szName, "AddDisplayMode") ) /* for GLI_DRV_fnl_EnumModes */
-		p_fn_lAddDiplayMode = pFct;
-	else if ( !strcmp(szName, "IsGliInit") ) /* for GLI_DRV_vFlipDeviceWithSyncro */
-		p_fn_xIsGliInit = pFct;
-	else if ( !strcmp(szName, "ComputeWaitFrameForSmoothSynchro") )
-		p_fn_lComputeWaitFrameForSmoothSynchro = pFct;
-
-	return Vd_GLI_DRV_lSetCommonFct(szName, pFct);
-}
-
-BOOL GLI_DRV_fnl_EnumModes( char *szDrvDspName, char *szDevName )
-{
-	p_fn_lAddDiplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
+	p_fn_lAddDisplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
 
 	return TRUE;
 }
 
-DWORD GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, int xRight, int yBottom, int lBitDepth )
+void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight, int lBpp )
 {
-	DWORD dwResult = Vd_GLI_DRV_xInitDriver(hWnd, bFullscreen, xRight, yBottom, lBitDepth);
+	Vd_GLI_DRV_xInitDriver(hWnd, bFullscreen, lWidth, lHeight, lBpp);
 
-	// HACK: make sure the window has a title bar and a border
-	// Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
-	// without a title bar, making it impossible to move or resize the game window.
+	/* HACK: make sure the window has a title bar and a border
+	   Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
+	   without a title bar, making it impossible to move or resize the game window. */
 	int lStyle = GetWindowLong(hWnd, GWL_STYLE);
 	SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
 
-	// HACK: Refresh rate fix for >60Hz monitors
+	/* HACK: Refresh rate fix for >60Hz monitors */
 	g_p_stCaps->xRefreshRate = CFG_bHalfRefRate ? 30.0f : 60.0f;
-
-	return dwResult;
 }
 
-void GLI_DRV_vFlipDeviceWithSyncro()
+void GLI_DRV_vFlipDeviceWithSyncro( void )
 {
 	if ( !p_fn_xIsGliInit() )
 		return;
-	
+
 	int lWaitFrame = p_fn_lComputeWaitFrameForSmoothSynchro(0);
 	GLI_DRV_vFlipDevice(lWaitFrame);
 }
@@ -157,84 +135,62 @@ void GLI_DRV_vFlipDeviceWithSyncro()
  * Redirected exports
  */
 
-NAKED void GLI_DRV_vCloseDriver()
-{
-	JMP(Vd_GLI_DRV_vCloseDriver);
-}
 
-NAKED BOOL GLI_DRV_bBeginScene()
-{
-	JMP(Vd_GLI_DRV_bBeginScene);
-}
-
-NAKED BOOL GLI_DRV_bEndScene()
-{
-	JMP(Vd_GLI_DRV_bEndScene);
-}
-
-NAKED BOOL GLI_DRV_bLockDevice( DWORD *a1, DWORD *a2 )
-{
-	JMP(Vd_GLI_DRV_bLockDevice);
-}
-
-NAKED BOOL GLI_DRV_bUnlockDevice()
-{
-	JMP(Vd_GLI_DRV_bUnlockDevice);
-}
-
-NAKED void GLI_DRV_vClearDevice( int a1, int a2, int a3 )
-{
-	JMP(Vd_GLI_DRV_vClearDevice);
-}
+/****  INIT  ****/
 
 NAKED void GLI_DRV_vFlipDevice( int lWaitFrames )
 {
 	JMP(Vd_GLI_DRV_vFlipDevice);
 }
 
+NAKED void GLI_DRV_vClearDevice( BOOL bZBuffer, BOOL bColorBuffer, unsigned long ulColor )
+{
+	JMP(Vd_GLI_DRV_vClearDevice);
+}
+
 /*
-NAKED void GLI_DRV_vFlipDeviceWithSyncro()
+NAKED void GLI_DRV_vFlipDeviceWithSyncro( void )
 {
 	JMP(Vd_GLI_DRV_vFlipDeviceWithSyncro);
 }
 */
 
-NAKED void GLI_DRV_vDownLoadTextures( int a1, int a2, int a3 )
+NAKED void GLI_DRV_vCloseDriver( void )
 {
-	JMP(Vd_GLI_DRV_vDownLoadTextures);
+	JMP(Vd_GLI_DRV_vCloseDriver);
 }
 
-NAKED void GLI_DRV_vUnLoadTextures()
+NAKED void GLI_DRV_vClearZBufferRegion( long lXStart, long lXEnd, long lYStart, long lYEnd )
 {
-	JMP(Vd_GLI_DRV_vUnLoadTextures);
+	JMP(Vd_GLI_DRV_vClearZBufferRegion);
 }
 
-NAKED int GLI_DRV_lGetSizeOfTexture( void *a1 )
-{
-	JMP(Vd_GLI_DRV_lGetSizeOfTexture);
-}
-
-NAKED void GLI_DRV_vDoOpaqueTextureSelection( int a1 )
-{
-	JMP(Vd_GLI_DRV_vDoOpaqueTextureSelection);
-}
-
-NAKED HANDLE GLI_DRV_hChangeMode( BOOL bFullscreen, int xRight, int yBottom, int bitDepth )
+NAKED long GLI_DRV_hChangeMode( BOOL bFullscreen, long lWidth, long lHeight, long lBpp )
 {
 	JMP(Vd_GLI_DRV_hChangeMode);
 }
 
-NAKED BOOL GLI_DRV_bWindowedModeIsOptimized()
+NAKED BOOL GLI_DRV_bLockDevice( void **pp_vVirtualScreen, long *p_lPitch )
+{
+	JMP(Vd_GLI_DRV_bLockDevice);
+}
+
+NAKED BOOL GLI_DRV_bUnlockDevice( void )
+{
+	JMP(Vd_GLI_DRV_bUnlockDevice);
+}
+
+NAKED BOOL GLI_DRV_bWindowedModeIsOptimized( void )
 {
 	JMP(Vd_GLI_DRV_bWindowedModeIsOptimized);
 }
 
-NAKED void GLI_DRV_vOptimizedWindowedMode()
+NAKED void GLI_DRV_vOptimizedWindowedMode( void )
 {
 	JMP(Vd_GLI_DRV_vOptimizedWindowedMode);
 }
 
-NAKED void GLI_DRV_vNonOptimizedWindowedMode()
+NAKED void GLI_DRV_vNonOptimizedWindowedMode( void )
 {
 	JMP(Vd_GLI_DRV_vNonOptimizedWindowedMode);
 }
@@ -249,87 +205,168 @@ NAKED void GLI_DRV_vPrepareForGliFullScreen( HWND hWnd )
 	JMP(Vd_GLI_DRV_vPrepareForGliFullScreen);
 }
 
-NAKED void GLI_DRV_vActivateGli( HWND hWnd, BOOL a2 )
+NAKED void GLI_DRV_vActivateGli( HWND hWnd, BOOL bActivate )
 {
 	JMP(Vd_GLI_DRV_vActivateGli);
 }
 
-NAKED void GLI_DRV_vReadaptDisplay()
+NAKED void GLI_DRV_vReadaptDisplay( void )
 {
 	JMP(Vd_GLI_DRV_vReadaptDisplay);
 }
 
-NAKED void GLI_DRV_vAddBlackPolygon( int a1, int a2, int a3, int a4 )
+
+/****  HDWTEX  ****/
+
+NAKED void GLI_DRV_vDownLoadTextures( long bRestore, long lTextureMode, BOOL bReloading )
+{
+	JMP(Vd_GLI_DRV_vDownLoadTextures);
+}
+
+NAKED void GLI_DRV_vUnLoadTextures( void )
+{
+	JMP(Vd_GLI_DRV_vUnLoadTextures);
+}
+
+NAKED long GLI_DRV_lGetSizeOfTexture( GLI_tdstTexture *p_stTexture )
+{
+	JMP(Vd_GLI_DRV_lGetSizeOfTexture);
+}
+
+
+/****  DOMAT  ****/
+
+NAKED void GLI_DRV_vDoOpaqueTextureSelection( GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT )
+{
+	JMP(Vd_GLI_DRV_vDoOpaqueTextureSelection);
+}
+
+NAKED void GLI_DRV_vWrite16bBitmapToBackBuffer(
+	void *p_vSourceBuffer,
+	long lWidth,
+	long lHeight,
+	long lDestLeft,
+	long lDestTop,
+	long lDestRight,
+	long lDestBottom
+	)
+{
+	JMP(Vd_GLI_DRV_vWrite16bBitmapToBackBuffer);
+}
+
+NAKED void GLI_DRV_vAddBlackPolygon( long lLeft, long lTop, long lRight, long lBottom )
 {
 	JMP(Vd_GLI_DRV_vAddBlackPolygon);
 }
 
-NAKED void GLI_DRV_vNoBlackPolygon()
+NAKED void GLI_DRV_vNoBlackPolygon( void )
 {
 	JMP(Vd_GLI_DRV_vNoBlackPolygon);
 }
 
-NAKED void GLI_DRV_vSetZClip( float a1, int a2 )
-{
-	JMP(Vd_GLI_DRV_vSetZClip);
-}
-
-NAKED void GLI_DRV_vSetClipWindow( float a1, int a2, int a3, int a4, int a5 )
-{
-	JMP(Vd_GLI_DRV_vSetClipWindow);
-}
-
-NAKED void GLI_DRV_vSendSingleLineToClip( int a1, int a2, int a3, int a4, int a5 )
-{
-	JMP(Vd_GLI_DRV_vSendSingleLineToClip);
-}
-
-NAKED void GLI_DRV_vSendSpriteToClip( int a1, int a2, int a3 )
-{
-	JMP(Vd_GLI_DRV_vSendSpriteToClip);
-}
-
-NAKED void GLI_DRV_vSendSpriteToClipWithColors( int a1, int a2, int a3, int a4 )
-{
-	JMP(Vd_GLI_DRV_vSendSpriteToClipWithColors);
-}
-
-NAKED void GLI_DRV_vSendSpriteToClipWithUV( int a1, int a2, int a3, int a4 )
-{
-	JMP(Vd_GLI_DRV_vSendSpriteToClipWithUV);
-}
-
-NAKED int GLI_DRV_xSendElementTIToClip_TRIANGLES( int a1, int a2 )
-{
-	JMP(Vd_GLI_DRV_xSendElementTIToClip_TRIANGLES);
-}
-
-NAKED int GLI_DRV_xSendSingleTriangleToClip_TRIANGLES( int a1, int a2, int a3 )
-{
-	JMP(Vd_GLI_DRV_xSendSingleTriangleToClip_TRIANGLES);
-}
-
-NAKED DWORD GLI_DRV_xClearViewingList()
-{
-	JMP(Vd_GLI_DRV_xClearViewingList);
-}
-
-NAKED DWORD GLI_DRV_xSendListToViewport()
-{
-	JMP(Vd_GLI_DRV_xSendListToViewport);
-}
-
-NAKED void GLI_DRV_vClearZBufferRegion()
-{
-	JMP(Vd_GLI_DRV_vClearZBufferRegion);
-}
-
-NAKED void GLI_DRV_vComputeFogEffect( int a1 )
+NAKED void GLI_DRV_vComputeFogEffect( GLI_tdstInternalGlobalValuesFor3dEngine *p_stBG )
 {
 	JMP(Vd_GLI_DRV_vComputeFogEffect);
 }
 
-NAKED void GLI_DRV_vWrite16bBitmapToBackBuffer( int a1, int a2, int a3, int a4, int a5, int a6, int a7 )
+NAKED BOOL GLI_DRV_bBeginScene( void )
 {
-	JMP(Vd_GLI_DRV_vWrite16bBitmapToBackBuffer);
+	JMP(Vd_GLI_DRV_bBeginScene);
+}
+
+NAKED BOOL GLI_DRV_bEndScene( void )
+{
+	JMP(Vd_GLI_DRV_bEndScene);
+}
+
+
+/****  ACCES  ****/
+
+NAKED void GLI_DRV_vSendSpriteToClip(
+	GLI_tdstAligned2DVector *a4_st2DVertex,
+	float xZ,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+	)
+{
+	JMP(Vd_GLI_DRV_vSendSpriteToClip);
+}
+
+NAKED void GLI_DRV_vSendSpriteToClipWithUV(
+	GLI_tdstAligned2DVector *a4_st2DVertex,
+	float *a8_stUVVertex,
+	float xZ,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+	)
+{
+	JMP(Vd_GLI_DRV_vSendSpriteToClipWithUV);
+}
+
+NAKED void GLI_DRV_vSendSpriteToClipWithColors(
+	GLI_tdstAligned2DVector *a4_st2DVertex,
+	void *_Colors,
+	float xZ,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+	)
+{
+	JMP(Vd_GLI_DRV_vSendSpriteToClipWithColors);
+}
+
+NAKED void GLI_DRV_vSendSingleLineToClip(
+	GLD_tdstViewportAttributes *p_stVpt,
+	GLI_tdstAligned3DVector *p_stVertex1,
+	GLI_tdstAligned2DVector *p_st2DVertex1,
+	GLI_tdstAligned3DVector *p_stVertex2,
+	GLI_tdstAligned2DVector *p_st2DVertex2,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT,
+	long lDrawModeMask,
+	GEO_tdstColor *p_stColor
+	)
+{
+	JMP(Vd_GLI_DRV_vSendSingleLineToClip);
+}
+
+
+/****  CLIP TRIANGLES  ****/
+
+NAKED void GLI_DRV_xClearViewingList( void )
+{
+	JMP(Vd_GLI_DRV_xClearViewingList);
+}
+
+NAKED void GLI_DRV_xSendListToViewport( GLD_tdstViewportAttributes *p_stVpt )
+{
+	JMP(Vd_GLI_DRV_xSendListToViewport);
+}
+
+NAKED void GLI_DRV_vSetZClip( float xZClip, GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT )
+{
+	JMP(Vd_GLI_DRV_vSetZClip);
+}
+
+NAKED void GLI_DRV_vSetClipWindow(
+	float fXMin,
+	float fXMax,
+	float fYMin,
+	float fYMax,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+	)
+{
+	JMP(Vd_GLI_DRV_vSetClipWindow);
+}
+
+NAKED void GLI_DRV_xSendElementTIToClip_TRIANGLES(
+	GEO_tdstElementIndexedTriangles *p_stLocalElementIndexedTriangle,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+	)
+{
+	JMP(Vd_GLI_DRV_xSendElementTIToClip_TRIANGLES);
+}
+
+NAKED void GLI_DRV_xSendSingleTriangleToClip_TRIANGLES(
+	GLI_tdstAligned2DVector *a3_st2DVertex,
+	ACP_tdst2DUVValues *a3_stUV,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+	)
+{
+	JMP(Vd_GLI_DRV_xSendSingleTriangleToClip_TRIANGLES);
 }

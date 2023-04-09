@@ -6,50 +6,103 @@
  * GLI Library imports
  */
 
-BOOL (*Vd_GLI_DRV_lGetDllInfo)( const char *, void * ) = NULL;
-BOOL (*Vd_GLI_DRV_fn_lGetAllDisplayConfig)( tdfnGliSet ) = NULL;
+/****  COMMON  ****/
+long (*Vd_GLI_DRV_lGetDllInfo)( char const *szName, void *pData );
+long (*Vd_GLI_DRV_lSetCommonData)( char const *szName, void *pData );
+long (*Vd_GLI_DRV_lSetCommonFct)( char const *szName, tdfn_CommonFct pData );
 
-BOOL (*Vd_GLI_DRV_lSetCommonData)( const char *, void * ) = NULL;
-BOOL (*Vd_GLI_DRV_lSetCommonFct)( const char *, tdfnCommonFct ) = NULL;
+/****  INIT  ****/
+void (*Vd_GLI_DRV_vFlipDevice)( int lWaitFrames );
+void (*Vd_GLI_DRV_vFlipDeviceWithSyncro)( void );
+void (*Vd_GLI_DRV_vClearDevice)( BOOL bZBuffer, BOOL bColorBuffer, unsigned long ulColor );
+void (*Vd_GLI_DRV_xInitDriver)( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight, int lBpp );
+void (*Vd_GLI_DRV_vCloseDriver)( void );
+void (*Vd_GLI_DRV_vClearZBufferRegion)( long lXStart, long lXEnd, long lYStart, long lYEnd );
+long (*Vd_GLI_DRV_hChangeMode)( BOOL bFullscreen, long lWidth, long lHeight, long lBpp );
+BOOL (*Vd_GLI_DRV_bLockDevice)( void **pp_vVirtualScreen, long *p_lPitch );
+BOOL (*Vd_GLI_DRV_bUnlockDevice)( void );
+BOOL (*Vd_GLI_DRV_bWindowedModeIsOptimized)( void );
+void (*Vd_GLI_DRV_vOptimizedWindowedMode)( void );
+void (*Vd_GLI_DRV_vNonOptimizedWindowedMode)( void );
+BOOL (*Vd_GLI_DRV_bPrepareForGliWindowed)( HWND hWnd );
+void (*Vd_GLI_DRV_vPrepareForGliFullScreen)( HWND hWnd );
+void (*Vd_GLI_DRV_vActivateGli)( HWND hWnd, BOOL bActivate );
+void (*Vd_GLI_DRV_vReadaptDisplay)( void );
+long (*Vd_GLI_DRV_fn_lGetAllDisplayConfig)( tdfn_lAddDisplayInfo p_fn_lAddDisplayInfo );
+long (*Vd_GLI_DRV_fnl_EnumModes)( char *szDriverName, char *szDeviceName );
 
-BOOL (*Vd_GLI_DRV_fnl_EnumModes)( char *, char * ) = NULL;
+/****  HDWTEX  ****/
+void (*Vd_GLI_DRV_vDownLoadTextures)( long bRestore, long lTextureMode, BOOL bReloading );
+void (*Vd_GLI_DRV_vUnLoadTextures)( void );
+long (*Vd_GLI_DRV_lGetSizeOfTexture)( GLI_tdstTexture *p_stTexture );
 
-DWORD (*Vd_GLI_DRV_xInitDriver)( HWND, BOOL, int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vCloseDriver)() = NULL;
-BOOL (*Vd_GLI_DRV_bBeginScene)() = NULL;
-BOOL (*Vd_GLI_DRV_bEndScene)() = NULL;
-BOOL (*Vd_GLI_DRV_bLockDevice)( DWORD *, DWORD * ) = NULL;
-BOOL (*Vd_GLI_DRV_bUnlockDevice)() = NULL;
-void (*Vd_GLI_DRV_vClearDevice)( int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vFlipDevice)() = NULL;
-void (*Vd_GLI_DRV_vFlipDeviceWithSyncro)();
-void (*Vd_GLI_DRV_vDownLoadTextures)( int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vUnLoadTextures)() = NULL;
-int (*Vd_GLI_DRV_lGetSizeOfTexture)( void * ) = NULL;
-void (*Vd_GLI_DRV_vDoOpaqueTextureSelection)( int ) = NULL;
-int (*Vd_GLI_DRV_hChangeMode)( BOOL, int, int, int ) = NULL;
-BOOL (*Vd_GLI_DRV_bWindowedModeIsOptimized)() = NULL;
-void (*Vd_GLI_DRV_vOptimizedWindowedMode)() = NULL;
-void (*Vd_GLI_DRV_vNonOptimizedWindowedMode)() = NULL;
-BOOL (*Vd_GLI_DRV_bPrepareForGliWindowed)( HWND ) = NULL;
-void (*Vd_GLI_DRV_vPrepareForGliFullScreen)( HWND ) = NULL;
-void (*Vd_GLI_DRV_vActivateGli)( HWND, BOOL ) = NULL;
-void (*Vd_GLI_DRV_vReadaptDisplay)() = NULL;
-void (*Vd_GLI_DRV_vAddBlackPolygon)( int, int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vNoBlackPolygon)() = NULL;
-void (*Vd_GLI_DRV_vSetZClip)( float, int ) = NULL;
-void (*Vd_GLI_DRV_vSetClipWindow)( float, int, int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vSendSingleLineToClip)( int, int, int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vSendSpriteToClip)( int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vSendSpriteToClipWithColors)( int, int, int, int ) = NULL;
-void (*Vd_GLI_DRV_vSendSpriteToClipWithUV)( int, int, int, int ) = NULL;
-int (*Vd_GLI_DRV_xSendElementTIToClip_TRIANGLES)( int, int ) = NULL;
-int (*Vd_GLI_DRV_xSendSingleTriangleToClip_TRIANGLES)( int, int, int ) = NULL;
-int (*Vd_GLI_DRV_xClearViewingList)() = NULL;
-int (*Vd_GLI_DRV_xSendListToViewport)() = NULL;
-void (*Vd_GLI_DRV_vClearZBufferRegion)() = NULL;
-void (*Vd_GLI_DRV_vComputeFogEffect)( int ) = NULL;
-void (*Vd_GLI_DRV_vWrite16bBitmapToBackBuffer)( int, int, int, int, int, int, int ) = NULL;
+/****  DOMAT  ****/
+void (*Vd_GLI_DRV_vDoOpaqueTextureSelection)( GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT );
+void (*Vd_GLI_DRV_vWrite16bBitmapToBackBuffer)(
+	void *p_vSourceBuffer,
+	long lWidth,
+	long lHeight,
+	long lDestLeft,
+	long lDestTop,
+	long lDestRight,
+	long lDestBottom
+);
+void (*Vd_GLI_DRV_vAddBlackPolygon)( long lLeft, long lTop, long lRight, long lBottom );
+void (*Vd_GLI_DRV_vNoBlackPolygon)( void );
+void (*Vd_GLI_DRV_vComputeFogEffect)( GLI_tdstInternalGlobalValuesFor3dEngine *p_stBG );
+BOOL (*Vd_GLI_DRV_bBeginScene)( void );
+BOOL (*Vd_GLI_DRV_bEndScene)( void );
+
+/****  ACCES  ****/
+void (*Vd_GLI_DRV_vSendSpriteToClip)(
+	GLI_tdstAligned2DVector *a4_st2DVertex,
+	float xZ,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+);
+void (*Vd_GLI_DRV_vSendSpriteToClipWithUV)(
+	GLI_tdstAligned2DVector *a4_st2DVertex,
+	float *a8_stUVVertex,
+	float xZ,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+);
+void (*Vd_GLI_DRV_vSendSpriteToClipWithColors)(
+	GLI_tdstAligned2DVector *a4_st2DVertex,
+	void *_Colors,
+	float xZ,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+);
+void (*Vd_GLI_DRV_vSendSingleLineToClip)(
+	GLD_tdstViewportAttributes *p_stVpt,
+	GLI_tdstAligned3DVector *p_stVertex1,
+	GLI_tdstAligned2DVector *p_st2DVertex1,
+	GLI_tdstAligned3DVector *p_stVertex2,
+	GLI_tdstAligned2DVector *p_st2DVertex2,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT,
+	long lDrawModeMask,
+	GEO_tdstColor *p_stColor
+);
+
+/****  CLIP TRIANGLES  ****/
+void (*Vd_GLI_DRV_xClearViewingList)( void );
+void (*Vd_GLI_DRV_xSendListToViewport)( GLD_tdstViewportAttributes *p_stVpt );
+void (*Vd_GLI_DRV_vSetZClip)( float xZClip, GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT );
+void (*Vd_GLI_DRV_vSetClipWindow)(
+	float fXMin,
+	float fXMax,
+	float fYMin,
+	float fYMax,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+);
+void (*Vd_GLI_DRV_xSendElementTIToClip_TRIANGLES)(
+	GEO_tdstElementIndexedTriangles *p_stLocalElementIndexedTriangle,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+);
+void (*Vd_GLI_DRV_xSendSingleTriangleToClip_TRIANGLES)(
+	GLI_tdstAligned2DVector *a3_st2DVertex,
+	ACP_tdst2DUVValues *a3_stUV,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT
+);
+
 
 HMODULE hGliVd = NULL;
 
