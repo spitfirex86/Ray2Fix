@@ -1,7 +1,6 @@
 #pragma once
 
 #include "framework.h"
-#include "shared.h"
 
 
 typedef struct tdstDisplayMode_

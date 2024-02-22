@@ -164,7 +164,6 @@
     <ClInclude Include="fix.h" />
     <ClInclude Include="imports.h" />
     <ClInclude Include="r2fn.h" />
-    <ClInclude Include="shared.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="config.c" />

@@ -27,9 +27,6 @@
     <ClCompile Include="config.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tweaksdlg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="paddlg.c">
       <Filter>Source Files</Filter>
     </ClCompile>

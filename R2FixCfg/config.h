@@ -1,7 +1,6 @@
 #pragma once
 
 #include "framework.h"
-#include "../GliFixVf/shared.h"
 #include "display.h"
 
 
@@ -35,8 +34,6 @@ tdeVerifyErr;
 
 extern BOOL g_bFixState;
 extern BOOL g_bFixPrevState;
-
-extern tdeTweaks g_eTweaks;
 
 extern tdstDisplayMode g_stCurrentMode;
 extern tdeRefRate g_eRefRate;

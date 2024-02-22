@@ -25,7 +25,6 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="pad.c" />
     <ClCompile Include="paddlg.c" />
-    <ClCompile Include="tweaksdlg.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />

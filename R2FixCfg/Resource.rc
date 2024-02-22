@@ -105,21 +105,6 @@ BEGIN
     LTEXT           "+  Largest recommended size for windowed mode",IDC_STATIC,6,180,161,8
 END
 
-IDD_TWEAKS DIALOGEX 0, 0, 254, 194
-STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    LTEXT           "Warning: Tweaks and mods are not allowed in speedruns.",IDC_STATIC,12,6,186,8
-    LTEXT           "Enabling tweaks will display a small watermark in the lower left corner of the screen during gameplay.",IDC_STATIC,12,20,228,16
-    GROUPBOX        "Tweaks",IDC_STATIC,6,44,242,144
-    CONTROL         "Show coordinates",IDC_SHOWPOS,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,18,60,73,10
-    LTEXT           "(Not implemented yet)",IDC_STATIC,30,74,72,8
-    CONTROL         "Adjust luminosity with -/+ keys",IDC_LUMCONTROL,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,18,90,115,10
-    LTEXT           "(Not implemented yet)",IDC_STATIC,30,104,72,8
-    CONTROL         "Load all DLLs from ""Rayman 2\\Mods""",IDC_MODLOADER,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,120,135,10
-END
-
 IDD_PAD DIALOGEX 0, 0, 254, 194
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -255,26 +240,6 @@ BEGIN
         HORZGUIDE, 124
     END
 
-    IDD_TWEAKS, DIALOG
-    BEGIN
-        LEFTMARGIN, 6
-        RIGHTMARGIN, 248
-        VERTGUIDE, 18
-        VERTGUIDE, 30
-        VERTGUIDE, 240
-        TOPMARGIN, 6
-        BOTTOMMARGIN, 188
-        HORZGUIDE, 14
-        HORZGUIDE, 20
-        HORZGUIDE, 36
-        HORZGUIDE, 44
-        HORZGUIDE, 60
-        HORZGUIDE, 74
-        HORZGUIDE, 90
-        HORZGUIDE, 104
-        HORZGUIDE, 120
-    END
-
     IDD_PAD, DIALOG
     BEGIN
         LEFTMARGIN, 6
@@ -309,11 +274,6 @@ BEGIN
 END
 
 IDD_GENERAL AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_TWEAKS AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

@@ -2,7 +2,6 @@
 #include <shellapi.h>
 #include "config.h"
 #include "devinfo.h"
-#include "shared.h"
 
 
 #define C_MaxGlideModes 8

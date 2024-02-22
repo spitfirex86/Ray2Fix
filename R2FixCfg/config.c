@@ -10,8 +10,6 @@
 BOOL g_bFixState = FALSE;
 BOOL g_bFixPrevState = FALSE;
 
-tdeTweaks g_eTweaks = e_TWK_NoTweaks;
-
 tdstDisplayMode g_stCurrentMode = { 0 };
 tdeRefRate g_eRefRate = e_RR_Full;
 BOOL g_bForceVsync = FALSE;
@@ -76,9 +74,6 @@ void fn_vReadUbiIni( void )
 		g_stCurrentMode.dwWidth = dwWidth;
 		g_stCurrentMode.dwHeight = dwHeight;
 	}
-
-	// Tweaks
-	g_eTweaks = GetPrivateProfileInt("Ray2Fix", "Tweaks", 0, szUbiPath);
 }
 
 void fn_vReadDegeIni( void )
@@ -130,9 +125,8 @@ void fn_vWriteUbiIni( void )
 	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x 16", g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight);
 	WritePrivateProfileString("Rayman2", "GLI_Mode", szBuffer, szUbiPath);
 
-	// Tweaks
-	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_eTweaks);
-	WritePrivateProfileString("Ray2Fix", "Tweaks", szBuffer, szUbiPath);
+	// Tweaks - removed
+	WritePrivateProfileString("Ray2Fix", "Tweaks", "0", szUbiPath);
 
 	// Refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_eRefRate == e_RR_Half));

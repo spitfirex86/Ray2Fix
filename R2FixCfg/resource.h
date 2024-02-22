@@ -8,7 +8,6 @@
 #define IDS_FLAVORTEXT                  105
 #define IDS_GREETING                    106
 #define IDD_GENERAL                     106
-#define IDD_TWEAKS                      107
 #define IDS_U_ENABLED                   107
 #define IDS_U_DISABLED                  108
 #define IDD_PAD                         108
@@ -46,9 +45,6 @@
 #define IDC_REFRATE_LABEL               1022
 #define IDC_FSMODE_WND                  1023
 #define IDC_FSMODE_FS                   1024
-#define IDC_MODLOADER                   1025
-#define IDC_SHOWPOS                     1026
-#define IDC_LUMCONTROL                  1027
 #define IDC_RESX                        1029
 #define IDC_RESY                        1030
 #define IDC_RES_LABEL                   1031

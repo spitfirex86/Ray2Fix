@@ -19,7 +19,6 @@ HWND a_hTabs[e_NbTab];
 tdstTabInfo a_stTabs[e_NbTab] = {
 	[e_TAB_General] = { IDD_GENERAL, "General", DLG_fn_bProc_General },
 	[e_TAB_Pad] = { IDD_PAD, "Gamepad", DLG_fn_bProc_Pad },
-	[e_TAB_Tweaks] = { IDD_TWEAKS, "Tweaks", DLG_fn_bProc_Tweaks }
 };
 
 
