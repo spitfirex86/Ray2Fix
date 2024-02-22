@@ -22,9 +22,6 @@ extern BOOL CFG_bHalfRefRate;
 extern BOOL CFG_bIsMainModuleR2;
 extern BOOL CFG_bIsFixEnabled;
 
-extern BOOL CFG_bTainted;
-extern tdeTweaks CFG_eTweaks;
-
 
 /*
  * Functions

@@ -34,9 +34,6 @@ BOOL CFG_bHalfRefRate = FALSE;
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
 
-BOOL CFG_bTainted = FALSE;
-tdeTweaks CFG_eTweaks = e_TWK_NoTweaks;
-
 
 /*
  * Functions
@@ -124,12 +121,6 @@ void fn_vReadFixConfig( void )
 	{
 		CFG_bHalfRefRate = TRUE;
 	}
-
-	// Tweaks
-	GetPrivateProfileString("Ray2Fix", "Tweaks", "0", szBuffer, sizeof(szBuffer), szUbiPath);
-
-	CFG_eTweaks = strtol(szBuffer, NULL, 10);
-	CFG_bTainted = CFG_eTweaks > 0;
 }
 
 void CFG_fn_vInitGlobals( void )

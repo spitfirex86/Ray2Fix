@@ -33,9 +33,6 @@
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tweaks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,9 +60,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="config.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tweaks.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fix.c">

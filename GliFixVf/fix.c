@@ -7,13 +7,7 @@
 
 
 char *szConfigMenu = "/C:Ray2Fix Config";
-
 char szVersionString[50];
-tdstJFFTXT txtVersion = {
-	NULL,
-	5, 980, 7, 160,
-	0, 0, 0, 0, 0
-};
 
 
 /*
@@ -49,9 +43,13 @@ char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
 	if ( !_stricmp(R2_fn_p_szGetLevelName(), "menu") )
 	{
 		// Part 1: Replace menu text.
-		if ( !strcmp(result, "/C:Site Rayman2") )
+		if ( !strcmp(result, "/C:Site Rayman2")
+			|| !strcmp(result, "/C:Web de Rayman2")
+			|| !strcmp(result, "/C:Sito di Rayman2")
+			|| !strcmp(result, "/C:Rayman2 - Webseite") )
 		{
-			return szConfigMenu;
+			//return szConfigMenu;
+			return szVersionString;
 		}
 
 		// Part 2: Open R2FixCfg with ShellExecute.
@@ -65,14 +63,6 @@ char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
 	return result;
 }
 
-void FIX_JFFTXT_vAffiche( void *lpContext )
-{
-	R2_JFFTXT_vDrawString(lpContext, &txtVersion);
-
-	// Call original function
-	R2_JFFTXT_vAffiche(lpContext);
-}
-
 
 /*
  * Functions
@@ -80,11 +70,8 @@ void FIX_JFFTXT_vAffiche( void *lpContext )
 
 void fn_vPreAttachHooks( void )
 {
-	if ( CFG_bTainted )
-	{
-		sprintf_s(szVersionString, sizeof(szVersionString), "/O200:%s v%s", GLI_szName, GLI_szVersion);
-		txtVersion.lpText = szVersionString;
-	}
+	//sprintf_s(szVersionString, sizeof(szVersionString), "/O200:%s v%s", GLI_szName, GLI_szVersion);
+	snprintf(szVersionString, sizeof(szVersionString), "/C:%s v%s", GLI_szName, GLI_szVersion);
 }
 
 void FIX_fn_vAttachHooks( void )
@@ -97,11 +84,6 @@ void FIX_fn_vAttachHooks( void )
 	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourAttach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
-	
-	if ( CFG_bTainted )
-	{
-		DetourAttach((PVOID*)&R2_JFFTXT_vAffiche, (PVOID)FIX_JFFTXT_vAffiche);
-	}
 
 	DetourTransactionCommit();
 }
@@ -114,11 +96,6 @@ void FIX_fn_vDetachHooks( void )
 	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
-
-	if ( CFG_bTainted )
-	{
-		DetourDetach((PVOID*)&R2_JFFTXT_vAffiche, (PVOID)FIX_JFFTXT_vAffiche);
-	}
 
 	DetourTransactionCommit();
 }

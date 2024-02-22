@@ -2,7 +2,6 @@
 #include "imports.h"
 #include "fix.h"
 #include "config.h"
-#include "tweaks.h"
 
 
 void fn_vInitDll( void )
@@ -14,9 +13,6 @@ void fn_vInitDll( void )
 	{
 		/* Loaded in the game, patch all */
 		FIX_fn_vAttachHooks();
-
-		if ( CFG_eTweaks )
-			TWK_fn_vInitTweaks();
 	}
 	else
 	{
