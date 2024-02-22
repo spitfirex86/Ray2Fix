@@ -7,5 +7,5 @@
 
 char const *GLI_szName			= "Ray2Fix";
 char const *GLI_szDesc			= "Spitfire's Graphics Fix GLI Passthrough";
-char const *GLI_szVersion		= "1.3.0";
+char const *GLI_szVersion		= "1.3.1";
 int const GLI_lCode				= 8;
