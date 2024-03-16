@@ -30,12 +30,6 @@ char const *szTrue = "true";
 char const *szFalse = "false";
 
 char const *a_szFilesToDelete[] = {
-	"goggame.sdb",
-	"goglog.ini",
-	"gog.ico",
-	"support.ico",
-	"EULA.txt",
-	"webcache.zip",
 	"nglide_config.exe",
 	"nglide_readme.txt",
 	"nGlideEULA.txt",
@@ -190,9 +184,9 @@ void CFG_fn_vWrite( void )
 
 void CFG_fn_vVerify( void )
 {
-	if ( GetFileAttributes(".\\goglog.ini") != INVALID_FILE_ATTRIBUTES )
+	if ( GetFileAttributes(".\\nglide_config.exe") != INVALID_FILE_ATTRIBUTES )
 	{
-		// Delete unnecessary GOG/nGlide files
+		// Delete unnecessary nGlide files
 		fn_vCleanUpGogMess();
 	}
 
