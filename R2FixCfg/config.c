@@ -131,6 +131,10 @@ void fn_vWriteUbiIni( void )
 	// Refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_eRefRate == e_RR_Half));
 	WritePrivateProfileString("Ray2Fix", "HalfRefRate", szBuffer, szUbiPath);
+
+	// Aspect ratio
+	sprintf_s(szBuffer, sizeof(szBuffer), "%f", (float)g_stCurrentMode.dwWidth / (float)g_stCurrentMode.dwHeight);
+	WritePrivateProfileString("Ray2Fix", "AspectRatio", szBuffer, szUbiPath);
 }
 
 void fn_vWriteDegeIni( void )

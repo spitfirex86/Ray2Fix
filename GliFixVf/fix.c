@@ -1,5 +1,6 @@
 #include "framework.h"
 #include <detours.h>
+#include <math.h>
 #include "fix.h"
 #include "imports.h"
 #include "r2fn.h"
@@ -63,6 +64,16 @@ char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
 	return result;
 }
 
+void FIX_GLI_xAdjustCameraToViewport2(GLD_tdstDeviceAttributes *p_stDev, GLD_tdstViewportAttributes *p_stVpt, GLI_tdstCamera *p_stCam)
+{
+	// HACK: Calculate new FOV based on selected aspect ratio
+	float fOldFOV = *((float*)p_stCam + 25);
+	float fNewFOV = 2.0f * atan(tan(fOldFOV / 2.0f) * 0.75f * CFG_fAspectRatio);
+	*((float*)p_stCam + 25) = fNewFOV;
+
+	// Call original function
+	R2_GLI_xAdjustCameraToViewport2(p_stDev, p_stVpt, p_stCam);
+}
 
 /*
  * Functions
@@ -84,6 +95,7 @@ void FIX_fn_vAttachHooks( void )
 	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourAttach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
+	DetourAttach((PVOID*)&R2_GLI_xAdjustCameraToViewport2, (PVOID)FIX_GLI_xAdjustCameraToViewport2);
 
 	DetourTransactionCommit();
 }
@@ -96,6 +108,7 @@ void FIX_fn_vDetachHooks( void )
 	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
+	DetourDetach((PVOID*)&R2_GLI_xAdjustCameraToViewport2, (PVOID)FIX_GLI_xAdjustCameraToViewport2);
 
 	DetourTransactionCommit();
 }

@@ -85,16 +85,10 @@ void DSP_fn_vEnumResolutions( void )
 		if ( fn_bIsDuplicateMode(&mode, nModes) )
 			continue;
 
-		DWORD ratio = 100 * dm.dmPelsHeight / dm.dmPelsWidth;
+		if ( fn_bIsSafeResolution(&mode) )
+			mode.eFlags |= e_DMF_Safe;
 
-		// Only add resolutions "close" to 4:3 or 5:4 ratio
-		if ( ratio > 73 && ratio < 82 )
-		{
-			if ( fn_bIsSafeResolution(&mode) )
-				mode.eFlags |= e_DMF_Safe;
-
-			g_a_stDispModes[nModes++] = mode;
-		}
+		g_a_stDispModes[nModes++] = mode;
 	}
 
 	fn_vFindBestResolution(nModes);

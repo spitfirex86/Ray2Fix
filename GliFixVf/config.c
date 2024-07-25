@@ -28,6 +28,7 @@ char const *szUbiPath = ".\\Ubi.ini";
  */
 
 tdstDisplayMode CFG_stDispMode = { 0, 0 };
+float CFG_fAspectRatio = 4.0f / 3.0f;
 BOOL CFG_bHalfRefRate = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
@@ -113,6 +114,12 @@ void fn_vReadR2Config( void )
 void fn_vReadFixConfig( void )
 {
 	char szBuffer[128];
+
+	// Aspect ratio
+	GetPrivateProfileString("Ray2Fix", "AspectRatio", "1.333333", szBuffer, sizeof(szBuffer), szUbiPath);
+	CFG_fAspectRatio = strtof(szBuffer, NULL);
+	// use 4:3 aspect if float conversion fails
+	if (CFG_fAspectRatio == 0.f) CFG_fAspectRatio = 4.0f / 3.0f;
 
 	// Refresh rate
 	GetPrivateProfileString("Ray2Fix", "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
