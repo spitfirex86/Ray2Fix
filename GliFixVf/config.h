@@ -16,6 +16,7 @@ tdstDisplayMode;
  */
 
 extern tdstDisplayMode CFG_stDispMode;
+extern float CFG_fAspectRatio;
 extern BOOL CFG_bHalfRefRate;
 
 extern BOOL CFG_bIsMainModuleR2;
