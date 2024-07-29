@@ -16,6 +16,8 @@ tdstDisplayMode;
  */
 
 extern tdstDisplayMode CFG_stActualDispMode;
+extern float CFG_xActualRatio;
+
 extern tdstDisplayMode CFG_stDispMode;
 extern BOOL CFG_bHalfRefRate;
 

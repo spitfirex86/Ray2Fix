@@ -28,6 +28,8 @@ char const *szUbiPath = ".\\Ubi.ini";
  */
 
 tdstDisplayMode CFG_stActualDispMode = { 0 };
+float CFG_xActualRatio = 0;
+
 tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 
@@ -136,6 +138,11 @@ void CFG_fn_vInitGlobals( void )
 
 	tdstDisplayMode *lpGlideMode = fn_p_stGetClosestGlideMode(&CFG_stDispMode);
 	CFG_stDispMode = *lpGlideMode;
+
+	CFG_xActualRatio = (float)CFG_stActualDispMode.dwHeight / (float)CFG_stActualDispMode.dwWidth;
+	// fake res - not needed anymore
+	//CFG_stActualDispMode.dwHeight = CFG_stDispMode.dwHeight;
+	//CFG_stActualDispMode.dwWidth = CFG_stDispMode.dwHeight / CFG_xActualRatio;
 }
 
 BOOL CFG_fn_bOpenConfigTool( void )
