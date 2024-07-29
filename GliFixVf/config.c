@@ -27,12 +27,14 @@ char const *szUbiPath = ".\\Ubi.ini";
  * Global Vars
  */
 
-tdstDisplayMode CFG_stDispMode = { 0, 0 };
+tdstDisplayMode CFG_stActualDispMode = { 0 };
+tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
 
+BOOL CFG_bIsWidescreen = FALSE;
 
 /*
  * Functions
@@ -107,7 +109,7 @@ void fn_vReadR2Config( void )
 			stFromConfig = stDefaultRes;
 		}
 	}
-	CFG_stDispMode = stFromConfig;
+	CFG_stActualDispMode = stFromConfig;
 }
 
 void fn_vReadFixConfig( void )
@@ -128,6 +130,9 @@ void CFG_fn_vInitGlobals( void )
 
 	fn_vReadR2Config();
 	fn_vReadFixConfig();
+
+	unsigned int ratio = 100 * CFG_stActualDispMode.dwHeight / CFG_stActualDispMode.dwWidth;
+	CFG_bIsWidescreen = (ratio <= 73);
 
 	tdstDisplayMode *lpGlideMode = fn_p_stGetClosestGlideMode(&CFG_stDispMode);
 	CFG_stDispMode = *lpGlideMode;

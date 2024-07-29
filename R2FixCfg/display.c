@@ -88,7 +88,7 @@ void DSP_fn_vEnumResolutions( void )
 		DWORD ratio = 100 * dm.dmPelsHeight / dm.dmPelsWidth;
 
 		// Only add resolutions "close" to 4:3 or 5:4 ratio
-		if ( ratio > 73 && ratio < 82 )
+		if ( /*ratio > 73 &&*/ ratio < 82 ) // temp: allow for widescreen
 		{
 			if ( fn_bIsSafeResolution(&mode) )
 				mode.eFlags |= e_DMF_Safe;
