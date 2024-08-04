@@ -162,8 +162,6 @@ AI_tdstNodeInterpret * FIX_fn_p_stSPOSuperimpoed( HIE_tdstSuperObject * p_SuperO
 	AI_tdstGetSetParam stParam;
 	HIE_tdstSuperObject *hNewSuperObjPerso;
 
-	//MTH_tdxReal xActualVptWidth = (MTH_tdxReal)CFG_stFakeDispMode.dwWidth;
-	//MTH_tdxReal xActualVptHeight = (MTH_tdxReal)CFG_stFakeDispMode.dwHeight;
 	MTH_tdxReal xVptWidth = (MTH_tdxReal)GAM_g_stEngineStructure->stFixViewportAttr.dwWidth;
 	MTH_tdxReal xVptHeight = (MTH_tdxReal)GAM_g_stEngineStructure->stFixViewportAttr.dwHeight;
 
@@ -301,7 +299,7 @@ void FIX_fn_vAttachHooks( void )
 	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourAttach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
 
-	if ( CFG_bIsWidescreen )
+	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
 		DetourAttach((PVOID*)&GLI_xAdjustCameraToViewport2, (PVOID)FIX_xAdjustCameraToViewport2);
 		DetourAttach((PVOID*)&GLI_vDraw2DSpriteWithPercent, (PVOID)FIX_vDraw2DSpriteWithPercent);
@@ -321,7 +319,7 @@ void FIX_fn_vDetachHooks( void )
 	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
 
-	if ( CFG_bIsWidescreen )
+	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
 		DetourDetach((PVOID *)&GLI_xAdjustCameraToViewport2, (PVOID)FIX_xAdjustCameraToViewport2);
 		DetourDetach((PVOID *)&GLI_vDraw2DSpriteWithPercent, (PVOID)FIX_vDraw2DSpriteWithPercent);

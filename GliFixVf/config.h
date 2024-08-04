@@ -24,6 +24,7 @@ extern BOOL CFG_bHalfRefRate;
 extern BOOL CFG_bIsMainModuleR2;
 extern BOOL CFG_bIsFixEnabled;
 
+extern BOOL CFG_bPatchWidescreen;
 extern BOOL CFG_bIsWidescreen;
 
 

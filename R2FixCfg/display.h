@@ -8,7 +8,8 @@ typedef enum tdeDisplayModeFlags_
 	e_DMF_None = 0,
 	e_DMF_Safe = 1 << 0,
 	e_DMF_Best = 1 << 1,
-	e_DMF_Custom = 1 << 2
+	e_DMF_Custom = 1 << 2,
+	e_DMF_Widescreen = 1 << 3
 }
 tdeDisplayModeFlags;
 

@@ -6,23 +6,24 @@
 #include "main.h"
 
 
-HWND hThis;
+static HWND hThis;
 
-HWND hStatus;
-HWND hToggle;
-HWND hResolution;
+static HWND hStatus;
+static HWND hToggle;
+static HWND hResolution;
+static HWND hPatchWidescreen;
 
-HWND hResX;
-HWND hResY;
-HWND hResLabel;
+static HWND hResX;
+static HWND hResY;
+static HWND hResLabel;
 
-HWND hFsModeWin;
-HWND hFsModeFs;
+static HWND hFsModeWin;
+static HWND hFsModeFs;
 
-HWND hAdvGroup;
-HWND hVsync;
-HWND hRefRateLabel;
-HWND hRefRate;
+static HWND hAdvGroup;
+static HWND hVsync;
+static HWND hRefRateLabel;
+static HWND hRefRate;
 
 int lCbCustomIdx;
 tdstDisplayMode eLastMode;
@@ -166,44 +167,68 @@ void fn_vToggleAdvanced( BOOL bVisible )
 	ShowWindow(hRefRate, nCmdShow);
 }
 
+int fn_lAddThisModeToCB( HWND hCB, tdstDisplayMode *lpMode )
+{
+	char szItemText[60];
+
+	sprintf_s(szItemText, sizeof(szItemText), "%d x %d", lpMode->dwWidth, lpMode->dwHeight);
+
+	if ( lpMode->eFlags & e_DMF_Safe )
+		strcat_s(szItemText, sizeof(szItemText), " *");
+
+	if ( lpMode->eFlags & e_DMF_Best )
+		strcat_s(szItemText, sizeof(szItemText), " +");
+
+	if ( lpMode->eFlags & e_DMF_Widescreen )
+		strcat_s(szItemText, sizeof(szItemText), " (wide)");
+
+	if ( lpMode->eFlags & e_DMF_Custom )
+		strcat_s(szItemText, sizeof(szItemText), " (custom)");
+
+	int idx = ComboBox_AddString(hCB, szItemText);
+	ComboBox_SetItemData(hCB, idx, lpMode);
+
+	return idx;
+}
+
 void fn_vPopulateDisplayModes( HWND hCB )
 {
 	int idxSelected = -1;
+	int idxFallback = 0;
 
-	for ( int i = 0; i < C_MaxModes; i++ )
+	for ( tdstDisplayMode *pMode = &g_a_stDispModes[0]; pMode < &g_a_stDispModes[C_MaxModes]; pMode++ )
 	{
-		tdstDisplayMode *lpMode = &g_a_stDispModes[i];
-		char szItemText[60];
-
-		if ( lpMode->dwWidth == 0 )
+		if ( pMode->dwWidth == 0 )
 			break;
+		if ( pMode->eFlags & e_DMF_Widescreen )
+			continue;
 
-		sprintf_s(szItemText, sizeof(szItemText), "%d x %d", lpMode->dwWidth, lpMode->dwHeight);
+		int idx = fn_lAddThisModeToCB(hCB, pMode);
 
-		if ( lpMode->eFlags & e_DMF_Safe )
-			strcat_s(szItemText, sizeof(szItemText), " *");
+		// this is just to make sure a reasonably okay res is selected if all else fails
+		if ( pMode->eFlags & (e_DMF_Safe | e_DMF_Best) )
+			idxFallback = idx;
 
-		if ( lpMode->eFlags & e_DMF_Best )
-			strcat_s(szItemText, sizeof(szItemText), " +");
-
-		if ( lpMode->eFlags & e_DMF_Custom )
-			strcat_s(szItemText, sizeof(szItemText), " (custom)");
-
-		int idx = ComboBox_AddString(hCB, szItemText);
-		ComboBox_SetItemData(hCB, idx, lpMode);
-
-		if ( lpMode->eFlags )
-			ComboBox_SetCurSel(hCB, idx);
-
-		if ( lpMode->dwWidth == g_stCurrentMode.dwWidth &&
-			 lpMode->dwHeight == g_stCurrentMode.dwHeight )
-		{
+		if ( pMode->dwWidth == g_stCurrentMode.dwWidth &&
+			 pMode->dwHeight == g_stCurrentMode.dwHeight )
 			idxSelected = idx;
-		}
 	}
 
-	if ( idxSelected >= 0 )
-		ComboBox_SetCurSel(hCB, idxSelected);
+	for ( tdstDisplayMode *pMode = &g_a_stDispModes[0]; pMode < &g_a_stDispModes[C_MaxModes]; pMode++ )
+	{
+		if ( pMode->dwWidth == 0 )
+			break;
+		if ( !(pMode->eFlags & e_DMF_Widescreen) )
+			continue;
+
+		int idx = fn_lAddThisModeToCB(hCB, pMode);
+
+		if ( pMode->dwWidth == g_stCurrentMode.dwWidth &&
+			pMode->dwHeight == g_stCurrentMode.dwHeight )
+			idxSelected = idx;
+	}
+
+	ComboBox_SetCurSel(hCB, (idxSelected >= 0) ? idxSelected : idxFallback);
 
 	fn_vSetDisplayMode(hResolution);
 
@@ -219,14 +244,7 @@ void fn_vPopulateRefRates( HWND hCB )
 	int lHalf = ComboBox_AddString(hCB, "30");
 	ComboBox_SetItemData(hCB, lHalf, e_RR_Half);
 
-	if ( g_eRefRate == e_RR_Half )
-	{
-		ComboBox_SetCurSel(hCB, lHalf);
-	}
-	else
-	{
-		ComboBox_SetCurSel(hCB, lFull);
-	}
+	ComboBox_SetCurSel(hCB, (g_eRefRate == e_RR_Half) ? lHalf : lFull);
 }
 
 BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -241,6 +259,7 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		hResX = GetDlgItem(hWnd, IDC_RESX);
 		hResY = GetDlgItem(hWnd, IDC_RESY);
 		hResLabel = GetDlgItem(hWnd, IDC_RES_LABEL);
+		hPatchWidescreen = GetDlgItem(hWnd, IDC_PATCHWIDE);
 		
 		hFsModeWin = GetDlgItem(hWnd, IDC_FSMODE_WND);
 		hFsModeFs = GetDlgItem(hWnd, IDC_FSMODE_FS);
@@ -257,6 +276,7 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		Button_SetCheck(hVsync, g_bForceVsync);
 		Button_SetCheck(hFsModeWin, !g_bFullscreen);
 		Button_SetCheck(hFsModeFs, g_bFullscreen);
+		Button_SetCheck(hPatchWidescreen, g_bPatchWidescreen);
 
 		SendMessage(hResX, EM_LIMITTEXT, 7, 0);
 		SendMessage(hResY, EM_LIMITTEXT, 7, 0);
@@ -304,16 +324,23 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			}
 			break;
 
+		case IDC_PATCHWIDE:
+			g_bPatchWidescreen = Button_GetCheck(hPatchWidescreen);
+			g_bUnsavedChanges = TRUE;
+			return TRUE;
+
 		case IDC_FSMODE_WND:
 			g_bFullscreen = FALSE;
 			Button_SetCheck(hFsModeWin, BST_CHECKED);
 			Button_SetCheck(hFsModeFs, BST_UNCHECKED);
+			g_bUnsavedChanges = TRUE;
 			return TRUE;
 
 		case IDC_FSMODE_FS:
 			g_bFullscreen = TRUE;
 			Button_SetCheck(hFsModeWin, BST_UNCHECKED);
 			Button_SetCheck(hFsModeFs, BST_CHECKED);
+			g_bUnsavedChanges = TRUE;
 			return TRUE;
 
 		case IDC_VSYNC:

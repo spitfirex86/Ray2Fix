@@ -36,6 +36,7 @@ BOOL CFG_bHalfRefRate = FALSE;
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
 
+BOOL CFG_bPatchWidescreen = FALSE;
 BOOL CFG_bIsWidescreen = FALSE;
 
 /*
@@ -118,12 +119,15 @@ void fn_vReadFixConfig( void )
 {
 	char szBuffer[128];
 
+	// Widescreen patch
+	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+		CFG_bPatchWidescreen = TRUE;
+
 	// Refresh rate
 	GetPrivateProfileString("Ray2Fix", "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
-	{
 		CFG_bHalfRefRate = TRUE;
-	}
 }
 
 void CFG_fn_vInitGlobals( void )
@@ -140,9 +144,6 @@ void CFG_fn_vInitGlobals( void )
 	CFG_stDispMode = *lpGlideMode;
 
 	CFG_xActualRatio = (float)CFG_stActualDispMode.dwHeight / (float)CFG_stActualDispMode.dwWidth;
-	// fake res - not needed anymore
-	//CFG_stActualDispMode.dwHeight = CFG_stDispMode.dwHeight;
-	//CFG_stActualDispMode.dwWidth = CFG_stDispMode.dwHeight / CFG_xActualRatio;
 }
 
 BOOL CFG_fn_bOpenConfigTool( void )

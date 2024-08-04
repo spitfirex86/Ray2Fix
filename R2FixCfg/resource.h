@@ -49,6 +49,8 @@
 #define IDC_RESY                        1030
 #define IDC_RES_LABEL                   1031
 #define IDC_LS                          1032
+#define IDC_CHECK1                      1036
+#define IDC_PATCHWIDE                   1036
 #define IDC_RS                          1062
 #define IDC_LSCLICK                     1063
 #define IDC_RSCLICK                     1064
@@ -75,7 +77,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        111
 #define _APS_NEXT_COMMAND_VALUE         40003
-#define _APS_NEXT_CONTROL_VALUE         1036
+#define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

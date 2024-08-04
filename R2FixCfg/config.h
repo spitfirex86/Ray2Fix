@@ -39,6 +39,7 @@ extern tdstDisplayMode g_stCurrentMode;
 extern tdeRefRate g_eRefRate;
 extern BOOL g_bForceVsync;
 extern BOOL g_bFullscreen;
+extern BOOL g_bPatchWidescreen;
 
 extern tdeErrorState g_eError;
 extern tdeVerifyErr g_eErrorDetails;
