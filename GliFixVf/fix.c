@@ -372,3 +372,24 @@ void FIX_fn_vRemoveModeEnum( void )
 
 	VirtualProtect(lpCode, sizeof(DisplayConfigCode), dwOldProtect, &dwNewProtect);
 }
+
+
+/*
+ * Special widescreen exports
+ */
+
+BOOL GLI_FIX_bIsWidescreen( void )
+{
+	return ( CFG_bIsWidescreen && CFG_bPatchWidescreen );
+}
+
+float GLI_FIX_xGetActualRatio( void )
+{
+	return CFG_xActualRatio;
+}
+
+void GLI_FIX_vGetActualDisplayMode( unsigned long *p_ulWidthOut, unsigned long *p_ulHeightOut )
+{
+	*p_ulWidthOut = CFG_stActualDispMode.dwWidth;
+	*p_ulHeightOut = CFG_stActualDispMode.dwHeight;
+}
