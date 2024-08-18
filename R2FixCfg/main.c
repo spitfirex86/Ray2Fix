@@ -8,7 +8,7 @@
 HINSTANCE g_hInst;
 BOOL g_bUnsavedChanges = FALSE;
 
-char szAppName[80];
+char g_szAppName[80];
 
 HWND hTC;
 HWND hAdvanced;
@@ -63,7 +63,7 @@ BOOL fn_bAskSaveBeforeClose( HWND hWnd )
 	char szPrompt[250];
 	LoadString(g_hInst, IDS_ASKTOSAVE, szPrompt, sizeof(szPrompt));
 
-	int result = MessageBox(hWnd, szPrompt, szAppName, MB_YESNOCANCEL | MB_ICONASTERISK);
+	int result = MessageBox(hWnd, szPrompt, g_szAppName, MB_YESNOCANCEL | MB_ICONASTERISK);
 
 	switch ( result )
 	{
@@ -178,7 +178,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	MSG msg;
 	g_hInst = hInstance;
 
-	LoadRcString(IDS_APPNAME, szAppName);
+	LoadRcString(IDS_APPNAME, g_szAppName);
 
 	HANDLE hMutex = CreateMutex(NULL, TRUE, "Ray2FixCfgSI");
 
@@ -188,7 +188,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	if ( GetLastError() == ERROR_ALREADY_EXISTS )
 	{
 		// If another instance already exists, find the window and activate it
-		HWND hWndExisting = FindWindow(NULL, szAppName);
+		HWND hWndExisting = FindWindow(NULL, g_szAppName);
 		if ( hWndExisting )
 		{
 			SetForegroundWindow(hWndExisting);
@@ -206,7 +206,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	if ( hDlg == NULL )
 		return 1;
 
-	SetWindowText(hDlg, szAppName);
+	SetWindowText(hDlg, g_szAppName);
 	ShowWindow(hDlg, nCmdShow);
 
 	HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));

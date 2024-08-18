@@ -37,6 +37,17 @@ char const *a_szFilesToDelete[] = {
 	"glide3x.dll"
 };
 
+char const *a_szToManualDelete[] = {
+	"goggame.sdb",
+	"goglog.ini",
+	"gog.ico",
+	"support.ico",
+	"EULA.txt",
+	"webcache.zip",
+	"goggame-1207658940.dll",
+	"goggame-1207658940.info"
+};
+
 
 /*
  * Functions
@@ -164,12 +175,26 @@ void fn_vWriteDegeIni( void )
 	WritePrivateProfileString("General", "FullScreenMode", szFullScreen, szDegePath);
 }
 
-void fn_vCleanUpGogMess( void )
+void fn_vSoftCleanUp( void )
 {
 	for ( DWORD i = 0; i < ARRAYSIZE(a_szFilesToDelete); i++ )
 	{
 		char szFilePath[MAX_PATH];
 		sprintf_s(szFilePath, MAX_PATH, ".\\%s", a_szFilesToDelete[i]);
+
+		DeleteFile(szFilePath);
+	}
+}
+
+void fn_vManualCleanUp( void )
+{
+	/* do regular cleanup first */
+	fn_vSoftCleanUp();
+
+	for ( DWORD i = 0; i < ARRAYSIZE(a_szToManualDelete); i++ )
+	{
+		char szFilePath[MAX_PATH];
+		sprintf_s(szFilePath, MAX_PATH, ".\\%s", a_szToManualDelete[i]);
 
 		DeleteFile(szFilePath);
 	}
@@ -194,7 +219,7 @@ void CFG_fn_vVerify( void )
 	if ( GetFileAttributes(".\\nglide_config.exe") != INVALID_FILE_ATTRIBUTES )
 	{
 		// Delete unnecessary nGlide files
-		fn_vCleanUpGogMess();
+		fn_vSoftCleanUp();
 	}
 
 	if ( GetFileAttributes(szUbiPath) == INVALID_FILE_ATTRIBUTES )

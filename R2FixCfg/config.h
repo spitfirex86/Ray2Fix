@@ -52,3 +52,5 @@ extern tdeVerifyErr g_eErrorDetails;
 void CFG_fn_vRead( void );
 void CFG_fn_vWrite( void );
 void CFG_fn_vVerify( void );
+
+void fn_vManualCleanUp( void );

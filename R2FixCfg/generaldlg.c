@@ -24,6 +24,7 @@ static HWND hAdvGroup;
 static HWND hVsync;
 static HWND hRefRateLabel;
 static HWND hRefRate;
+static HWND hCleanup;
 
 int lCbCustomIdx;
 tdstDisplayMode eLastMode;
@@ -165,6 +166,7 @@ void fn_vToggleAdvanced( BOOL bVisible )
 	ShowWindow(hVsync, nCmdShow);
 	ShowWindow(hRefRateLabel, nCmdShow);
 	ShowWindow(hRefRate, nCmdShow);
+	ShowWindow(hCleanup, nCmdShow);
 }
 
 int fn_lAddThisModeToCB( HWND hCB, tdstDisplayMode *lpMode )
@@ -268,6 +270,7 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		hVsync = GetDlgItem(hWnd, IDC_VSYNC);
 		hRefRateLabel = GetDlgItem(hWnd, IDC_REFRATE_LABEL);
 		hRefRate = GetDlgItem(hWnd, IDC_REFRATE);
+		hCleanup = GetDlgItem(hWnd, IDC_CLEANUP);
 
 		fn_vUpdateStatus(hStatus, hToggle);
 		fn_vPopulateDisplayModes(hResolution);
@@ -361,6 +364,17 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 				return TRUE;
 			}
 			break;
+
+		case IDC_CLEANUP:
+			{
+				char szPrompt[250];
+				LoadString(g_hInst, IDS_CLEANUPWARN, szPrompt, sizeof(szPrompt));
+
+				if ( MessageBox(hWnd, szPrompt, g_szAppName, MB_OKCANCEL | MB_ICONWARNING) == IDOK )
+					fn_vManualCleanUp();
+
+				return TRUE;
+			}
 		}
 		break;
 	}

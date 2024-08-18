@@ -104,6 +104,7 @@ BEGIN
     CONTROL         "Force VSync",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,144,91,55,10
     LTEXT           "Refresh rate",IDC_REFRATE_LABEL,144,108,42,8,NOT WS_VISIBLE
     COMBOBOX        IDC_REFRATE,197,106,43,46,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Clean up files",IDC_CLEANUP,162,126,60,14,NOT WS_VISIBLE
 END
 
 IDD_PAD DIALOGEX 0, 0, 254, 194
@@ -337,6 +338,7 @@ STRINGTABLE
 BEGIN
     IDS_VE_OKWARN           "File verification completed with warnings."
     IDS_NEWLINE             "\r\n"
+    IDS_CLEANUPWARN         "This will delete *all* extra GOG files that are not necessary for the game to run.\n\nAre you sure you want to continue?"
 END
 
 #endif    // English (United States) resources
