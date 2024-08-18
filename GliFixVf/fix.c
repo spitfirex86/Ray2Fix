@@ -174,7 +174,7 @@ AI_tdstNodeInterpret * FIX_fn_p_stSPOSuperimpoed( HIE_tdstSuperObject * p_SuperO
 		MTH3D_tdstVector stVertex;
 		DNM_tdstDynam *hDynam = HIE_M_hSuperObjectGetActor(hNewSuperObjPerso)->hDynam;
 		HIE_fn_SO_vSetSuperimposedFlag(hNewSuperObjPerso);
-		fn_vRemoveObjectInSectorList(hNewSuperObjPerso);
+		SCT_fn_vRemoveObjectInSectorList(hNewSuperObjPerso);
 
 		POS_tdstCompletePosition *hPersoGlobalMatrix = hNewSuperObjPerso->p_stGlobalMatrix;
 
@@ -219,7 +219,7 @@ AI_tdstNodeInterpret * FIX_fn_p_stSPOSuperimpoed( HIE_tdstSuperObject * p_SuperO
 		MTH3D_tdstVector stVertex;
 		DNM_tdstDynam *hDynam = HIE_M_hSuperObjectGetActor(hNewSuperObjPerso)->hDynam;
 		HIE_fn_SO_vSetSuperimposedFlag(hNewSuperObjPerso);
-		fn_vRemoveObjectInSectorList(hNewSuperObjPerso);
+		SCT_fn_vRemoveObjectInSectorList(hNewSuperObjPerso);
 
 		POS_tdstCompletePosition *hPersoGlobalMatrix = hNewSuperObjPerso->p_stGlobalMatrix;
 
