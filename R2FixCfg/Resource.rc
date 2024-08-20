@@ -90,19 +90,21 @@ BEGIN
     GROUPBOX        "Status",IDC_STATIC,6,6,242,68
     EDITTEXT        IDC_STATUSLINE,14,18,226,34,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
     CONTROL         "Enable Ray2Fix",IDC_MAINTOGGLE,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,14,58,65,10
-    GROUPBOX        "Resolution / Window Size",IDC_STATIC,6,78,126,46
+    GROUPBOX        "Resolution / Window size",IDC_STATIC,6,78,126,60
     COMBOBOX        IDC_RESOLUTION,14,90,110,74,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_RESX,14,90,46,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
     CTEXT           "x",IDC_RES_LABEL,60,92,18,8,NOT WS_VISIBLE
     EDITTEXT        IDC_RESY,78,90,46,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
     RADIOBUTTON     "Windowed*",IDC_FSMODE_WND,14,107,53,10,WS_GROUP
     RADIOBUTTON     "Fullscreen",IDC_FSMODE_FS,74,107,48,10
-    GROUPBOX        "Advanced",IDC_ADVGROUP,136,78,112,72,NOT WS_VISIBLE
-    CONTROL         "Force VSync",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,144,91,55,10
-    LTEXT           "Refresh Rate",IDC_REFRATE_LABEL,144,108,44,8,NOT WS_VISIBLE
-    COMBOBOX        IDC_REFRATE,197,106,43,46,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Widescreen patch",IDC_PATCHWIDE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,121,73,10
     LTEXT           "*  Suggested ""safe"" values for speedrunning",IDC_STATIC,6,168,144,8
     LTEXT           "+  Largest recommended size for windowed mode",IDC_STATIC,6,180,161,8
+    GROUPBOX        "Advanced",IDC_ADVGROUP,136,78,112,72,NOT WS_VISIBLE
+    CONTROL         "Force VSync",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,144,91,55,10
+    LTEXT           "Refresh rate",IDC_REFRATE_LABEL,144,108,42,8,NOT WS_VISIBLE
+    COMBOBOX        IDC_REFRATE,197,106,43,46,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Clean up files",IDC_CLEANUP,162,126,60,14,NOT WS_VISIBLE
 END
 
 IDD_PAD DIALOGEX 0, 0, 254, 194
@@ -157,8 +159,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,3,1,0
- PRODUCTVERSION 1,3,1,0
+ FILEVERSION 1,4,0,0
+ PRODUCTVERSION 1,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -175,12 +177,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Spitfire_x86"
             VALUE "FileDescription", "Ray2Fix Settings"
-            VALUE "FileVersion", "1.3.1.0"
+            VALUE "FileVersion", "1.4.0.0"
             VALUE "InternalName", "R2FixCfg.exe"
             VALUE "LegalCopyright", "Copyright (C) 2023"
             VALUE "OriginalFilename", "R2FixCfg.exe"
             VALUE "ProductName", "R2FixCfg"
-            VALUE "ProductVersion", "1.3.1.0"
+            VALUE "ProductVersion", "1.4.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -336,6 +338,7 @@ STRINGTABLE
 BEGIN
     IDS_VE_OKWARN           "File verification completed with warnings."
     IDS_NEWLINE             "\r\n"
+    IDS_CLEANUPWARN         "This will delete *all* extra GOG files that are not necessary for the game to run.\n\nAre you sure you want to continue?"
 END
 
 #endif    // English (United States) resources

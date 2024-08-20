@@ -15,12 +15,17 @@ tdstDisplayMode;
  * Global Vars
  */
 
+extern tdstDisplayMode CFG_stActualDispMode;
+extern float CFG_xActualRatio;
+
 extern tdstDisplayMode CFG_stDispMode;
-extern float CFG_fAspectRatio;
 extern BOOL CFG_bHalfRefRate;
 
 extern BOOL CFG_bIsMainModuleR2;
 extern BOOL CFG_bIsFixEnabled;
+
+extern BOOL CFG_bPatchWidescreen;
+extern BOOL CFG_bIsWidescreen;
 
 
 /*

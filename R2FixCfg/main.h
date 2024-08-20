@@ -11,3 +11,5 @@
 
 extern HINSTANCE g_hInst;
 extern BOOL g_bUnsavedChanges;
+
+extern char g_szAppName[80];

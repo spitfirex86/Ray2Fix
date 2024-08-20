@@ -27,13 +27,17 @@ char const *szUbiPath = ".\\Ubi.ini";
  * Global Vars
  */
 
-tdstDisplayMode CFG_stDispMode = { 0, 0 };
-float CFG_fAspectRatio = 4.0f / 3.0f;
+tdstDisplayMode CFG_stActualDispMode = { 0 };
+float CFG_xActualRatio = 0;
+
+tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
 
+BOOL CFG_bPatchWidescreen = FALSE;
+BOOL CFG_bIsWidescreen = FALSE;
 
 /*
  * Functions
@@ -108,25 +112,22 @@ void fn_vReadR2Config( void )
 			stFromConfig = stDefaultRes;
 		}
 	}
-	CFG_stDispMode = stFromConfig;
+	CFG_stActualDispMode = stFromConfig;
 }
 
 void fn_vReadFixConfig( void )
 {
 	char szBuffer[128];
 
-	// Aspect ratio
-	GetPrivateProfileString("Ray2Fix", "AspectRatio", "1.333333", szBuffer, sizeof(szBuffer), szUbiPath);
-	CFG_fAspectRatio = strtof(szBuffer, NULL);
-	// use 4:3 aspect if float conversion fails
-	if (CFG_fAspectRatio == 0.f) CFG_fAspectRatio = 4.0f / 3.0f;
+	// Widescreen patch
+	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+		CFG_bPatchWidescreen = TRUE;
 
 	// Refresh rate
 	GetPrivateProfileString("Ray2Fix", "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
-	{
 		CFG_bHalfRefRate = TRUE;
-	}
 }
 
 void CFG_fn_vInitGlobals( void )
@@ -136,8 +137,13 @@ void CFG_fn_vInitGlobals( void )
 	fn_vReadR2Config();
 	fn_vReadFixConfig();
 
+	unsigned int ratio = 100 * CFG_stActualDispMode.dwHeight / CFG_stActualDispMode.dwWidth;
+	CFG_bIsWidescreen = (ratio <= 73);
+
 	tdstDisplayMode *lpGlideMode = fn_p_stGetClosestGlideMode(&CFG_stDispMode);
 	CFG_stDispMode = *lpGlideMode;
+
+	CFG_xActualRatio = (float)CFG_stActualDispMode.dwHeight / (float)CFG_stActualDispMode.dwWidth;
 }
 
 BOOL CFG_fn_bOpenConfigTool( void )

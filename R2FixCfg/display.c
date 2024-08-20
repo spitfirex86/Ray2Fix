@@ -55,6 +55,9 @@ void fn_vFindBestResolution( int nModes )
 	{
 		tdstDisplayMode *mode = &g_a_stDispModes[i];
 
+		if ( mode->eFlags & e_DMF_Widescreen ) // skip widescreen resolutions
+			continue;
+
 		// Find the largest resolution that fits in the work area
 		if ( (int)mode->dwWidth <= rcWorkArea.right && (int)mode->dwHeight <= rcWorkArea.bottom )
 		{
@@ -85,10 +88,19 @@ void DSP_fn_vEnumResolutions( void )
 		if ( fn_bIsDuplicateMode(&mode, nModes) )
 			continue;
 
-		if ( fn_bIsSafeResolution(&mode) )
-			mode.eFlags |= e_DMF_Safe;
+		DWORD ratio = 100 * dm.dmPelsHeight / dm.dmPelsWidth;
 
-		g_a_stDispModes[nModes++] = mode;
+		// Only add resolutions "close" to 4:3 or 5:4 ratio
+		if ( /*ratio > 73 &&*/ ratio < 82 ) // temp: allow for widescreen
+		{
+			if ( fn_bIsSafeResolution(&mode) )
+				mode.eFlags |= e_DMF_Safe;
+
+			if ( ratio <= 73 )
+				mode.eFlags |= e_DMF_Widescreen;
+
+			g_a_stDispModes[nModes++] = mode;
+		}
 	}
 
 	fn_vFindBestResolution(nModes);

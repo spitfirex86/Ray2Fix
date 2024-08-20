@@ -14,6 +14,7 @@ tdstDisplayMode g_stCurrentMode = { 0 };
 tdeRefRate g_eRefRate = e_RR_Full;
 BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
+BOOL g_bPatchWidescreen = FALSE;
 
 tdeErrorState g_eError = e_ES_Ok;
 tdeVerifyErr g_eErrorDetails = e_VE_Ok;
@@ -26,16 +27,7 @@ tdeVerifyErr g_eErrorDetails = e_VE_Ok;
 char const *szDegePath = ".\\dgVoodoo.conf";
 char const *szUbiPath = ".\\Ubi.ini";
 
-char const *szTrue = "true";
-char const *szFalse = "false";
-
 char const *a_szFilesToDelete[] = {
-	"goggame.sdb",
-	"goglog.ini",
-	"gog.ico",
-	"support.ico",
-	"EULA.txt",
-	"webcache.zip",
 	"nglide_config.exe",
 	"nglide_readme.txt",
 	"nGlideEULA.txt",
@@ -43,6 +35,17 @@ char const *a_szFilesToDelete[] = {
 	"3DfxSpl3.dll",
 	"glide.dll",
 	"glide3x.dll"
+};
+
+char const *a_szToManualDelete[] = {
+	"goggame.sdb",
+	"goglog.ini",
+	"gog.ico",
+	"support.ico",
+	"EULA.txt",
+	"webcache.zip",
+	"goggame-1207658940.dll",
+	"goggame-1207658940.info"
 };
 
 
@@ -74,6 +77,11 @@ void fn_vReadUbiIni( void )
 		g_stCurrentMode.dwWidth = dwWidth;
 		g_stCurrentMode.dwHeight = dwHeight;
 	}
+
+	// Widescreen patch
+	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+		g_bPatchWidescreen = TRUE;
 }
 
 void fn_vReadDegeIni( void )
@@ -96,12 +104,12 @@ void fn_vReadDegeIni( void )
 
 	// Force VSync
 	GetPrivateProfileString("Glide", "ForceVerticalSync", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( !strcmp(szBuffer, szTrue) )
+	if ( !strcmp(szBuffer, "true") )
 		g_bForceVsync = TRUE;
 
 	// Fullscreen mode
 	GetPrivateProfileString("General", "FullScreenMode", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( !strcmp(szBuffer, szTrue) )
+	if ( !strcmp(szBuffer, "true") )
 		g_bFullscreen = TRUE;
 }
 
@@ -128,13 +136,13 @@ void fn_vWriteUbiIni( void )
 	// Tweaks - removed
 	WritePrivateProfileString("Ray2Fix", "Tweaks", "0", szUbiPath);
 
+	// Widescreen patch
+	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_bPatchWidescreen);
+	WritePrivateProfileString("Ray2Fix", "PatchWidescreen", szBuffer, szUbiPath);
+
 	// Refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_eRefRate == e_RR_Half));
 	WritePrivateProfileString("Ray2Fix", "HalfRefRate", szBuffer, szUbiPath);
-
-	// Aspect ratio
-	sprintf_s(szBuffer, sizeof(szBuffer), "%f", (float)g_stCurrentMode.dwWidth / (float)g_stCurrentMode.dwHeight);
-	WritePrivateProfileString("Ray2Fix", "AspectRatio", szBuffer, szUbiPath);
 }
 
 void fn_vWriteDegeIni( void )
@@ -142,16 +150,16 @@ void fn_vWriteDegeIni( void )
 	char szBuffer[128];
 
 	// These values should never change, but write them anyway in case the user messes up the config
-	WritePrivateProfileString("General", "ProgressiveScanlineOrder", szTrue, szDegePath);
-	WritePrivateProfileString("General", "EnumerateRefreshRates", szTrue, szDegePath);
+	WritePrivateProfileString("General", "ProgressiveScanlineOrder", "true", szDegePath);
+	WritePrivateProfileString("General", "EnumerateRefreshRates", "true", szDegePath);
 	WritePrivateProfileString("General", "ScalingMode", "stretched_ar", szDegePath);
-	WritePrivateProfileString("General", "KeepWindowAspectRatio", szTrue, szDegePath);
+	WritePrivateProfileString("General", "KeepWindowAspectRatio", "true", szDegePath);
 	WritePrivateProfileString("Glide", "VideoCard", "voodoo_2", szDegePath);
 	WritePrivateProfileString("Glide", "OnboardRAM", "12", szDegePath);
 	WritePrivateProfileString("Glide", "MemorySizeOfTMU", "4096", szDegePath);
 	WritePrivateProfileString("Glide", "NumberOfTMUs", "2", szDegePath);
-	WritePrivateProfileString("Glide", "EnableGlideGammaRamp", szTrue, szDegePath);
-	WritePrivateProfileString("Glide", "EnableInactiveAppState", szFalse, szDegePath);
+	WritePrivateProfileString("Glide", "EnableGlideGammaRamp", "true", szDegePath);
+	WritePrivateProfileString("Glide", "EnableInactiveAppState", "false", szDegePath);
 
 	// Display mode & refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "h:%i, v:%i, refrate:%i",
@@ -159,20 +167,34 @@ void fn_vWriteDegeIni( void )
 	WritePrivateProfileString("Glide", "Resolution", szBuffer, szDegePath);
 
 	// Force VSync
-	char const *szVsync = g_bForceVsync ? szTrue : szFalse;
+	char const *szVsync = g_bForceVsync ? "true" : "false";
 	WritePrivateProfileString("Glide", "ForceVerticalSync", szVsync, szDegePath);
 
 	// Fullscreen mode
-	char const *szFullScreen = g_bFullscreen ? szTrue : szFalse;
+	char const *szFullScreen = g_bFullscreen ? "true" : "false";
 	WritePrivateProfileString("General", "FullScreenMode", szFullScreen, szDegePath);
 }
 
-void fn_vCleanUpGogMess( void )
+void fn_vSoftCleanUp( void )
 {
 	for ( DWORD i = 0; i < ARRAYSIZE(a_szFilesToDelete); i++ )
 	{
 		char szFilePath[MAX_PATH];
 		sprintf_s(szFilePath, MAX_PATH, ".\\%s", a_szFilesToDelete[i]);
+
+		DeleteFile(szFilePath);
+	}
+}
+
+void fn_vManualCleanUp( void )
+{
+	/* do regular cleanup first */
+	fn_vSoftCleanUp();
+
+	for ( DWORD i = 0; i < ARRAYSIZE(a_szToManualDelete); i++ )
+	{
+		char szFilePath[MAX_PATH];
+		sprintf_s(szFilePath, MAX_PATH, ".\\%s", a_szToManualDelete[i]);
 
 		DeleteFile(szFilePath);
 	}
@@ -194,10 +216,10 @@ void CFG_fn_vWrite( void )
 
 void CFG_fn_vVerify( void )
 {
-	if ( GetFileAttributes(".\\goglog.ini") != INVALID_FILE_ATTRIBUTES )
+	if ( GetFileAttributes(".\\nglide_config.exe") != INVALID_FILE_ATTRIBUTES )
 	{
-		// Delete unnecessary GOG/nGlide files
-		fn_vCleanUpGogMess();
+		// Delete unnecessary nGlide files
+		fn_vSoftCleanUp();
 	}
 
 	if ( GetFileAttributes(szUbiPath) == INVALID_FILE_ATTRIBUTES )
