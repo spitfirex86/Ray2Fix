@@ -1,0 +1,53 @@
+name: build-master
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  SOLUTION_PATH: .
+  CONFIGURATION: Release
+  PLATFORM: x86
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Set up environment
+      run: |
+        mkdir .\acp
+        echo "acplib=$(Resolve-Path .\acp)" >> $env:GITHUB_ENV
+        echo "acplib is $env:ACPLIB"
+
+    - name: Get latest ACP_Ray2 artifact
+      uses: dawidd6/action-download-artifact@v6
+      with:
+        repo: raytools/ACP_Ray2
+        workflow: build.yml
+        name: ACP_Ray2-master
+        path: acp/
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.PLATFORM}} ${{env.SOLUTION_PATH}}
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: Ray2Fix-master
+        path: Release/
+        if-no-files-found: error
