@@ -2,7 +2,7 @@
 
 Ray2Fix is a collection of fixes and a configuration tool that aims to simplify setting up Rayman 2 for speedrunners.
 
-It can also be used as a basic mod loader (can be enabled in Tweaks tab in R2FixCfg.exe).
+**Note:** Mod loading functionality has been moved to a separate project - [Twofold](https://github.com/spitfirex86/Twofold) - and is no longer included in Ray2Fix.
 
 ## How to Install
 
