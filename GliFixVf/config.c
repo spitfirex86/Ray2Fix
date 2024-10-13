@@ -1,5 +1,6 @@
 #include "framework.h"
 #include <shellapi.h>
+#include <time.h>
 #include "config.h"
 #include "devinfo.h"
 
@@ -32,12 +33,16 @@ float CFG_xActualRatio = 0;
 
 tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
+int CFG_DEBUG_lWaitFrame = 0;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
 
 BOOL CFG_bPatchWidescreen = FALSE;
 BOOL CFG_bIsWidescreen = FALSE;
+
+char CFG_ModuleName[MAX_PATH] = "";
+char CFG_ModuleDate[20] = "";
 
 /*
  * Functions
@@ -128,6 +133,12 @@ void fn_vReadFixConfig( void )
 	GetPrivateProfileString("Ray2Fix", "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		CFG_bHalfRefRate = TRUE;
+
+	// DEBUG Wait frame
+	GetPrivateProfileString("Ray2Fix", "Debug_WaitFrame", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	int lResult = strtol(szBuffer, NULL, 10);
+	if ( lResult > 0 )
+		CFG_DEBUG_lWaitFrame = lResult;
 }
 
 void CFG_fn_vInitGlobals( void )
@@ -163,6 +174,30 @@ BOOL CFG_fn_bDetermineMainModule( void )
 	char *pBaseName = strrchr(szModuleName, '\\') + 1;
 
 	if ( !strcmp(pBaseName, "Rayman2.exe") )
+		return TRUE;
+
+	// check the header for the original name
+
+	unsigned char *pBase = (unsigned char *)GetModuleHandle(NULL);
+	IMAGE_DOS_HEADER *pDosHeader = (IMAGE_DOS_HEADER *)pBase;
+	IMAGE_NT_HEADERS *pNtHeader = (IMAGE_NT_HEADERS *)(pBase + pDosHeader->e_lfanew);
+	if ( !pNtHeader->OptionalHeader.NumberOfRvaAndSizes )
+		return FALSE;
+
+	IMAGE_EXPORT_DIRECTORY *pExports = (IMAGE_EXPORT_DIRECTORY *)(pBase + pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+	if ( !pExports->Name )
+		return FALSE;
+
+	// module name
+	char const *pName = (char *)(pBase + pExports->Name);
+	strcpy_s(CFG_ModuleName, sizeof(CFG_ModuleName), pName);
+
+	// module date
+	time_t timestamp = pNtHeader->FileHeader.TimeDateStamp;
+	struct tm const *pTime = gmtime(&timestamp);
+	strftime(CFG_ModuleDate, sizeof(CFG_ModuleDate), "%F", pTime);
+
+	if ( !_stricmp(pName, "MainWinf.exe") ) // retail RII
 		return TRUE;
 
 	return FALSE;

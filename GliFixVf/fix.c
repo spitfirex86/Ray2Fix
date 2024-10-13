@@ -329,6 +329,43 @@ void FIX_fn_vDetachHooks( void )
 	DetourTransactionCommit();
 }
 
+/*
+ * Minimal mode hooks
+ */
+
+BOOL g_bMinHooksAttached = FALSE;
+
+void FIX_fn_vAttachHooksMin( void *pInputEnum, void *pSuspendGame )
+{
+	R2_fn_InputEnum = pInputEnum;
+	R2_fn_SuspendGame = pSuspendGame;
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
+	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
+
+	DetourTransactionCommit();
+
+	g_bMinHooksAttached = TRUE;
+}
+
+void FIX_fn_vDetachHooksMin( void )
+{
+	if ( !g_bMinHooksAttached )
+		return;
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
+	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
+
+	DetourTransactionCommit();
+}
+
+
 void FIX_fn_vPatchFramerate( void )
 {
 	return; /* no longer necessary */

@@ -117,6 +117,9 @@ void IMP_fn_vLoadGliLibrary( void )
 	hGliVd = LoadLibrary(".\\DLL\\GliVd1vf.dll");
 
 	if ( !hGliVd )
+		hGliVd = LoadLibrary(".\\DLL\\GliVd1vr.dll");
+
+	if ( !hGliVd )
 	{
 		MessageBox(NULL, "Cannot load GLI library.", "Error", MB_OK | MB_ICONERROR);
 		ExitProcess(1);

@@ -126,7 +126,9 @@ void GLI_DRV_vFlipDeviceWithSyncro( void )
 	if ( !p_fn_xIsGliInit() )
 		return;
 
-	int lWaitFrame = p_fn_lComputeWaitFrameForSmoothSynchro(0);
+	int lWaitFrame = ( CFG_DEBUG_lWaitFrame > 0 )
+		? CFG_DEBUG_lWaitFrame
+		: p_fn_lComputeWaitFrameForSmoothSynchro(0);
 	GLI_DRV_vFlipDevice(lWaitFrame);
 }
 

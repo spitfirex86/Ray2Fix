@@ -20,6 +20,9 @@ typedef BOOL (CALLBACK *DIEnumDevicesCallback)( LPVOID lpddi, LPVOID pvRef );
 void FIX_fn_vAttachHooks( void );
 void FIX_fn_vDetachHooks( void );
 
+void FIX_fn_vAttachHooksMin( void *pInputEnum, void *pSuspendGame );
+void FIX_fn_vDetachHooksMin( void );
+
 void FIX_fn_vPatchFramerate( void );
 void FIX_fn_vRemoveModeEnum( void );
 
