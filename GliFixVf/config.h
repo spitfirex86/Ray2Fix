@@ -28,8 +28,8 @@ extern BOOL CFG_bIsFixEnabled;
 extern BOOL CFG_bPatchWidescreen;
 extern BOOL CFG_bIsWidescreen;
 
-extern char CFG_ModuleName[MAX_PATH];
-extern char CFG_ModuleDate[20];
+extern char CFG_szModuleName[MAX_PATH];
+extern char CFG_szModuleDate[20];
 
 
 /*

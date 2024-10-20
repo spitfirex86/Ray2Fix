@@ -41,8 +41,8 @@ BOOL CFG_bIsFixEnabled = TRUE;
 BOOL CFG_bPatchWidescreen = FALSE;
 BOOL CFG_bIsWidescreen = FALSE;
 
-char CFG_ModuleName[MAX_PATH] = "";
-char CFG_ModuleDate[20] = "";
+char CFG_szModuleName[MAX_PATH] = "";
+char CFG_szModuleDate[20] = "";
 
 /*
  * Functions
@@ -170,32 +170,37 @@ BOOL CFG_fn_bOpenConfigTool( void )
 BOOL CFG_fn_bDetermineMainModule( void )
 {
 	char szModuleName[MAX_PATH];
-	GetModuleFileName(GetModuleHandle(NULL), szModuleName, MAX_PATH);
+	HMODULE hModule = GetModuleHandle(NULL);
+
+	GetModuleFileName(hModule, szModuleName, MAX_PATH);
 	char *pBaseName = strrchr(szModuleName, '\\') + 1;
+	strcpy_s(CFG_szModuleName, sizeof(CFG_szModuleName), pBaseName);
 
 	if ( !strcmp(pBaseName, "Rayman2.exe") )
 		return TRUE;
 
-	// check the header for the original name
-
-	unsigned char *pBase = (unsigned char *)GetModuleHandle(NULL);
+	// query the nt header
+	unsigned char *pBase = (unsigned char *)hModule;
 	IMAGE_DOS_HEADER *pDosHeader = (IMAGE_DOS_HEADER *)pBase;
 	IMAGE_NT_HEADERS *pNtHeader = (IMAGE_NT_HEADERS *)(pBase + pDosHeader->e_lfanew);
-	if ( !pNtHeader->OptionalHeader.NumberOfRvaAndSizes )
-		return FALSE;
-
-	IMAGE_EXPORT_DIRECTORY *pExports = (IMAGE_EXPORT_DIRECTORY *)(pBase + pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
-	if ( !pExports->Name )
-		return FALSE;
-
-	// module name
-	char const *pName = (char *)(pBase + pExports->Name);
-	strcpy_s(CFG_ModuleName, sizeof(CFG_ModuleName), pName);
 
 	// module date
 	time_t timestamp = pNtHeader->FileHeader.TimeDateStamp;
 	struct tm const *pTime = gmtime(&timestamp);
-	strftime(CFG_ModuleDate, sizeof(CFG_ModuleDate), "%F", pTime);
+	strftime(CFG_szModuleDate, sizeof(CFG_szModuleDate), "%F", pTime);
+
+	// module name
+	if ( !pNtHeader->OptionalHeader.NumberOfRvaAndSizes )
+		return FALSE;
+
+	IMAGE_DATA_DIRECTORY *pExpDir = &pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+	IMAGE_EXPORT_DIRECTORY *pExports = (IMAGE_EXPORT_DIRECTORY *)(pBase + pExpDir->VirtualAddress);
+	if ( !pExpDir->Size || !pExports->Name )
+		return FALSE;
+
+	// got original module name
+	char const *pName = (char *)(pBase + pExports->Name);
+	strcpy_s(CFG_szModuleName, sizeof(CFG_szModuleName), pName);
 
 	if ( !_stricmp(pName, "MainWinf.exe") ) // retail RII
 		return TRUE;
