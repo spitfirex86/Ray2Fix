@@ -15,6 +15,7 @@ tdeRefRate g_eRefRate = e_RR_Full;
 BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
 BOOL g_bPatchWidescreen = FALSE;
+int g_DEBUG_lWaitFrame = 0;
 
 tdeErrorState g_eError = e_ES_Ok;
 tdeVerifyErr g_eErrorDetails = e_VE_Ok;
@@ -82,6 +83,12 @@ void fn_vReadUbiIni( void )
 	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		g_bPatchWidescreen = TRUE;
+
+	// DEBUG Wait frame
+	GetPrivateProfileString("Ray2Fix", "Debug_WaitFrame", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	int lResult = strtol(szBuffer, NULL, 10);
+	if ( lResult > 0 )
+		g_DEBUG_lWaitFrame = lResult;
 }
 
 void fn_vReadDegeIni( void )
@@ -143,6 +150,10 @@ void fn_vWriteUbiIni( void )
 	// Refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_eRefRate == e_RR_Half));
 	WritePrivateProfileString("Ray2Fix", "HalfRefRate", szBuffer, szUbiPath);
+
+	// DEBUG wait frame
+	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_DEBUG_lWaitFrame);
+	WritePrivateProfileString("Ray2Fix", "Debug_WaitFrame", szBuffer, szUbiPath);
 }
 
 void fn_vWriteDegeIni( void )

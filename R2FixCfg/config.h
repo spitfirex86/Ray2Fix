@@ -40,6 +40,7 @@ extern tdeRefRate g_eRefRate;
 extern BOOL g_bForceVsync;
 extern BOOL g_bFullscreen;
 extern BOOL g_bPatchWidescreen;
+extern int g_DEBUG_lWaitFrame;
 
 extern tdeErrorState g_eError;
 extern tdeVerifyErr g_eErrorDetails;

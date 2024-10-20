@@ -26,6 +26,9 @@ static HWND hRefRateLabel;
 static HWND hRefRate;
 static HWND hCleanup;
 
+static HWND hDEBUG_WaitFrame;
+static HWND hDEBUG_WaitFrameLabel;
+
 int lCbCustomIdx;
 tdstDisplayMode eLastMode;
 
@@ -167,6 +170,8 @@ void fn_vToggleAdvanced( BOOL bVisible )
 	ShowWindow(hRefRateLabel, nCmdShow);
 	ShowWindow(hRefRate, nCmdShow);
 	ShowWindow(hCleanup, nCmdShow);
+	ShowWindow(hDEBUG_WaitFrame, nCmdShow);
+	ShowWindow(hDEBUG_WaitFrameLabel, nCmdShow);
 }
 
 int fn_lAddThisModeToCB( HWND hCB, tdstDisplayMode *lpMode )
@@ -249,6 +254,28 @@ void fn_vPopulateRefRates( HWND hCB )
 	ComboBox_SetCurSel(hCB, (g_eRefRate == e_RR_Half) ? lHalf : lFull);
 }
 
+void fn_vInitDebugWaitFrame( void )
+{
+	char szBuffer[8];
+	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_DEBUG_lWaitFrame);
+	SendMessage(hDEBUG_WaitFrame, EM_LIMITTEXT, 2, 0);
+	Edit_SetText(hDEBUG_WaitFrame, szBuffer);
+}
+
+void fn_vSetDebugWaitFrame( void )
+{
+	char szBuffer[8];
+	Edit_GetText(hDEBUG_WaitFrame, szBuffer, sizeof(szBuffer) - 1);
+
+	char *pEnd;
+	int lWaitFrame = strtol(szBuffer, &pEnd, 10);
+	if ( pEnd != szBuffer && lWaitFrame != g_DEBUG_lWaitFrame )
+	{
+		g_DEBUG_lWaitFrame = lWaitFrame;
+		g_bUnsavedChanges = TRUE;
+	}
+}
+
 BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch ( uMsg )
@@ -271,6 +298,8 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		hRefRateLabel = GetDlgItem(hWnd, IDC_REFRATE_LABEL);
 		hRefRate = GetDlgItem(hWnd, IDC_REFRATE);
 		hCleanup = GetDlgItem(hWnd, IDC_CLEANUP);
+		hDEBUG_WaitFrame = GetDlgItem(hWnd, IDC_DEBUG_WF);
+		hDEBUG_WaitFrameLabel = GetDlgItem(hWnd, IDC_DEBUG_WF_LABEL);
 
 		fn_vUpdateStatus(hStatus, hToggle);
 		fn_vPopulateDisplayModes(hResolution);
@@ -283,6 +312,8 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 		SendMessage(hResX, EM_LIMITTEXT, 7, 0);
 		SendMessage(hResY, EM_LIMITTEXT, 7, 0);
+
+		fn_vInitDebugWaitFrame();
 
 		return TRUE;
 
@@ -375,6 +406,14 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 				return TRUE;
 			}
+
+		case IDC_DEBUG_WF:
+			if ( HIWORD(wParam) == EN_KILLFOCUS )
+			{
+				fn_vSetDebugWaitFrame();
+				return TRUE;
+			}
+			break;
 		}
 		break;
 	}
