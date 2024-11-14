@@ -7,6 +7,8 @@
 
 void IMP_fn_vLoadGliLibrary( void );
 
+extern char IMP_cWhatBuildWeUsing;
+
 
 /*
  * GLI Library imports

@@ -1,5 +1,6 @@
 #include "framework.h"
 #include "imports.h"
+#include "glide2types.h"
 
 
 /*
@@ -104,7 +105,37 @@ void (*Vd_GLI_DRV_xSendSingleTriangleToClip_TRIANGLES)(
 );
 
 
+/*
+ * Code starts here
+ */
+
+
+char IMP_cWhatBuildWeUsing = 0;
+
 HMODULE hGliVd = NULL;
+
+
+/** in glide2types.h **/
+FxI32 *Vd_GLI_GLIDE1_xTmuNumber = 0;
+void (FX_CALL *grAlphaBlendFunction)( FxI32 rgb_sf, FxI32 rgb_df, FxI32 alpha_sf, FxI32 alpha_df ) = NULL;
+void (FX_CALL *grAlphaCombine)( FxI32 function, FxI32 factor, FxI32 local, FxI32 other, FxBool invert ) = NULL;
+void (FX_CALL *guColorCombineFunction)( FxI32 fnc ) = NULL;
+void (FX_CALL *grDrawLine)( const GrVertex *v1, const GrVertex *v2 ) = NULL;
+
+void fn_vLoadGlide2Lib( void )
+{
+	HMODULE hGlide2 = LoadLibrary("glide2x.dll");
+	if ( !hGlide2 )
+	{
+		MessageBox(NULL, "Cannot load Glide2x library.", "Error", MB_OK | MB_ICONERROR);
+		ExitProcess(1);
+	}
+
+	grAlphaBlendFunction = (void *)GetProcAddress(hGlide2, "_grAlphaBlendFunction@16");
+	grAlphaCombine = (void *)GetProcAddress(hGlide2, "_grAlphaCombine@20");
+	guColorCombineFunction = (void *)GetProcAddress(hGlide2, "_guColorCombineFunction@4");
+	grDrawLine = (void *)GetProcAddress(hGlide2, "_grDrawLine@8");
+}
 
 
 void *fn_lpGetFn( LPCSTR szName )
@@ -114,10 +145,14 @@ void *fn_lpGetFn( LPCSTR szName )
 
 void IMP_fn_vLoadGliLibrary( void )
 {
+	IMP_cWhatBuildWeUsing = 'f';
 	hGliVd = LoadLibrary(".\\DLL\\GliVd1vf.dll");
 
 	if ( !hGliVd )
+	{
+		IMP_cWhatBuildWeUsing = 'r';
 		hGliVd = LoadLibrary(".\\DLL\\GliVd1vr.dll");
+	}
 
 	if ( !hGliVd )
 	{
@@ -166,4 +201,12 @@ void IMP_fn_vLoadGliLibrary( void )
 	Vd_GLI_DRV_vClearZBufferRegion = fn_lpGetFn("GLI_DRV_vClearZBufferRegion");
 	Vd_GLI_DRV_vComputeFogEffect = fn_lpGetFn("GLI_DRV_vComputeFogEffect");
 	Vd_GLI_DRV_vWrite16bBitmapToBackBuffer = fn_lpGetFn("GLI_DRV_vWrite16bBitmapToBackBuffer");
+
+	if ( IMP_cWhatBuildWeUsing == 'f' )
+	{
+		unsigned char *hGliBase = (unsigned char *)hGliVd;
+		Vd_GLI_GLIDE1_xTmuNumber = (void *)(hGliBase + 0xB704);
+
+		fn_vLoadGlide2Lib();
+	}
 }

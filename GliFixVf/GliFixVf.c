@@ -3,13 +3,44 @@
 #include "config.h"
 #include "devinfo.h"
 #include "imports.h"
+#include "glide2types.h"
+
+#include <ACP_Ray2.h>
 
 
 tdstGliCaps *g_p_stCaps = NULL;
 
-int (*p_fn_lAddDisplayMode)( BOOL bFullscreen, int x, int y, int lBitDepth ) = NULL;
-int (*p_fn_lComputeWaitFrameForSmoothSynchro)( int ) = NULL;
-int (*p_fn_xIsGliInit)( void ) = NULL;
+int (*GLI_MDRV_lAddDisplayMode)( BOOL bFullscreen, int x, int y, int lBitDepth ) = NULL;
+int (*GLI_MDRV_lComputeWaitFrameForSmoothSynchro)( int ) = NULL;
+int (*GLI_MDRV_xIsGliInit)( void ) = NULL;
+void (*GLI_MDRV_vSerialProjection)( GLI_tdstCamera *p_stCam, long lNbOfVertex, GLI_tdstAligned3DVector *p_stSource, GLI_tdstAligned2DVector *p_stDest ) = NULL;
+
+
+GrVertex CurrentDestXYZ[4];
+
+#define GLI_C_3dfxBugConstant   65536.0f * 8.0f
+
+#define GLI_M_Correct3DFXBug2( a )	\
+{									\
+	a.x -= GLI_C_3dfxBugConstant;	\
+	a.y -= GLI_C_3dfxBugConstant;	\
+}
+
+void GLI_fn_vCorrect3DFXBug1( GrVertex *a )
+{
+	a->x += GLI_C_3dfxBugConstant;
+	a->y += GLI_C_3dfxBugConstant;
+}
+
+#define GLI_M_Restore3DFXColor( P, ulColor )									\
+{																				\
+	P.b = (float) ((ulColor) & 0xFF);											\
+	P.g = (float) (((ulColor) >> 8) & 0xFF);									\
+	P.r = (float) (((ulColor) >> 16) & 0xFF);									\
+	P.a = (float) (((ulColor) >> 24) & 0xFF);									\
+	P.tmuvtx[*Vd_GLI_GLIDE1_xTmuNumber].sow *= P.oow * p_stGlobaleMT->fMulV;	\
+	P.tmuvtx[*Vd_GLI_GLIDE1_xTmuNumber].tow *= P.oow * p_stGlobaleMT->fMulU;	\
+}
 
 
 #define M_CopyString(dst, src) strcpy_s(dst, strlen(src)+1, src)
@@ -42,11 +73,13 @@ long GLI_DRV_lSetCommonData( char const *szName, void *pData )
 long GLI_DRV_lSetCommonFct( char const *szName, tdfn_CommonFct pData )
 {
 	if ( !strcmp(szName, "AddDisplayMode") ) /* for GLI_DRV_fnl_EnumModes */
-		p_fn_lAddDisplayMode = pData;
+		GLI_MDRV_lAddDisplayMode = pData;
 	else if ( !strcmp(szName, "IsGliInit") ) /* for GLI_DRV_vFlipDeviceWithSyncro */
-		p_fn_xIsGliInit = pData;
+		GLI_MDRV_xIsGliInit = pData;
 	else if ( !strcmp(szName, "ComputeWaitFrameForSmoothSynchro") )
-		p_fn_lComputeWaitFrameForSmoothSynchro = pData;
+		GLI_MDRV_lComputeWaitFrameForSmoothSynchro = pData;
+	else if ( !strcmp(szName, "SerialProjection") ) /* for GLI_DRV_vSendSingleLineToClip */
+		GLI_MDRV_vSerialProjection = pData;
 
 	return Vd_GLI_DRV_lSetCommonFct(szName, pData);
 }
@@ -102,7 +135,7 @@ long GLI_DRV_fn_lGetAllDisplayConfig( tdfn_lAddDisplayInfo p_fn_lAddDisplayInfo 
 
 long GLI_DRV_fnl_EnumModes( char *szDriverName, char *szDeviceName )
 {
-	p_fn_lAddDisplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
+	GLI_MDRV_lAddDisplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
 
 	return TRUE;
 }
@@ -123,13 +156,159 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 
 void GLI_DRV_vFlipDeviceWithSyncro( void )
 {
-	if ( !p_fn_xIsGliInit() )
+	if ( !GLI_MDRV_xIsGliInit() )
 		return;
 
 	int lWaitFrame = ( CFG_DEBUG_lWaitFrame > 0 )
 		? CFG_DEBUG_lWaitFrame
-		: p_fn_lComputeWaitFrameForSmoothSynchro(0);
+		: GLI_MDRV_lComputeWaitFrameForSmoothSynchro(0);
 	GLI_DRV_vFlipDevice(lWaitFrame);
+}
+
+void GLI_DRV_vSendSingleLineToClip(
+	GLD_tdstViewportAttributes *p_stVpt,
+	GLI_tdstAligned3DVector *p_stVertex1,
+	GLI_tdstAligned2DVector *p_st2DVertex1,
+	GLI_tdstAligned3DVector *p_stVertex2,
+	GLI_tdstAligned2DVector *p_st2DVertex2,
+	GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT,
+	long lDrawModeMask,
+	GEO_tdstColor *p_stColor
+)
+{
+	if ( IMP_cWhatBuildWeUsing != 'f' ) /* not final, ignore */
+	{
+		Vd_GLI_DRV_vSendSingleLineToClip(p_stVpt, p_stVertex1, p_st2DVertex1, p_stVertex2, p_st2DVertex2, p_stGlobaleMT, lDrawModeMask, p_stColor);
+		return;
+	}
+
+	/* final has an annoying bug that has to be fixed... (for mod support) */
+
+	GLI_tdstAligned2DVector stP1, stP2;
+	GLI_tdstAligned3DVector st3DP1, st3DP2;
+	float fFactor;
+
+	grAlphaCombine(GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_ONE, GR_COMBINE_LOCAL_ITERATED, GR_COMBINE_OTHER_ITERATED, FXFALSE);
+	grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
+	guColorCombineFunction(GR_COLORCOMBINE_ITRGB);
+
+	/* Z clipping */
+	if ( p_st2DVertex1->xOoZ < p_st2DVertex2->xOoZ )
+	{
+		stP1 = *p_st2DVertex1;
+		st3DP1 = *p_stVertex1;
+		stP2 = *p_st2DVertex2;
+		st3DP2 = *p_stVertex2;
+	}
+	else
+	{
+		stP2 = *p_st2DVertex1;
+		st3DP2 = *p_stVertex1;
+		stP1 = *p_st2DVertex2;
+		st3DP1 = *p_stVertex2;
+	}
+
+	if ( (*(unsigned long *)&stP2.xOoZ & 0x80000000) )
+		return;
+
+	if ( (*(unsigned long *)&stP1.xOoZ & 0x80000000) )
+	{
+		fFactor = (p_stGlobaleMT->p_stCurrentCamera->xNear - st3DP2.xZ) / (st3DP1.xZ - st3DP2.xZ);
+		st3DP1.xX = st3DP2.xX + (st3DP1.xX - st3DP2.xX) * fFactor;
+		st3DP1.xY = st3DP2.xY + (st3DP1.xY - st3DP2.xY) * fFactor;
+		st3DP1.xZ = p_stGlobaleMT->fZClipping;
+		GLI_MDRV_vSerialProjection(p_stGlobaleMT->p_stCurrentCamera, 1, &st3DP1, &stP1);
+	}
+
+	/* X clipping */
+	if ( stP1.xX < stP2.xX )
+	{
+		p_st2DVertex1 = &stP1;
+		p_stVertex1 = &st3DP1;
+		p_st2DVertex2 = &stP2;
+		p_stVertex2 = &st3DP2;
+	}
+	else
+	{
+		p_st2DVertex1 = &stP2;
+		p_stVertex1 = &st3DP2;
+		p_st2DVertex2 = &stP1;
+		p_stVertex2 = &st3DP1;
+	}
+
+	if ( (p_st2DVertex2->xX < p_stGlobaleMT->fXMinClipping) || (p_st2DVertex1->xX > p_stGlobaleMT->fXMaxClipping) )
+		return;
+
+	if ( p_st2DVertex1->xX < p_stGlobaleMT->fXMinClipping )
+	{
+		fFactor = (p_st2DVertex2->xX - p_stGlobaleMT->fXMinClipping) / (p_st2DVertex2->xX - p_st2DVertex1->xX);
+		p_st2DVertex1->xY = p_st2DVertex2->xY - (p_st2DVertex2->xY - p_st2DVertex1->xY) * fFactor;
+		p_stVertex1->xZ = p_stVertex2->xZ - (p_stVertex2->xY - p_stVertex1->xY) * fFactor;
+		p_st2DVertex1->xX = p_stGlobaleMT->fXMinClipping;
+	}
+
+	if ( p_st2DVertex2->xX > p_stGlobaleMT->fXMaxClipping )
+	{
+		fFactor = (p_st2DVertex1->xX - p_stGlobaleMT->fXMaxClipping) / (p_st2DVertex2->xX - p_st2DVertex1->xX);
+		p_st2DVertex2->xY = p_st2DVertex1->xY - (p_st2DVertex2->xY - p_st2DVertex1->xY) * fFactor;
+		p_stVertex2->xZ = p_stVertex1->xZ - (p_stVertex2->xY - p_stVertex1->xY) * fFactor;
+		p_st2DVertex2->xX = p_stGlobaleMT->fXMaxClipping;
+	}
+
+	/* Y clipping */
+	if ( stP1.xY < stP2.xY )
+	{
+		p_st2DVertex1 = &stP1;
+		p_stVertex1 = &st3DP1;
+		p_st2DVertex2 = &stP2;
+		p_stVertex2 = &st3DP2;
+	}
+	else
+	{
+		p_st2DVertex1 = &stP2;
+		p_stVertex1 = &st3DP2;
+		p_st2DVertex2 = &stP1;
+		p_stVertex2 = &st3DP1;
+	}
+
+	if ( (p_st2DVertex2->xY < p_stGlobaleMT->fYMinClipping) || (p_st2DVertex1->xY > p_stGlobaleMT->fYMaxClipping) )
+		return;
+
+	if ( p_st2DVertex1->xY < p_stGlobaleMT->fYMinClipping )
+	{
+		fFactor = (p_st2DVertex2->xY - p_stGlobaleMT->fYMinClipping) / (p_st2DVertex2->xY - p_st2DVertex1->xY);
+		p_st2DVertex1->xX = p_st2DVertex2->xX - (p_st2DVertex2->xX - p_st2DVertex1->xX) * fFactor;
+		p_stVertex1->xZ = p_stVertex2->xZ - (p_stVertex2->xZ - p_stVertex1->xZ) * fFactor;
+		p_st2DVertex1->xY = p_stGlobaleMT->fYMinClipping;
+	}
+
+	if ( p_st2DVertex2->xY > p_stGlobaleMT->fYMaxClipping )
+	{
+		fFactor = (p_st2DVertex1->xY - p_stGlobaleMT->fYMaxClipping) / (p_st2DVertex2->xY - p_st2DVertex1->xY);
+		p_st2DVertex2->xX = p_st2DVertex1->xX - (p_st2DVertex2->xX - p_st2DVertex1->xX) * fFactor;
+		p_stVertex2->xZ = p_stVertex1->xZ - (p_stVertex2->xZ - p_stVertex1->xZ) * fFactor;
+		p_st2DVertex2->xY = p_stGlobaleMT->fYMaxClipping;
+	}
+
+	/* GLI_M_InitLine */
+	CurrentDestXYZ[0].x = p_st2DVertex1->xX;
+	CurrentDestXYZ[0].y = p_st2DVertex1->xY;
+	CurrentDestXYZ[1].x = p_st2DVertex2->xX;
+	CurrentDestXYZ[1].y = p_st2DVertex2->xY;
+	CurrentDestXYZ[0].oow = p_stVertex1->xZ;
+	CurrentDestXYZ[1].oow = p_stVertex2->xZ;
+	//*(unsigned long *)&CurrentDestXYZ[0].r = p_st2DVertex1->ulPackedColor;
+	//*(unsigned long *)&CurrentDestXYZ[1].r = p_st2DVertex2->ulPackedColor;
+
+	/* GLI_DrawLine */
+	GLI_fn_vCorrect3DFXBug1(&CurrentDestXYZ[0]);
+	GLI_fn_vCorrect3DFXBug1(&CurrentDestXYZ[1]);
+	GLI_M_Correct3DFXBug2(CurrentDestXYZ[0]);
+	GLI_M_Correct3DFXBug2(CurrentDestXYZ[1]);
+	GLI_M_Restore3DFXColor(CurrentDestXYZ[0], p_st2DVertex1->ulPackedColor);
+	GLI_M_Restore3DFXColor(CurrentDestXYZ[1], p_st2DVertex2->ulPackedColor);
+
+	grDrawLine(&CurrentDestXYZ[0], &CurrentDestXYZ[1]);
 }
 
 
@@ -313,6 +492,7 @@ NAKED void GLI_DRV_vSendSpriteToClipWithColors(
 	JMP(Vd_GLI_DRV_vSendSpriteToClipWithColors);
 }
 
+/*
 NAKED void GLI_DRV_vSendSingleLineToClip(
 	GLD_tdstViewportAttributes *p_stVpt,
 	GLI_tdstAligned3DVector *p_stVertex1,
@@ -326,7 +506,7 @@ NAKED void GLI_DRV_vSendSingleLineToClip(
 {
 	JMP(Vd_GLI_DRV_vSendSingleLineToClip);
 }
-
+*/
 
 /****  CLIP TRIANGLES  ****/
 
