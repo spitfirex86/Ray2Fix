@@ -151,7 +151,7 @@ void CFG_fn_vInitGlobals( void )
 	unsigned int ratio = 100 * CFG_stActualDispMode.dwHeight / CFG_stActualDispMode.dwWidth;
 	CFG_bIsWidescreen = (ratio <= 73);
 
-	tdstDisplayMode *lpGlideMode = fn_p_stGetClosestGlideMode(&CFG_stDispMode);
+	tdstDisplayMode *lpGlideMode = fn_p_stGetClosestGlideMode(&CFG_stActualDispMode);
 	CFG_stDispMode = *lpGlideMode;
 
 	CFG_xActualRatio = (float)CFG_stActualDispMode.dwHeight / (float)CFG_stActualDispMode.dwWidth;
