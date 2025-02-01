@@ -20,7 +20,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Get tags
+      run: git fetch --tags origin
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
