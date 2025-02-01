@@ -285,7 +285,7 @@ void FIX_fn_vPatchCode4( void )
 void fn_vPreAttachHooks( void )
 {
 	//sprintf_s(szVersionString, sizeof(szVersionString), "/O200:%s v%s", GLI_szName, GLI_szVersion);
-	snprintf(szVersionString, sizeof(szVersionString), "/C:%s v%s", GLI_szName, GLI_szVersion);
+	snprintf(szVersionString, sizeof(szVersionString), "/C:%s %s", GLI_szName, GLI_szVersion);
 }
 
 void FIX_fn_vAttachHooks( void )

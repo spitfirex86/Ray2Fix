@@ -9,7 +9,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "R2FixCfg", "R2FixCfg\R2FixC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{03FD0719-FBD1-49C1-AB3C-BECE94233FDE}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		.github\workflows\build.yml = .github\workflows\build.yml
+		generate_gitver.cmd = generate_gitver.cmd
 	EndProjectSection
 EndProject
 Global

@@ -3,6 +3,7 @@
 #include "dialogs.h"
 #include "config.h"
 #include "main.h"
+#include "../gitver.h"
 
 
 HINSTANCE g_hInst;
@@ -101,6 +102,10 @@ BOOL CALLBACK fn_bProc_Main( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 		fn_vCreateTabDialogs(hWnd, hTC);
 
 		hAdvanced = GetDlgItem(hWnd, IDC_ADVANCED);
+
+		HWND hVerNum = GetDlgItem(hWnd, IDC_VERNUM);
+		SetWindowText(hVerNum, "Ray2Fix " C_GIT_VER);
+
 		return TRUE;
 
 	case WM_SHOWWINDOW:

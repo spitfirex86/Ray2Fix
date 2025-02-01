@@ -150,6 +150,10 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 	int lStyle = GetWindowLong(hWnd, GWL_STYLE);
 	SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
 
+	char szTitle[64];
+	sprintf_s(szTitle, sizeof(szTitle), "Rayman II    [%s %s]", GLI_szName, GLI_szVersion);
+	SetWindowText(hWnd, szTitle);
+
 	/* HACK: Refresh rate fix for >60Hz monitors */
 	g_p_stCaps->xRefreshRate = CFG_bHalfRefRate ? 30.0f : 60.0f;
 }
