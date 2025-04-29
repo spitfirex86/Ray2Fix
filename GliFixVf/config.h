@@ -21,6 +21,7 @@ extern float CFG_xActualRatio;
 extern tdstDisplayMode CFG_stDispMode;
 extern BOOL CFG_bHalfRefRate;
 extern int CFG_DEBUG_lWaitFrame;
+extern int CFG_DEBUG_lScreenshotLag;
 
 extern BOOL CFG_bIsMainModuleR2;
 extern BOOL CFG_bIsFixEnabled;

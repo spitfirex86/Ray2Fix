@@ -278,6 +278,26 @@ void FIX_fn_vPatchCode4( void )
 }
 
 
+LARGE_INTEGER g_llFreq;
+LARGE_INTEGER g_llTimer;
+
+void (*fn_vGetAndSaveSnapShotOfScreenAsBMP)( void ) = OFFSET(0x41B110);
+
+void FIX_fn_vGetAndSaveSnapShotOfScreenAsBMP( void )
+{
+	LARGE_INTEGER llElapsed;
+	float xElapsedMs = 0;
+	float const xLagMs = CFG_DEBUG_lScreenshotLag;
+
+	QueryPerformanceCounter(&g_llTimer);
+	do
+	{
+		QueryPerformanceCounter(&llElapsed);
+		xElapsedMs = (float)(llElapsed.QuadPart - g_llTimer.QuadPart) * 1000.0f / (float)g_llFreq.QuadPart;
+	}
+	while ( xElapsedMs < xLagMs );
+}
+
 /*
  * Functions
  */
@@ -286,6 +306,9 @@ void fn_vPreAttachHooks( void )
 {
 	//sprintf_s(szVersionString, sizeof(szVersionString), "/O200:%s v%s", GLI_szName, GLI_szVersion);
 	snprintf(szVersionString, sizeof(szVersionString), "/C:%s %s", GLI_szName, GLI_szVersion);
+
+	QueryPerformanceFrequency(&g_llFreq);
+	QueryPerformanceCounter(&g_llTimer);
 }
 
 void FIX_fn_vAttachHooks( void )
@@ -298,6 +321,7 @@ void FIX_fn_vAttachHooks( void )
 	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourAttach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
+	DetourAttach((PVOID*)&fn_vGetAndSaveSnapShotOfScreenAsBMP, (PVOID)FIX_fn_vGetAndSaveSnapShotOfScreenAsBMP);
 
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
@@ -318,6 +342,8 @@ void FIX_fn_vDetachHooks( void )
 	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
+	DetourDetach((PVOID*)&FIX_fn_vGetAndSaveSnapShotOfScreenAsBMP, (PVOID)FIX_fn_vGetAndSaveSnapShotOfScreenAsBMP);
+
 
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{

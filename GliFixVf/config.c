@@ -34,6 +34,7 @@ float CFG_xActualRatio = 0;
 tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 int CFG_DEBUG_lWaitFrame = 0;
+int CFG_DEBUG_lScreenshotLag = 0;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
@@ -139,6 +140,12 @@ void fn_vReadFixConfig( void )
 	int lResult = strtol(szBuffer, NULL, 10);
 	if ( lResult > 0 )
 		CFG_DEBUG_lWaitFrame = lResult;
+
+	// DEBUG Screenshot lag
+	GetPrivateProfileString("Ray2Fix", "Debug_ScreenshotLag", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	lResult = strtol(szBuffer, NULL, 10);
+	if ( lResult > 0 )
+		CFG_DEBUG_lScreenshotLag = lResult;
 }
 
 void CFG_fn_vInitGlobals( void )
