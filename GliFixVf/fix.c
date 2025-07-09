@@ -12,6 +12,13 @@
 char *szConfigMenu = "/C:Ray2Fix Config";
 char szVersionString[50];
 
+JFFTXT_tdstString g_stVersionTxt = {
+	szVersionString,
+	500.0f, 980.0f, 7.0f, 0xC0,
+	.eOther = JFFTXT_C_ForcedColor,
+	.ucForcedColor = 2
+};
+
 
 /*
  * Detours
@@ -64,6 +71,14 @@ char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
 	}
 
 	return result;
+}
+
+void FIX_fn_vAffiche( void *pContext )
+{
+	if ( *AI_g_bInGameMenu )
+		JFFTXT_vDrawString(pContext, &g_stVersionTxt);
+
+	JFFTXT_vAffiche(pContext);
 }
 
 
@@ -138,7 +153,7 @@ void FIX_vDraw2DSpriteWithPercent( GLD_tdstViewportAttributes *p_stVpt, MTH_tdxR
 		p_stGlobals->ulColorInitForSprite &= 0xFF000000;
 		p_stGlobals->ulColorInitForSprite |= GLI_a3_ForcedAAAColor[0] << 16 | GLI_a3_ForcedAAAColor[1] << 8 | GLI_a3_ForcedAAAColor[2];
 	}
-
+		
 	GLI_DRV_vSendSpriteToClip(a4_st2DVertex, *GLI_g_fZValueForSprite, p_stGlobals);
 #else
 	if ( *GLI_g_bForceAAAColor )
@@ -286,6 +301,13 @@ void fn_vPreAttachHooks( void )
 {
 	//sprintf_s(szVersionString, sizeof(szVersionString), "/O200:%s v%s", GLI_szName, GLI_szVersion);
 	snprintf(szVersionString, sizeof(szVersionString), "/C:%s %s", GLI_szName, GLI_szVersion);
+
+	/* pause menu version display */
+	g_stVersionTxt.szText = szVersionString+3;
+	long dx, dy, cx, cy;
+	JFFTXT_vGetSizeValues(g_stVersionTxt.xSize, &dx, &dy, &cx, &cy);
+	long lLength = JFFTXT_lGetStringLength(szVersionString, dx);
+	g_stVersionTxt.X = 1000 - lLength - 5;
 }
 
 void FIX_fn_vAttachHooks( void )
@@ -298,6 +320,7 @@ void FIX_fn_vAttachHooks( void )
 	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourAttach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
+	DetourAttach((PVOID*)&JFFTXT_vAffiche, (PVOID)FIX_fn_vAffiche);
 
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
@@ -318,6 +341,8 @@ void FIX_fn_vDetachHooks( void )
 	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
+	DetourDetach((PVOID*)&JFFTXT_vAffiche, (PVOID)FIX_fn_vAffiche);
+
 
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{

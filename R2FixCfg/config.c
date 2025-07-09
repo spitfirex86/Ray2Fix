@@ -171,6 +171,8 @@ void fn_vWriteDegeIni( void )
 	WritePrivateProfileString("Glide", "NumberOfTMUs", "2", szDegePath);
 	WritePrivateProfileString("Glide", "EnableGlideGammaRamp", "true", szDegePath);
 	WritePrivateProfileString("Glide", "EnableInactiveAppState", "false", szDegePath);
+	/* this one is necessary to avoid refresh rate affecting timers/screenshot lag... */
+	WritePrivateProfileString("GeneralExt", "FPSLimit", "60", szDegePath);
 
 	// Display mode & refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "h:%i, v:%i, refrate:%i",
