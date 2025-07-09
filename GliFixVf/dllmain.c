@@ -31,8 +31,17 @@ void fn_vInitDll( void )
 	else
 	{
 		/* Probably loaded in GxSetup/GliDetect, only patch mode enum */
-		FIX_fn_vRemoveModeEnum();
+		if ( CFG_eBackend == E_GL_Glide )
+			FIX_fn_vRemoveModeEnum();
 	}
+
+#ifdef DEBUGCONSOLE
+	FILE* fp;
+	AllocConsole();
+	freopen_s(&fp, "CONIN$", "r", stdin);
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+	freopen_s(&fp, "CONOUT$", "w", stderr);
+#endif // DEBUGCONSOLE
 }
 
 void fn_vDeInitDll( void )
@@ -45,6 +54,10 @@ void fn_vDeInitDll( void )
 	{
 		FIX_fn_vDetachHooksMin();
 	}
+
+#ifdef DEBUGCONSOLE
+	FreeConsole();
+#endif // DEBUGCONSOLE
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved )

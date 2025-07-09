@@ -34,6 +34,7 @@ float CFG_xActualRatio = 0;
 tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 int CFG_DEBUG_lWaitFrame = 0;
+tdeGlBackend CFG_eBackend = E_GL_Glide;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
@@ -47,6 +48,22 @@ char CFG_szModuleDate[20] = "";
 /*
  * Functions
  */
+
+BOOL spt_strtol( char const *str, long *out )
+{
+	char *p;
+	long tmp = strtol(str, &p, 0);
+
+	if ( p == str )
+		return FALSE;
+	if ( isspace(*p) )
+		for ( ; *p && isspace(*p); ++p ) ;
+	if ( *p != 0 )
+		return FALSE;
+
+	*out = tmp;
+	return TRUE;
+}
 
 // Returns largest Glide resolution smaller than the provided display mode.
 tdstDisplayMode * fn_p_stGetClosestGlideMode( tdstDisplayMode *lpMode )
@@ -123,22 +140,27 @@ void fn_vReadR2Config( void )
 void fn_vReadFixConfig( void )
 {
 	char szBuffer[128];
+	int lResult = 0;
 
 	// Widescreen patch
 	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", "0", szBuffer, sizeof(szBuffer), szUbiPath);
-	if( strtol(szBuffer, NULL, 10) > 0 )
-		CFG_bPatchWidescreen = TRUE;
+	if( spt_strtol(szBuffer, &lResult) )
+		CFG_bPatchWidescreen = !!lResult;
 
 	// Refresh rate
 	GetPrivateProfileString("Ray2Fix", "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
-	if( strtol(szBuffer, NULL, 10) > 0 )
-		CFG_bHalfRefRate = TRUE;
+	if( spt_strtol(szBuffer, &lResult) )
+		CFG_bHalfRefRate = !!lResult;
 
 	// DEBUG Wait frame
 	GetPrivateProfileString("Ray2Fix", "Debug_WaitFrame", "0", szBuffer, sizeof(szBuffer), szUbiPath);
-	int lResult = strtol(szBuffer, NULL, 10);
-	if ( lResult > 0 )
+	if ( spt_strtol(szBuffer, &lResult) )
 		CFG_DEBUG_lWaitFrame = lResult;
+
+	// Backend
+	GetPrivateProfileString("Ray2Fix", "Backend", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	if ( spt_strtol(szBuffer, &lResult) )
+		CFG_eBackend = (tdeGlBackend)lResult;
 }
 
 void CFG_fn_vInitGlobals( void )

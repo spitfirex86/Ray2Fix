@@ -7,6 +7,8 @@
 
 #include <ACP_Ray2.h>
 
+#define SYNCROTEST
+
 
 tdstGliCaps *g_p_stCaps = NULL;
 
@@ -70,6 +72,75 @@ long GLI_DRV_lSetCommonData( char const *szName, void *pData )
 	return Vd_GLI_DRV_lSetCommonData(szName, pData);
 }
 
+#ifdef SYNCROTEST
+
+long fakeComputeFrame( long a )
+{
+	return 1;
+}
+
+short *GLD_gs_wTimerForSmoothSyncro = 0x49FC50;
+unsigned long *GLI_g_ulFrameLength = 0x4A7218;
+
+long FIX_GLD_fn_lComputeWaitFrameForSmoothSynchro( long _a1 )
+{
+#define C_ulFrameRateHistorySize 5
+	static long gas_ulFrameRateHistory[] =
+	{ 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0 };
+	static unsigned long    ulTotalFrameRate = 0;
+	static unsigned long    ulCurrentFrame = 0;
+	TMR_tdstTimerCount            stDeltaTime;
+	unsigned long           ulTramePassed;
+	unsigned long           ulTrameReturn = 1;
+
+	TMR_fn_wReadTimer(*GLD_gs_wTimerForSmoothSyncro, &stDeltaTime);
+
+	/* Compute duration passed for engine + rendering (rounded up) */
+	ulTramePassed = (stDeltaTime.ulLowPart + ((*GLI_g_ulFrameLength * 95) / 100)) / *GLI_g_ulFrameLength;
+
+	/* Too slow. We don't do anything */
+	if ( ulTramePassed > 4 )
+		return 1;
+
+	/* Compute number of frames to wait for */
+	if ( ulTramePassed << C_ulFrameRateHistorySize < ulTotalFrameRate )
+		ulTrameReturn =
+		1
+		+ ((ulTotalFrameRate + (1 << C_ulFrameRateHistorySize) - 1) >> C_ulFrameRateHistorySize)
+		- ulTramePassed;
+
+	/* Update frame history */
+	ulTotalFrameRate -= gas_ulFrameRateHistory[ulCurrentFrame];
+	ulTotalFrameRate += ulTramePassed;
+	gas_ulFrameRateHistory[ulCurrentFrame] = ulTramePassed;
+	ulCurrentFrame++;
+	ulCurrentFrame &= (1 << C_ulFrameRateHistorySize) - 1;
+
+	return (long)ulTrameReturn;
+}
+
+long fakeComputeFrame2( long a )
+{
+	int *dword_4A722C = (int*)0x4A722C;
+	int *dword_4A7230 = (int*)0x4A7230;
+
+	//long lFrame = fakeComputeFrame(0);
+	long lFrame = GLI_MDRV_lComputeWaitFrameForSmoothSynchro(a);
+#ifdef DEBUGCONSOLE
+	printf_s(".");
+	if ( lFrame > 1 )
+		printf_s("\n== Skipping frames: %u, 0x4A722C = %d, 0x4A7230 = %d\n", lFrame, *dword_4A722C, *dword_4A7230);
+#endif // DEBUGCONSOLE
+
+	return lFrame;
+}
+
+#endif // SYNCROTEST
+
 long GLI_DRV_lSetCommonFct( char const *szName, tdfn_CommonFct pData )
 {
 	if ( !strcmp(szName, "AddDisplayMode") ) /* for GLI_DRV_fnl_EnumModes */
@@ -77,7 +148,13 @@ long GLI_DRV_lSetCommonFct( char const *szName, tdfn_CommonFct pData )
 	else if ( !strcmp(szName, "IsGliInit") ) /* for GLI_DRV_vFlipDeviceWithSyncro */
 		GLI_MDRV_xIsGliInit = pData;
 	else if ( !strcmp(szName, "ComputeWaitFrameForSmoothSynchro") )
+	{
 		GLI_MDRV_lComputeWaitFrameForSmoothSynchro = pData;
+#ifdef SYNCROTEST
+		return Vd_GLI_DRV_lSetCommonFct(szName, fakeComputeFrame);
+		//return Vd_GLI_DRV_lSetCommonFct(szName, fakeComputeFrame2);
+#endif // SYNCROTEST
+	}
 	else if ( !strcmp(szName, "SerialProjection") ) /* for GLI_DRV_vSendSingleLineToClip */
 		GLI_MDRV_vSerialProjection = pData;
 
@@ -90,27 +167,35 @@ long GLI_DRV_fn_lGetAllDisplayConfig( tdfn_lAddDisplayInfo p_fn_lAddDisplayInfo 
 	long lDisp, lDev, lMode;
 	tdstGliCaps stCaps = { 0 };
 
-	p_fn_lAddDisplayInfo(0, 0, 0, C_DI_DllBmp, 0);
+	if ( CFG_eBackend == E_GL_DirectX )
+	{
+		/* defer to DX6 lib */
+		Vd_GLI_DRV_fn_lGetAllDisplayConfig(p_fn_lAddDisplayInfo);
+		p_fn_lAddDisplayInfo(0, 0, 0, C_DI_DllBmp, 0);
+	}
+	else
+	{
+		p_fn_lAddDisplayInfo(0, 0, 0, C_DI_DllBmp, 0);
 
-	/* display info */
-	lDisp = p_fn_lAddDisplayInfo(0, 0, 0, C_DI_DisplayAdd, 0);
-	p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DisplayName, (long)"Default");
-	p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DisplayDesc, (long)"Default");
+		/* display info */
+		lDisp = p_fn_lAddDisplayInfo(0, 0, 0, C_DI_DisplayAdd, 0);
+		p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DisplayName, (long)"display");
+		p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DisplayDesc, (long)"Default");
 
-	/* device info */
-	lDev = p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DeviceAdd, 0);
-	p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DeviceName, (long)"Default");
-	p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DeviceDesc, (long)"Default");
+		/* device info */
+		lDev = p_fn_lAddDisplayInfo(lDisp, 0, 0, C_DI_DeviceAdd, 0);
+		p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DeviceName, (long)"Direct3D HAL");
+		p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DeviceDesc, (long)"Default");
 
-	/* display mode (resolution) */
-	lMode = p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_ModeAdd, 0);
-	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeFullscreen, 1);
-	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeBpp, 16);
-	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeWidth, CFG_stDispMode.dwWidth);
-	p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeHeight, CFG_stDispMode.dwHeight);
+		/* display mode (resolution) */
+		lMode = p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_ModeAdd, 0);
+		p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeFullscreen, 1);
+		p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeBpp, 16);
+		p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeWidth, CFG_stDispMode.dwWidth);
+		p_fn_lAddDisplayInfo(lDisp, lDev, lMode, C_DI_ModeHeight, CFG_stDispMode.dwHeight);
 
-	p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DevCaps, (long)&stCaps);
-
+		p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DevCaps, (long)&stCaps);
+	}
 
 	/* If fix is enabled, always open R2FixCfg,
 	   if fix is disabled, ask first */
@@ -135,7 +220,16 @@ long GLI_DRV_fn_lGetAllDisplayConfig( tdfn_lAddDisplayInfo p_fn_lAddDisplayInfo 
 
 long GLI_DRV_fnl_EnumModes( char *szDriverName, char *szDeviceName )
 {
-	GLI_MDRV_lAddDisplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
+	if ( CFG_eBackend == E_GL_DirectX )
+	{
+		/* defer to DX6 lib */
+		Vd_GLI_DRV_fnl_EnumModes(szDriverName, szDeviceName);
+		GLI_MDRV_lAddDisplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
+	}
+	else
+	{
+		GLI_MDRV_lAddDisplayMode(TRUE, CFG_stDispMode.dwWidth, CFG_stDispMode.dwHeight, 16);
+	}
 
 	return TRUE;
 }
@@ -147,15 +241,21 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 	/* HACK: make sure the window has a title bar and a border
 	   Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
 	   without a title bar, making it impossible to move or resize the game window. */
-	int lStyle = GetWindowLong(hWnd, GWL_STYLE);
-	SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
+	int lStyle = GetWindowLong(hWnd, GWL_STYLE) | WS_OVERLAPPEDWINDOW;
+	int lExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+	SetWindowLong(hWnd, GWL_STYLE, lStyle);
 
 	char szTitle[64];
 	sprintf_s(szTitle, sizeof(szTitle), "Rayman II    [%s %s]", GLI_szName, GLI_szVersion);
 	SetWindowText(hWnd, szTitle);
 
+	RECT stWinRect = { 0, 0, CFG_stActualDispMode.dwWidth, CFG_stActualDispMode.dwHeight };
+	AdjustWindowRectEx(&stWinRect, lStyle, FALSE, lExStyle);
+	SetWindowPos(hWnd, NULL, 0, 0, stWinRect.right - stWinRect.left, stWinRect.bottom - stWinRect.top, SWP_NOMOVE | SWP_NOZORDER);
+
 	/* HACK: Refresh rate fix for >60Hz monitors */
 	g_p_stCaps->xRefreshRate = CFG_bHalfRefRate ? 30.0f : 60.0f;
+	//g_p_stCaps->ulDriverCaps |= 0x40;
 }
 
 void GLI_DRV_vFlipDeviceWithSyncro( void )
@@ -163,10 +263,18 @@ void GLI_DRV_vFlipDeviceWithSyncro( void )
 	if ( !GLI_MDRV_xIsGliInit() )
 		return;
 
+#ifdef SYNCROTEST
+	Vd_GLI_DRV_vFlipDeviceWithSyncro();
+	//GLI_DRV_vFlipDevice(fakeComputeFrame2(0));
+
+	return;
+#else
+
 	int lWaitFrame = ( CFG_DEBUG_lWaitFrame > 0 )
 		? CFG_DEBUG_lWaitFrame
 		: GLI_MDRV_lComputeWaitFrameForSmoothSynchro(0);
 	GLI_DRV_vFlipDevice(lWaitFrame);
+#endif // SYNCROTEST
 }
 
 void GLI_DRV_vSendSingleLineToClip(
@@ -180,7 +288,7 @@ void GLI_DRV_vSendSingleLineToClip(
 	GEO_tdstColor *p_stColor
 )
 {
-	if ( IMP_cWhatBuildWeUsing != 'f' ) /* not final, ignore */
+	if ( CFG_eBackend != E_GL_Glide || IMP_cWhatBuildWeUsing != 'f' ) /* not glide or not final = ignore */
 	{
 		Vd_GLI_DRV_vSendSingleLineToClip(p_stVpt, p_stVertex1, p_st2DVertex1, p_stVertex2, p_st2DVertex2, p_stGlobaleMT, lDrawModeMask, p_stColor);
 		return;

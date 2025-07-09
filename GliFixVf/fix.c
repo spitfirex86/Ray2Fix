@@ -251,6 +251,7 @@ AI_tdstNodeInterpret * FIX_fn_p_stSPOSuperimpoed( HIE_tdstSuperObject * p_SuperO
 }
 
 
+/* from patch.asm */
 extern void *FIX_Code4Patch_Pos;
 extern void *FIX_Code4Patch_Size;
 

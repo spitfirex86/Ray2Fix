@@ -1,6 +1,7 @@
 #include "framework.h"
 #include "imports.h"
 #include "glide2types.h"
+#include "config.h"
 
 
 /*
@@ -143,23 +144,8 @@ void *fn_lpGetFn( LPCSTR szName )
 	return (void*)GetProcAddress(hGliVd, szName);
 }
 
-void IMP_fn_vLoadGliLibrary( void )
+void fn_vLoadAllGliFunctions( void )
 {
-	IMP_cWhatBuildWeUsing = 'f';
-	hGliVd = LoadLibrary(".\\DLL\\GliVd1vf.dll");
-
-	if ( !hGliVd )
-	{
-		IMP_cWhatBuildWeUsing = 'r';
-		hGliVd = LoadLibrary(".\\DLL\\GliVd1vr.dll");
-	}
-
-	if ( !hGliVd )
-	{
-		MessageBox(NULL, "Cannot load GLI library.", "Error", MB_OK | MB_ICONERROR);
-		ExitProcess(1);
-	}
-
 	Vd_GLI_DRV_lGetDllInfo = fn_lpGetFn("GLI_DRV_lGetDllInfo");
 	Vd_GLI_DRV_fn_lGetAllDisplayConfig = fn_lpGetFn("GLI_DRV_fn_lGetAllDisplayConfig");
 	Vd_GLI_DRV_lSetCommonData = fn_lpGetFn("GLI_DRV_lSetCommonData");
@@ -201,6 +187,26 @@ void IMP_fn_vLoadGliLibrary( void )
 	Vd_GLI_DRV_vClearZBufferRegion = fn_lpGetFn("GLI_DRV_vClearZBufferRegion");
 	Vd_GLI_DRV_vComputeFogEffect = fn_lpGetFn("GLI_DRV_vComputeFogEffect");
 	Vd_GLI_DRV_vWrite16bBitmapToBackBuffer = fn_lpGetFn("GLI_DRV_vWrite16bBitmapToBackBuffer");
+}
+
+void IMP_fn_vLoadGliLibrary_Glide( void )
+{
+	IMP_cWhatBuildWeUsing = 'f';
+	hGliVd = LoadLibrary(".\\DLL\\GliVd1vf.dll");
+
+	if ( !hGliVd )
+	{
+		IMP_cWhatBuildWeUsing = 'r';
+		hGliVd = LoadLibrary(".\\DLL\\GliVd1vr.dll");
+	}
+
+	if ( !hGliVd )
+	{
+		MessageBox(NULL, "Cannot load GLI library.", "Error", MB_OK | MB_ICONERROR);
+		ExitProcess(1);
+	}
+
+	fn_vLoadAllGliFunctions();
 
 	if ( IMP_cWhatBuildWeUsing == 'f' )
 	{
@@ -209,4 +215,32 @@ void IMP_fn_vLoadGliLibrary( void )
 
 		fn_vLoadGlide2Lib();
 	}
+}
+
+void IMP_fn_vLoadGliLibrary_DirectX( void )
+{
+	IMP_cWhatBuildWeUsing = 'f';
+	hGliVd = LoadLibrary(".\\DLL\\GliDX6vf.dll");
+
+	if ( !hGliVd )
+	{
+		IMP_cWhatBuildWeUsing = 'r';
+		hGliVd = LoadLibrary(".\\DLL\\GliDX6vr.dll");
+	}
+
+	if ( !hGliVd )
+	{
+		MessageBox(NULL, "Cannot load GLI library.", "Error", MB_OK | MB_ICONERROR);
+		ExitProcess(1);
+	}
+
+	fn_vLoadAllGliFunctions();
+}
+
+void IMP_fn_vLoadGliLibrary( void )
+{
+	if ( CFG_eBackend == E_GL_DirectX )
+		IMP_fn_vLoadGliLibrary_DirectX();
+	else
+		IMP_fn_vLoadGliLibrary_Glide();
 }

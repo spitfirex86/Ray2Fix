@@ -11,3 +11,5 @@
 #define ACP_NO_DRV
 #define ACP_NOX
 //#include <ACP_Ray2.h>
+
+//#define DEBUGCONSOLE
