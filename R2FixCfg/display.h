@@ -20,6 +20,13 @@ typedef enum tdeRefRate_
 }
 tdeRefRate;
 
+typedef enum tdeBitDepth_
+{
+	e_BPP_16 = 16,
+	e_BPP_32 = 32
+}
+tdeBitDepth;
+
 typedef struct tdstDisplayMode_
 {
 	DWORD dwWidth;

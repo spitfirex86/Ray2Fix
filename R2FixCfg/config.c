@@ -12,6 +12,7 @@ BOOL g_bFixPrevState = FALSE;
 
 tdstDisplayMode g_stCurrentMode = { 0 };
 tdeRefRate g_eRefRate = e_RR_Full;
+tdeBitDepth g_eBitDepth = e_BPP_16;
 BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
 BOOL g_bPatchWidescreen = FALSE;
@@ -42,11 +43,8 @@ char const *a_szToManualDelete[] = {
 	"goggame.sdb",
 	"goglog.ini",
 	"gog.ico",
-	"support.ico",
 	"EULA.txt",
 	"webcache.zip",
-	"goggame-1207658940.dll",
-	"goggame-1207658940.info"
 };
 
 
@@ -68,15 +66,27 @@ void fn_vReadUbiIni( void )
 
 	DWORD dwWidth = 0;
 	DWORD dwHeight = 0;
+	DWORD dwBitDepth = 0;
 
 	// Display mode
 	GetPrivateProfileString("Rayman2", "GLI_Mode", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
-	int nParsed = sscanf_s(szBuffer, "1 - %d x %d", &dwWidth, &dwHeight);
+	int nParsed = sscanf_s(szBuffer, "1 - %d x %d x %d", &dwWidth, &dwHeight, &dwBitDepth);
 
-	if ( nParsed == 2 && dwWidth > 0 && dwHeight > 0 )
+	if ( nParsed >= 2 && dwWidth > 0 && dwHeight > 0 )
 	{
 		g_stCurrentMode.dwWidth = dwWidth;
 		g_stCurrentMode.dwHeight = dwHeight;
+
+		if ( nParsed == 3 )
+			switch ( dwBitDepth )
+			{
+			case e_BPP_16:
+				g_eBitDepth = e_BPP_16;
+				break;
+			case e_BPP_32:
+				g_eBitDepth = e_BPP_32;
+				break;
+			}
 	}
 
 	// Widescreen patch
@@ -137,7 +147,7 @@ void fn_vWriteUbiIni( void )
 	WritePrivateProfileString("Rayman2", "GLI_Device", szDevice, szUbiPath);
 
 	// Display mode
-	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x 16", g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight);
+	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x %i", g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight, g_eBitDepth);
 	WritePrivateProfileString("Rayman2", "GLI_Mode", szBuffer, szUbiPath);
 
 	// Tweaks - removed
@@ -173,6 +183,9 @@ void fn_vWriteDegeIni( void )
 	WritePrivateProfileString("Glide", "EnableInactiveAppState", "false", szDegePath);
 	/* this one is necessary to avoid refresh rate affecting timers/screenshot lag... */
 	WritePrivateProfileString("GeneralExt", "FPSLimit", "60", szDegePath);
+	/* bit depth - 16bpp to 32bpp */
+	WritePrivateProfileString("GlideExt", "Dithering", "forcealways", szDegePath);
+	WritePrivateProfileString("GlideExt", "DitheringEffect", "pure32bit", szDegePath);
 
 	// Display mode & refresh rate
 	sprintf_s(szBuffer, sizeof(szBuffer), "h:%i, v:%i, refrate:%i",
