@@ -42,11 +42,8 @@ char const *a_szToManualDelete[] = {
 	"goggame.sdb",
 	"goglog.ini",
 	"gog.ico",
-	"support.ico",
 	"EULA.txt",
 	"webcache.zip",
-	"goggame-1207658940.dll",
-	"goggame-1207658940.info"
 };
 
 
@@ -137,7 +134,7 @@ void fn_vWriteUbiIni( void )
 	WritePrivateProfileString("Rayman2", "GLI_Device", szDevice, szUbiPath);
 
 	// Display mode
-	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x 16", g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight);
+	sprintf_s(szBuffer, sizeof(szBuffer), "1 - %i x %i x 32", g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight);
 	WritePrivateProfileString("Rayman2", "GLI_Mode", szBuffer, szUbiPath);
 
 	// Tweaks - removed
