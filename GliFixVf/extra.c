@@ -54,7 +54,7 @@ void EXT_fn_vDealWithSnapShot( void )
 	int lFiles, lDeleted;
 	BOOL bResult = fn_bCleanupSnapShot(&lFiles, &lDeleted);
 
-	char szBuffer[256];
+	char szBuffer[512];
 	int lWritten = sprintf_s(szBuffer, sizeof(szBuffer), "Cleaned up %d / %d screenshots.\n\n", lDeleted, lFiles);
 	UINT uIcon = MB_ICONASTERISK;
 	if ( bResult )
@@ -65,12 +65,19 @@ void EXT_fn_vDealWithSnapShot( void )
 		char const *szTagLine = NULL;
 		if ( lDeleted == 0 )
 			szTagLine = "No screenshots this time!";
+		else if ( lDeleted == 1 )
+			szTagLine = "Just one, I guess.";
 		else if ( lDeleted <= 50 ) 
 			szTagLine = "A reasonable amount.";
-		else if ( lDeleted <= 300 )
+		else if ( lDeleted <= 400 )
 			szTagLine = "Speedrunner detected!\n(Or you just really love pressing the F8 key.)";
-		else if ( lDeleted <= 500 )
+		else if ( lDeleted <= 800 )
 			szTagLine = "You're a Screenshot's Master!!";
+		else if ( lDeleted <= 2000 )
+			szTagLine = "It's possible that you may have a problem.";
+		else
+			szTagLine = "Lemme guess, you're a speedrunner and this is the first time you're using the cleanup tool...";
+
 
 		unsigned long ulBytesPer = CFG_stDispMode.dwWidth * CFG_stDispMode.dwHeight * 3;
 		float fKbPer = ulBytesPer / 1024.f;
