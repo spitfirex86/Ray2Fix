@@ -19,9 +19,11 @@ JFFTXT_tdstString g_stVersionTxt = {
 	.ucForcedColor = 2
 };
 
+BOOL g_bConfigToolIsAboutToOpen = FALSE;
+
 
 /*
- * Detours
+ * Hooks
  */
 
 BOOL CALLBACK FIX_fn_InputEnum( void *lpddi, void *pvRef )
@@ -65,6 +67,8 @@ char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
 		// Part 2: Open R2FixCfg with ShellExecute.
 		if ( !strcmp(result, "http://www.rayman2.com/") )
 		{
+			g_bConfigToolIsAboutToOpen = TRUE;
+
 			if ( CFG_fn_bOpenConfigTool() )
 				SendMessage(GAM_fn_hGetWindowHandle(), WM_CLOSE, 0, 0);
 		}
@@ -81,6 +85,20 @@ void FIX_fn_vAffiche( void *pContext )
 	JFFTXT_vAffiche(pContext);
 }
 
+extern void EXT_fn_vDealWithSnapShot( void );
+
+void FIX_fn_vChooseTheGoodDesInit( void )
+{
+	GAM_fn_vChooseTheGoodDesInit();
+
+	if ( GAM_g_stEngineStructure->eEngineMode == E_EM_ModeStoppingProgram )
+		EXT_fn_vDealWithSnapShot();
+}
+
+
+/*
+ * Widescreen patch hooks
+ */
 
 void FIX_xAdjustCameraToViewport2(GLD_tdstDeviceAttributes *p_stDev, GLD_tdstViewportAttributes *p_stVpt, GLI_tdstCamera *p_stCam )
 {
@@ -330,6 +348,11 @@ void FIX_fn_vAttachHooks( void )
 		FIX_fn_vPatchCode4();
 	}
 
+	if ( CFG_bCleanupSnapShot )
+	{
+		DetourAttach((PVOID*)&GAM_fn_vChooseTheGoodDesInit, (PVOID)FIX_fn_vChooseTheGoodDesInit);
+	}
+
 	DetourTransactionCommit();
 }
 
@@ -343,12 +366,16 @@ void FIX_fn_vDetachHooks( void )
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
 	DetourDetach((PVOID*)&JFFTXT_vAffiche, (PVOID)FIX_fn_vAffiche);
 
-
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
 		DetourDetach((PVOID *)&GLI_xAdjustCameraToViewport2, (PVOID)FIX_xAdjustCameraToViewport2);
 		DetourDetach((PVOID *)&GLI_vDraw2DSpriteWithPercent, (PVOID)FIX_vDraw2DSpriteWithPercent);
 		DetourDetach((PVOID *)&R2_fn_p_stSPOSuperimpoed, (PVOID)FIX_fn_p_stSPOSuperimpoed);
+	}
+
+	if ( CFG_bCleanupSnapShot )
+	{
+		DetourDetach((PVOID*)&GAM_fn_vChooseTheGoodDesInit, (PVOID)FIX_fn_vChooseTheGoodDesInit);
 	}
 
 	DetourTransactionCommit();

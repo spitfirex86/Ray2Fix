@@ -99,6 +99,7 @@ BEGIN
     RADIOBUTTON     "Windowed*",IDC_FSMODE_WND,14,107,53,10,WS_GROUP
     RADIOBUTTON     "Fullscreen",IDC_FSMODE_FS,74,107,48,10
     CONTROL         "Widescreen patch",IDC_PATCHWIDE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,121,73,10
+    CONTROL         "Clean up screenshots",IDC_CLEANSNAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,146,85,10
     LTEXT           "*  Suggested ""safe"" values for speedrunning",IDC_STATIC,6,168,144,8
     LTEXT           "+  Largest recommended size for windowed mode",IDC_STATIC,6,180,161,8
     GROUPBOX        "Advanced",IDC_ADVGROUP,136,78,112,84,NOT WS_VISIBLE
@@ -162,8 +163,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0,0
- PRODUCTVERSION 1,4,0,0
+ FILEVERSION 1,4,1,0
+ PRODUCTVERSION 1,4,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -180,12 +181,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Spitfire_x86"
             VALUE "FileDescription", "Ray2Fix Settings"
-            VALUE "FileVersion", "1.4.0.0"
+            VALUE "FileVersion", "1.4.1.0"
             VALUE "InternalName", "R2FixCfg.exe"
             VALUE "LegalCopyright", "Copyright (C) 2023"
             VALUE "OriginalFilename", "R2FixCfg.exe"
             VALUE "ProductName", "R2FixCfg"
-            VALUE "ProductVersion", "1.4.0.0"
+            VALUE "ProductVersion", "1.4.1.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -342,6 +343,7 @@ BEGIN
     IDS_VE_OKWARN           "File verification completed with warnings."
     IDS_NEWLINE             "\r\n"
     IDS_CLEANUPWARN         "This will delete *all* extra GOG files that are not necessary for the game to run.\n\nAre you sure you want to continue?"
+    IDS_CLEANSNAP           "Delete the contents of the SnapShot folder when the game is closed.\r\nFiles marked as read-only will be preserved."
 END
 
 #endif    // English (United States) resources

@@ -17,6 +17,7 @@ BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
 BOOL g_bPatchWidescreen = FALSE;
 int g_DEBUG_lWaitFrame = 0;
+BOOL g_bCleanupSnapShot = FALSE;
 
 tdeErrorState g_eError = e_ES_Ok;
 tdeVerifyErr g_eErrorDetails = e_VE_Ok;
@@ -99,6 +100,11 @@ void fn_vReadUbiIni( void )
 	int lResult = strtol(szBuffer, NULL, 10);
 	if ( lResult > 0 )
 		g_DEBUG_lWaitFrame = lResult;
+
+	// Delete screenshots
+	GetPrivateProfileString("Ray2Fix", "CleanupSnapShot", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+		g_bCleanupSnapShot = TRUE;
 }
 
 void fn_vReadDegeIni( void )
@@ -164,6 +170,10 @@ void fn_vWriteUbiIni( void )
 	// DEBUG wait frame
 	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_DEBUG_lWaitFrame);
 	WritePrivateProfileString("Ray2Fix", "Debug_WaitFrame", szBuffer, szUbiPath);
+
+	// Delete screenshots
+	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_bCleanupSnapShot);
+	WritePrivateProfileString("Ray2Fix", "CleanupSnapShot", szBuffer, szUbiPath);
 }
 
 void fn_vWriteDegeIni( void )

@@ -12,6 +12,7 @@ static HWND hStatus;
 static HWND hToggle;
 static HWND hResolution;
 static HWND hPatchWidescreen;
+static HWND hCleanupSnapShot;
 
 static HWND hResX;
 static HWND hResY;
@@ -289,6 +290,7 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		hResY = GetDlgItem(hWnd, IDC_RESY);
 		hResLabel = GetDlgItem(hWnd, IDC_RES_LABEL);
 		hPatchWidescreen = GetDlgItem(hWnd, IDC_PATCHWIDE);
+		hCleanupSnapShot = GetDlgItem(hWnd, IDC_CLEANSNAP);
 		
 		hFsModeWin = GetDlgItem(hWnd, IDC_FSMODE_WND);
 		hFsModeFs = GetDlgItem(hWnd, IDC_FSMODE_FS);
@@ -309,6 +311,9 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		Button_SetCheck(hFsModeWin, !g_bFullscreen);
 		Button_SetCheck(hFsModeFs, g_bFullscreen);
 		Button_SetCheck(hPatchWidescreen, g_bPatchWidescreen);
+		Button_SetCheck(hCleanupSnapShot, g_bCleanupSnapShot);
+
+		fn_vRegisterToolTip(hWnd, hCleanupSnapShot, IDS_CLEANSNAP);
 
 		SendMessage(hResX, EM_LIMITTEXT, 7, 0);
 		SendMessage(hResY, EM_LIMITTEXT, 7, 0);
@@ -360,6 +365,11 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 		case IDC_PATCHWIDE:
 			g_bPatchWidescreen = Button_GetCheck(hPatchWidescreen);
+			g_bUnsavedChanges = TRUE;
+			return TRUE;
+
+		case IDC_CLEANSNAP:
+			g_bCleanupSnapShot = Button_GetCheck(hCleanupSnapShot);
 			g_bUnsavedChanges = TRUE;
 			return TRUE;
 

@@ -13,3 +13,7 @@ extern HINSTANCE g_hInst;
 extern BOOL g_bUnsavedChanges;
 
 extern char g_szAppName[80];
+
+extern HWND g_hMainWnd;
+
+void fn_vRegisterToolTip( HWND hWnd, HWND hItem, int nIDString );

@@ -120,6 +120,7 @@
     <ClCompile Include="config.c" />
     <ClCompile Include="devinfo.c" />
     <ClCompile Include="dllmain.c" />
+    <ClCompile Include="extra.c" />
     <ClCompile Include="GliFixVf.c" />
     <ClCompile Include="fix.c" />
     <ClCompile Include="imports.c" />

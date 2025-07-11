@@ -65,6 +65,9 @@
     <ClCompile Include="fix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="extra.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="patch.asm">

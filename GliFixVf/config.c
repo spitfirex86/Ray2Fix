@@ -34,6 +34,7 @@ float CFG_xActualRatio = 0;
 tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 int CFG_DEBUG_lWaitFrame = 0;
+BOOL CFG_bCleanupSnapShot = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
@@ -139,6 +140,11 @@ void fn_vReadFixConfig( void )
 	int lResult = strtol(szBuffer, NULL, 10);
 	if ( lResult > 0 )
 		CFG_DEBUG_lWaitFrame = lResult;
+
+	// Delete screenshots
+	GetPrivateProfileString("Ray2Fix", "CleanupSnapShot", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+		CFG_bCleanupSnapShot = TRUE;
 }
 
 void CFG_fn_vInitGlobals( void )

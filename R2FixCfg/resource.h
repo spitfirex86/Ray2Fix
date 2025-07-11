@@ -35,6 +35,7 @@
 #define IDS_VE_OKWARN                   128
 #define IDS_NEWLINE                     129
 #define IDS_CLEANUPWARN                 130
+#define IDS_CLEANSNAP                   131
 #define IDC_MAINTOGGLE                  1001
 #define IDC_STATUSLINE                  1002
 #define IDC_TAB1                        1006
@@ -57,6 +58,8 @@
 #define IDC_DEBUG_WF                    1041
 #define IDC_DEBUG_WF_LABEL              1042
 #define IDC_VERNUM                      1043
+#define IDC_CHECK2                      1044
+#define IDC_CLEANSNAP                   1044
 #define IDC_RS                          1062
 #define IDC_LSCLICK                     1063
 #define IDC_RSCLICK                     1064
@@ -83,7 +86,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        111
 #define _APS_NEXT_COMMAND_VALUE         40003
-#define _APS_NEXT_CONTROL_VALUE         1044
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

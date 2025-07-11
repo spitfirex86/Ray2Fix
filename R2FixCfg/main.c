@@ -11,6 +11,8 @@ BOOL g_bUnsavedChanges = FALSE;
 
 char g_szAppName[80];
 
+HWND g_hMainWnd = NULL;
+
 HWND hTC;
 HWND hAdvanced;
 HWND hCurrentTab;
@@ -21,6 +23,8 @@ tdstTabInfo a_stTabs[e_NbTab] = {
 	[e_TAB_General] = { IDD_GENERAL, "General", DLG_fn_bProc_General },
 	[e_TAB_Pad] = { IDD_PAD, "Gamepad", DLG_fn_bProc_Pad },
 };
+
+HWND hToolTip = NULL;
 
 
 void fn_vCreateTabDialogs( HWND hParent, HWND hTabCtrl )
@@ -84,6 +88,37 @@ BOOL fn_bAskSaveBeforeClose( HWND hWnd )
 	}
 }
 
+void fn_vCreateToolTip( HWND hWnd )
+{
+	HWND hwndTip = CreateWindowEx(0, TOOLTIPS_CLASS, NULL,
+		WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX | TTS_CLOSE,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		hWnd, NULL, 
+		g_hInst, NULL);
+
+	if ( hwndTip )
+	{
+		SendMessage(hwndTip, TTM_SETMAXTIPWIDTH, 0, 400);
+		SendMessage(hwndTip, TTM_SETDELAYTIME, TTDT_INITIAL, 250);
+		hToolTip = hwndTip;
+	}
+}
+
+void fn_vRegisterToolTip( HWND hWnd, HWND hItem, int nIDString )
+{
+	char szText[256];
+	LoadRcString(nIDString, szText);
+
+	TOOLINFO toolInfo = { 0 };
+	toolInfo.cbSize = sizeof(toolInfo);
+	toolInfo.hwnd = hWnd;
+	toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+	toolInfo.uId = (UINT_PTR)hItem;
+	toolInfo.lpszText = szText;
+	SendMessage(hToolTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
+}
+
 BOOL CALLBACK fn_bProc_Main( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	HICON hIcon;
@@ -93,10 +128,13 @@ BOOL CALLBACK fn_bProc_Main( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 	switch ( uMsg )
 	{
 	case WM_INITDIALOG:
+		g_hMainWnd = hWnd;
 		// Set caption and taskbar icon
 		hIcon = LoadIcon(g_hInst, MAKEINTRESOURCE(IDI_GLI_ICON));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+
+		fn_vCreateToolTip(hWnd);
 
 		hTC = GetDlgItem(hWnd, IDC_TAB1);
 		fn_vCreateTabDialogs(hWnd, hTC);
