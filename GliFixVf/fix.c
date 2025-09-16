@@ -5,12 +5,14 @@
 #include "r2fn.h"
 #include "config.h"
 #include "GliFixVf.h"
+#include "extra.h"
 
 #include <ACP_Ray2.h>
 
 
 char *szConfigMenu = "/C:Ray2Fix Config";
-char szVersionString[50];
+char szVersionString[48];
+char szVersion2[48];
 
 JFFTXT_tdstString g_stVersionTxt = {
 	szVersionString,
@@ -84,8 +86,6 @@ void FIX_fn_vAffiche( void *pContext )
 
 	JFFTXT_vAffiche(pContext);
 }
-
-extern void EXT_fn_vDealWithSnapShot( void );
 
 void FIX_fn_vChooseTheGoodDesInit( void )
 {
@@ -320,12 +320,16 @@ void fn_vPreAttachHooks( void )
 	//sprintf_s(szVersionString, sizeof(szVersionString), "/O200:%s v%s", GLI_szName, GLI_szVersion);
 	snprintf(szVersionString, sizeof(szVersionString), "/C:%s %s", GLI_szName, GLI_szVersion);
 
-	/* pause menu version display */
-	g_stVersionTxt.szText = szVersionString+3;
-	long dx, dy, cx, cy;
-	JFFTXT_vGetSizeValues(g_stVersionTxt.xSize, &dx, &dy, &cx, &cy);
-	long lLength = JFFTXT_lGetStringLength(szVersionString, dx);
-	g_stVersionTxt.X = 1000 - lLength - 5;
+	if ( !EXT_bSeemsLegalForSpeedruns )
+	{
+		snprintf(szVersion2, sizeof(szVersion2), "%s %s !", GLI_szName, GLI_szVersion);
+		/* pause menu version display */
+		g_stVersionTxt.szText = szVersion2;
+		long dx, dy, cx, cy;
+		JFFTXT_vGetSizeValues(g_stVersionTxt.xSize, &dx, &dy, &cx, &cy);
+		long lLength = JFFTXT_lGetStringLength(szVersion2, dx);
+		g_stVersionTxt.X = 1000 - lLength - 5;
+	}
 }
 
 void FIX_fn_vAttachHooks( void )
@@ -338,8 +342,7 @@ void FIX_fn_vAttachHooks( void )
 	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourAttach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
-	DetourAttach((PVOID*)&JFFTXT_vAffiche, (PVOID)FIX_fn_vAffiche);
-
+	
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
 		DetourAttach((PVOID*)&GLI_xAdjustCameraToViewport2, (PVOID)FIX_xAdjustCameraToViewport2);
@@ -353,6 +356,11 @@ void FIX_fn_vAttachHooks( void )
 		DetourAttach((PVOID*)&GAM_fn_vChooseTheGoodDesInit, (PVOID)FIX_fn_vChooseTheGoodDesInit);
 	}
 
+	if ( !EXT_bSeemsLegalForSpeedruns )
+	{
+		DetourAttach((PVOID*)&JFFTXT_vAffiche, (PVOID)FIX_fn_vAffiche);
+	}
+
 	DetourTransactionCommit();
 }
 
@@ -364,7 +372,6 @@ void FIX_fn_vDetachHooks( void )
 	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
 	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
-	DetourDetach((PVOID*)&JFFTXT_vAffiche, (PVOID)FIX_fn_vAffiche);
 
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
@@ -376,6 +383,11 @@ void FIX_fn_vDetachHooks( void )
 	if ( CFG_bCleanupSnapShot )
 	{
 		DetourDetach((PVOID*)&GAM_fn_vChooseTheGoodDesInit, (PVOID)FIX_fn_vChooseTheGoodDesInit);
+	}
+
+	if ( !EXT_bSeemsLegalForSpeedruns )
+	{
+		DetourDetach((PVOID*)&JFFTXT_vAffiche, (PVOID)FIX_fn_vAffiche);
 	}
 
 	DetourTransactionCommit();

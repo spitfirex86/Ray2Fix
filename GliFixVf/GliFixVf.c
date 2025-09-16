@@ -156,6 +156,23 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 
 	/* HACK: Refresh rate fix for >60Hz monitors */
 	g_p_stCaps->xRefreshRate = CFG_bHalfRefRate ? 30.0f : 60.0f;
+
+	/* NOTE:
+	   this is a good place to check for this because the window is already created
+	   which means we can send WM_CLOSE and avoid having to deal with thread locks 
+	   and other issues caused by ExitProcess() */
+	if ( CFG_bSomeConfigFilesAreOutdated )
+	{
+		ShowCursor(TRUE);
+		int lResult = MessageBox(
+			hWnd,
+			"Some config files seem to be outdated or improperly set up.\n\n"
+			"Ray2Fix Settings will be opened - press OK within to automatically update the config files.",
+			GLI_szName, MB_OK | MB_ICONEXCLAMATION);
+
+		CFG_fn_bOpenConfigTool();
+		SendMessage(hWnd, WM_CLOSE, 0, 0);
+	}
 }
 
 void GLI_DRV_vFlipDeviceWithSyncro( void )

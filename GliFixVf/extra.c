@@ -1,10 +1,11 @@
 #include "framework.h"
+#include "extra.h"
 #include "config.h"
 
 #include <ACP_Ray2.h>
 
 
-extern BOOL g_bConfigToolIsAboutToOpen;
+BOOL EXT_bSeemsLegalForSpeedruns = FALSE;
 
 
 BOOL fn_bCleanupSnapShot( int *p_lCounter, int *p_lDeleted )
@@ -103,4 +104,18 @@ void EXT_fn_vDealWithSnapShot( void )
 	HWND hWnd = GAM_fn_hGetWindowHandle();
 	ShowCursor(TRUE);
 	MessageBox((IsWindow(hWnd) ? hWnd : NULL), szBuffer, "Session Stats", MB_OK | uIcon);
+}
+
+void EXT_fn_vInitEvaluateSpeedrunValidity( void )
+{
+	BOOL bTest = (
+		CFG_bIsMainModuleR2 && /* sanity checks */
+		CFG_bIsFixEnabled &&
+		!(CFG_bIsWidescreen && CFG_bPatchWidescreen) && /* no widescreen */
+		!CFG_bHalfRefRate && /* 60fps only */
+		(CFG_DEBUG_lWaitFrame == 0) && /* default framerate fix */
+		(CFG_lDegeFPSLimit == 60) /* refresh rate fix (screenshot lag) */
+		);
+
+	EXT_bSeemsLegalForSpeedruns = bTest;
 }

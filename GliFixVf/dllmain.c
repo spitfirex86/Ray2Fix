@@ -2,12 +2,15 @@
 #include "imports.h"
 #include "fix.h"
 #include "config.h"
+#include "extra.h"
 
 
 void fn_vInitDll( void )
 {
 	CFG_fn_vInitGlobals();
 	IMP_fn_vLoadGliLibrary();
+
+	EXT_fn_vInitEvaluateSpeedrunValidity();
 
 	if ( CFG_bIsMainModuleR2 ) /* retail RII */
 	{

@@ -35,6 +35,7 @@ tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 int CFG_DEBUG_lWaitFrame = 0;
 BOOL CFG_bCleanupSnapShot = FALSE;
+int CFG_lDegeFPSLimit = 0;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
@@ -44,6 +45,8 @@ BOOL CFG_bIsWidescreen = FALSE;
 
 char CFG_szModuleName[MAX_PATH] = "";
 char CFG_szModuleDate[20] = "";
+
+BOOL CFG_bSomeConfigFilesAreOutdated = FALSE;
 
 /*
  * Functions
@@ -145,6 +148,13 @@ void fn_vReadFixConfig( void )
 	GetPrivateProfileString("Ray2Fix", "CleanupSnapShot", "0", szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		CFG_bCleanupSnapShot = TRUE;
+
+	// Dege - refresh rate fix
+	GetPrivateProfileString("GeneralExt", "FPSLimit", "0", szBuffer, sizeof(szBuffer), szDegePath);
+	lResult = strtol(szBuffer, NULL, 10);
+	CFG_lDegeFPSLimit = lResult;
+	CFG_bSomeConfigFilesAreOutdated |= (CFG_lDegeFPSLimit != 60);
+
 }
 
 void CFG_fn_vInitGlobals( void )

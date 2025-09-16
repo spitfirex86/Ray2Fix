@@ -109,6 +109,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="devinfo.h" />
+    <ClInclude Include="extra.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="glide2types.h" />
     <ClInclude Include="GliFixVf.h" />

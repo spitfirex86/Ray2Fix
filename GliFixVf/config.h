@@ -22,6 +22,7 @@ extern tdstDisplayMode CFG_stDispMode;
 extern BOOL CFG_bHalfRefRate;
 extern int CFG_DEBUG_lWaitFrame;
 extern BOOL CFG_bCleanupSnapShot;
+extern int CFG_lDegeFPSLimit;
 
 extern BOOL CFG_bIsMainModuleR2;
 extern BOOL CFG_bIsFixEnabled;
@@ -31,6 +32,8 @@ extern BOOL CFG_bIsWidescreen;
 
 extern char CFG_szModuleName[MAX_PATH];
 extern char CFG_szModuleDate[20];
+
+extern BOOL CFG_bSomeConfigFilesAreOutdated;
 
 
 /*
