@@ -32,12 +32,16 @@ char const *szUbiPath = ".\\Ubi.ini";
 
 char const *a_szFilesToDelete[] = {
 	"nglide_config.exe",
+	"nglide_config.ini",
 	"nglide_readme.txt",
 	"nGlideEULA.txt",
 	"3DfxSpl.dll",
 	"3DfxSpl3.dll",
 	"glide.dll",
-	"glide3x.dll"
+	"glide3x.dll",
+	"dxcfg.exe",
+	"dxcfg.ini",
+	"goginput.ini"
 };
 
 char const *a_szToManualDelete[] = {
