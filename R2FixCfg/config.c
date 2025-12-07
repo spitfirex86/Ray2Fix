@@ -41,7 +41,7 @@ char const *a_szFilesToDelete[] = {
 	"glide3x.dll",
 	"dxcfg.exe",
 	"dxcfg.ini",
-	"goginput.ini"
+	"goginput.ini",
 };
 
 char const *a_szToManualDelete[] = {
@@ -256,7 +256,8 @@ void CFG_fn_vWrite( void )
 
 void CFG_fn_vVerify( void )
 {
-	if ( GetFileAttributes(".\\nglide_config.exe") != INVALID_FILE_ATTRIBUTES )
+	if ( (GetFileAttributes(".\\nglide_config.exe") != INVALID_FILE_ATTRIBUTES) || 
+		 (GetFileAttributes(".\\dxcfg.exe") != INVALID_FILE_ATTRIBUTES) )
 	{
 		// Delete unnecessary nGlide files
 		fn_vSoftCleanUp();
