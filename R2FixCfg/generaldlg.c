@@ -22,6 +22,7 @@ static HWND hFsModeWin;
 static HWND hFsModeFs;
 
 static HWND hAdvGroup;
+static HWND hForceRealFS;
 static HWND hVsync;
 static HWND hRefRateLabel;
 static HWND hRefRate;
@@ -167,6 +168,7 @@ void fn_vToggleAdvanced( BOOL bVisible )
 	int nCmdShow = bVisible ? SW_SHOW : SW_HIDE;
 
 	ShowWindow(hAdvGroup, nCmdShow);
+	ShowWindow(hForceRealFS, nCmdShow);
 	ShowWindow(hVsync, nCmdShow);
 	ShowWindow(hRefRateLabel, nCmdShow);
 	ShowWindow(hRefRate, nCmdShow);
@@ -296,6 +298,7 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		hFsModeFs = GetDlgItem(hWnd, IDC_FSMODE_FS);
 
 		hAdvGroup = GetDlgItem(hWnd, IDC_ADVGROUP);
+		hForceRealFS = GetDlgItem(hWnd, IDC_REALFS);
 		hVsync = GetDlgItem(hWnd, IDC_VSYNC);
 		hRefRateLabel = GetDlgItem(hWnd, IDC_REFRATE_LABEL);
 		hRefRate = GetDlgItem(hWnd, IDC_REFRATE);
@@ -307,18 +310,20 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		fn_vPopulateDisplayModes(hResolution);
 		fn_vPopulateRefRates(hRefRate);
 
+		Button_SetCheck(hForceRealFS, g_bForceRealFullscreen);
 		Button_SetCheck(hVsync, g_bForceVsync);
 		Button_SetCheck(hFsModeWin, !g_bFullscreen);
 		Button_SetCheck(hFsModeFs, g_bFullscreen);
 		Button_SetCheck(hPatchWidescreen, g_bPatchWidescreen);
 		Button_SetCheck(hCleanupSnapShot, g_bCleanupSnapShot);
 
-		fn_vRegisterToolTip(hWnd, hCleanupSnapShot, IDS_CLEANSNAP);
-
 		SendMessage(hResX, EM_LIMITTEXT, 7, 0);
 		SendMessage(hResY, EM_LIMITTEXT, 7, 0);
 
 		fn_vInitDebugWaitFrame();
+
+		fn_vRegisterToolTip(hWnd, hCleanupSnapShot, IDS_CLEANSNAP);
+		fn_vRegisterToolTip(hWnd, hForceRealFS, IDS_REALFS);
 
 		return TRUE;
 
@@ -384,6 +389,11 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			g_bFullscreen = TRUE;
 			Button_SetCheck(hFsModeWin, BST_UNCHECKED);
 			Button_SetCheck(hFsModeFs, BST_CHECKED);
+			g_bUnsavedChanges = TRUE;
+			return TRUE;
+
+		case IDC_REALFS:
+			g_bForceRealFullscreen = Button_GetCheck(hForceRealFS);
 			g_bUnsavedChanges = TRUE;
 			return TRUE;
 

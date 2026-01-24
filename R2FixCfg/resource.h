@@ -36,11 +36,13 @@
 #define IDS_NEWLINE                     129
 #define IDS_CLEANUPWARN                 130
 #define IDS_CLEANSNAP                   131
+#define IDS_REALFS                      132
 #define IDC_MAINTOGGLE                  1001
 #define IDC_STATUSLINE                  1002
 #define IDC_TAB1                        1006
 #define IDC_RESOLUTION                  1008
 #define IDC_VSYNC                       1014
+#define IDC_REALFS                      1015
 #define IDC_ADVANCED                    1019
 #define IDC_ADVGROUP                    1020
 #define IDC_REFRATE                     1021

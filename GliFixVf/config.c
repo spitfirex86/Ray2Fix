@@ -36,6 +36,7 @@ BOOL CFG_bHalfRefRate = FALSE;
 int CFG_DEBUG_lWaitFrame = 0;
 BOOL CFG_bCleanupSnapShot = FALSE;
 int CFG_lDegeFPSLimit = 0;
+BOOL CFG_bDegeFullScreen = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
@@ -155,6 +156,9 @@ void fn_vReadFixConfig( void )
 	CFG_lDegeFPSLimit = lResult;
 	CFG_bSomeConfigFilesAreOutdated |= (CFG_lDegeFPSLimit != 60);
 
+	// Dege - fullscreen mode
+	GetPrivateProfileString("General", "FullScreenMode", "false", szBuffer, sizeof(szBuffer), szDegePath);
+	CFG_bDegeFullScreen = ( !_stricmp(szBuffer, "true") );
 }
 
 void CFG_fn_vInitGlobals( void )

@@ -16,6 +16,7 @@ tdeBitDepth g_eBitDepth = e_BPP_16;
 BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
 BOOL g_bPatchWidescreen = FALSE;
+BOOL g_bForceRealFullscreen = FALSE;
 int g_DEBUG_lWaitFrame = 0;
 BOOL g_bCleanupSnapShot = FALSE;
 
@@ -138,6 +139,9 @@ void fn_vReadDegeIni( void )
 	GetPrivateProfileString("General", "FullScreenMode", NULL, szBuffer, sizeof(szBuffer), szDegePath);
 	if ( !strcmp(szBuffer, "true") )
 		g_bFullscreen = TRUE;
+	GetPrivateProfileString("GeneralExt", "FullscreenAttributes", NULL, szBuffer, sizeof(szBuffer), szDegePath);
+	if ( strcmp(szBuffer, "fake") != 0 )
+		g_bForceRealFullscreen = TRUE;
 }
 
 void fn_vWriteUbiIni( void )
@@ -213,6 +217,8 @@ void fn_vWriteDegeIni( void )
 	// Fullscreen mode
 	char const *szFullScreen = g_bFullscreen ? "true" : "false";
 	WritePrivateProfileString("General", "FullScreenMode", szFullScreen, szDegePath);
+	char const *szForceRealFS = g_bForceRealFullscreen ? "" : "fake";
+	WritePrivateProfileString("GeneralExt", "FullscreenAttributes", szForceRealFS, szDegePath);
 }
 
 void fn_vSoftCleanUp( void )

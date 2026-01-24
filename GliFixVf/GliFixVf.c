@@ -147,8 +147,11 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 	/* HACK: make sure the window has a title bar and a border
 	   Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
 	   without a title bar, making it impossible to move or resize the game window. */
-	int lStyle = GetWindowLong(hWnd, GWL_STYLE);
-	SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
+	if ( !CFG_bDegeFullScreen )
+	{
+		int lStyle = GetWindowLong(hWnd, GWL_STYLE);
+		SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
+	}
 
 	char szTitle[64];
 	sprintf_s(szTitle, sizeof(szTitle), "Rayman II    [%s %s]", GLI_szName, GLI_szVersion);
