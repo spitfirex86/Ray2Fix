@@ -11,7 +11,8 @@
  */
 
 extern DIEnumDevicesCallback R2_fn_InputEnum;
-extern BOOL (*R2_fn_SuspendGame)();
+extern BOOL (*R2_fn_bAppliOnDeActivate)( BOOL bIsFullScreen );
+extern BOOL (*R2_fn_bAppliOnActivate)( void );
 
 extern char * (*R2_fn_szGetStringFromTextOrStringParam)( void *param );
 

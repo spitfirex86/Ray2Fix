@@ -40,12 +40,17 @@ BOOL CALLBACK FIX_fn_InputEnum( void *lpddi, void *pvRef )
 	return DIENUM_CONTINUE;
 }
 
-BOOL FIX_fn_SuspendGame()
+BOOL FIX_fn_AppliOnDeActivate( BOOL bIsFullScreen )
 {
 	// HACK: Disable suspended game state
 	// Disregard whatever the game's trying to do here and always return TRUE.
 	// This prevents the game from suspending itself when the focus is lost.
-	return TRUE;
+	return 0;
+}
+
+BOOL FIX_fn_AppliOnActivate( void )
+{
+	return 0;
 }
 
 char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
@@ -310,6 +315,15 @@ void FIX_fn_vPatchCode4( void )
 	fn_vApplyJmpToCode((void*)0x475C96, &FIX_Code4Patch_Size);
 }
 
+void FIX_fn_vPatchReleaseDI(void)
+{
+	unsigned char code1[] = { 0xE8, 0xFC, 0x04, 0x00, 0x00 };
+	unsigned char code2[] = { 0xE8, 0x57, 0xFF, 0xFF, 0xFF };
+
+	fn_vApplyPatch((void*)0x494FCF, code1, sizeof(code1));
+	fn_vApplyPatch((void*)0x495574, code2, sizeof(code2));
+}
+
 
 /*
  * Functions
@@ -328,7 +342,7 @@ void fn_vPreAttachHooks( void )
 		long dx, dy, cx, cy;
 		JFFTXT_vGetSizeValues(g_stVersionTxt.xSize, &dx, &dy, &cx, &cy);
 		long lLength = JFFTXT_lGetStringLength(szVersion2, dx);
-		g_stVersionTxt.X = 1000 - lLength - 5;
+		g_stVersionTxt.X = 1000.f - lLength - 5;
 	}
 }
 
@@ -340,9 +354,12 @@ void FIX_fn_vAttachHooks( void )
 	DetourUpdateThread(GetCurrentThread());
 
 	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
-	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
+	DetourAttach((PVOID*)&R2_fn_bAppliOnDeActivate, (PVOID)FIX_fn_AppliOnDeActivate);
+	DetourAttach((PVOID*)&R2_fn_bAppliOnActivate, (PVOID)FIX_fn_AppliOnActivate);
 	DetourAttach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
 	
+	FIX_fn_vPatchReleaseDI();
+
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
 	{
 		DetourAttach((PVOID*)&GLI_xAdjustCameraToViewport2, (PVOID)FIX_xAdjustCameraToViewport2);
@@ -370,7 +387,8 @@ void FIX_fn_vDetachHooks( void )
 	DetourUpdateThread(GetCurrentThread());
 
 	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
-	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
+	DetourDetach((PVOID*)&R2_fn_bAppliOnDeActivate, (PVOID)FIX_fn_AppliOnDeActivate);
+	DetourDetach((PVOID*)&R2_fn_bAppliOnActivate, (PVOID)FIX_fn_AppliOnActivate);
 	DetourDetach((PVOID*)&R2_fn_szGetStringFromTextOrStringParam, (PVOID)FIX_fn_szGetStringFromTextOrStringParam);
 
 	if ( CFG_bIsWidescreen && CFG_bPatchWidescreen )
@@ -402,13 +420,13 @@ BOOL g_bMinHooksAttached = FALSE;
 void FIX_fn_vAttachHooksMin( void *pInputEnum, void *pSuspendGame )
 {
 	R2_fn_InputEnum = pInputEnum;
-	R2_fn_SuspendGame = pSuspendGame;
+	R2_fn_bAppliOnDeActivate = pSuspendGame;
 
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
 	DetourAttach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
-	DetourAttach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
+	DetourAttach((PVOID*)&R2_fn_bAppliOnDeActivate, (PVOID)FIX_fn_AppliOnDeActivate);
 
 	DetourTransactionCommit();
 
@@ -424,7 +442,7 @@ void FIX_fn_vDetachHooksMin( void )
 	DetourUpdateThread(GetCurrentThread());
 
 	DetourDetach((PVOID*)&R2_fn_InputEnum, (PVOID)FIX_fn_InputEnum);
-	DetourDetach((PVOID*)&R2_fn_SuspendGame, (PVOID)FIX_fn_SuspendGame);
+	DetourDetach((PVOID*)&R2_fn_bAppliOnDeActivate, (PVOID)FIX_fn_AppliOnDeActivate);
 
 	DetourTransactionCommit();
 }

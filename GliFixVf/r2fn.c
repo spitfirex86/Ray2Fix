@@ -7,7 +7,8 @@
  */
 
 DIEnumDevicesCallback R2_fn_InputEnum = OFFSET(0x495170);
-BOOL (*R2_fn_SuspendGame)() = OFFSET(0x4016E0);
+BOOL (*R2_fn_bAppliOnDeActivate)( BOOL bIsFullScreen ) = OFFSET(0x4016E0);
+BOOL (*R2_fn_bAppliOnActivate)( void ) = OFFSET(0x401790);
 
 char * (*R2_fn_szGetStringFromTextOrStringParam)( void *param ) = OFFSET(0x4829D0);
 
