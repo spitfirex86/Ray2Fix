@@ -144,13 +144,23 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 {
 	Vd_GLI_DRV_xInitDriver(hWnd, bFullscreen, lWidth, lHeight, lBpp);
 
-	/* HACK: make sure the window has a title bar and a border
-	   Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
-	   without a title bar, making it impossible to move or resize the game window. */
 	if ( !CFG_bDegeFullScreen )
 	{
+		/* HACK: make sure the window has a title bar and a border
+		Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
+		without a title bar, making it impossible to move or resize the game window. */
 		int lStyle = GetWindowLong(hWnd, GWL_STYLE);
 		SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
+		
+		/* Center the window */
+		RECT rc;
+		GetWindowRect(hWnd, &rc);
+		int lX = GetSystemMetrics(SM_CXSCREEN);
+		int lY = GetSystemMetrics(SM_CYSCREEN);
+		lX = (lX - (rc.right - rc.left)) / 2;
+		lY = (lY - (rc.bottom - rc.top)) / 2;
+		SetWindowPos(hWnd, NULL, lX, lY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		ShowCursor(TRUE);
 	}
 
 	char szTitle[64];

@@ -132,15 +132,15 @@ void fn_vReadDegeIni( void )
 
 	// Force VSync
 	GetPrivateProfileString("Glide", "ForceVerticalSync", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( !strcmp(szBuffer, "true") )
+	if ( !_stricmp(szBuffer, "true") )
 		g_bForceVsync = TRUE;
 
 	// Fullscreen mode
 	GetPrivateProfileString("General", "FullScreenMode", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( !strcmp(szBuffer, "true") )
+	if ( !_stricmp(szBuffer, "true") )
 		g_bFullscreen = TRUE;
 	GetPrivateProfileString("GeneralExt", "FullscreenAttributes", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( strcmp(szBuffer, "fake") != 0 )
+	if ( _stricmp(szBuffer, "fake") != 0 )
 		g_bForceRealFullscreen = TRUE;
 }
 
