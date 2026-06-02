@@ -25,8 +25,8 @@
 	M_DefineAction( E_BAc_Strafe,			"Strafe / Dive",			"Button(5)" )
 	M_DefineAction( E_BAc_Look,				"Look Mode",				"Keyboard(Numpad0)" )
 	M_DefineAction( E_BAc_Camera_Reset,		"Reset Camera",				"Keyboard(End)" )
-	M_DefineAction( E_BAc_Camera_Left,		"Camera Left",				"Button(4)" )
-	M_DefineAction( E_BAc_Camera_Right,		"Camera Right",				"Button(3)" )
+	M_DefineAction( E_BAc_Camera_Left,		"Camera Left",				"Keyboard(W)" )
+	M_DefineAction( E_BAc_Camera_Right,		"Camera Right",				"Keyboard(Q)" )
 
 	M_DefineAction( E_BAc_Think,			"Think (F1)",				"Keyboard(F1)" )
 	M_DefineAction( E_BAc_HUD,				"HUD (J)",					"Button(6)" )
