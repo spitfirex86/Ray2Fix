@@ -282,8 +282,16 @@ void CFG_fn_vVerify( void )
 
 	if ( GetFileAttributes(".\\DLL\\GliVd1Vf.dll") == INVALID_FILE_ATTRIBUTES )
 	{
-		g_eError |= e_ES_GameError;
-		g_eErrorDetails |= e_VE_FilesMissing | e_VE_GlideMissing;
+		BOOL bAutoFixed = FALSE;
+		// is it in a subdir? (UbiConnect)
+		if ( GetFileAttributes(".\\DLL\\Glide\\GliVd1Vf.dll") != INVALID_FILE_ATTRIBUTES )
+			bAutoFixed = MoveFileEx(".\\DLL\\Glide\\GliVd1Vf.dll", ".\\DLL\\GliVd1Vf.dll", MOVEFILE_COPY_ALLOWED | MOVEFILE_WRITE_THROUGH);
+
+		if ( !bAutoFixed )
+		{
+			g_eError |= e_ES_GameError;
+			g_eErrorDetails |= e_VE_FilesMissing | e_VE_GlideMissing;
+		}
 	}
 
 	if ( GetFileAttributes(".\\DLL\\GliFixVf.dll") == INVALID_FILE_ATTRIBUTES )
