@@ -2,7 +2,7 @@ name: build-master
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "actions-test" ]
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
@@ -31,15 +31,26 @@ jobs:
     - name: Set up environment
       run: |
         mkdir .\acp
-        echo "acplib=$(Resolve-Path .\acp)" >> $env:GITHUB_ENV
+        mkdir .\acp\bin
+        echo "acplib=$(Resolve-Path .\acp\bin)" >> $env:GITHUB_ENV
 
-    - name: Get latest ACP_Ray2 artifact
-      uses: dawidd6/action-download-artifact@v6
+    # - name: Get latest ACP_Ray2 artifact
+    #   uses: dawidd6/action-download-artifact@v6
+    #   with:
+    #     repo: raytools/ACP_Ray2
+    #     workflow: build.yml
+    #     name: ACP_Ray2-master
+    #     path: acp/
+
+    - name: Checkout ACP_Ray2
+      uses: actions/checkout@v6
       with:
-        repo: raytools/ACP_Ray2
-        workflow: build.yml
-        name: ACP_Ray2-master
+        repository: raytools/ACP_Ray2
         path: acp/
+
+    - name: Build ACP_Ray2
+      working-directory: acp/
+      run: msbuild /m /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} .
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -50,6 +61,6 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: Ray2Fix-master
+        name: Ray2Fix-devel
         path: Release/
         if-no-files-found: error
