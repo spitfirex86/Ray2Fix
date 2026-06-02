@@ -49,7 +49,7 @@ jobs:
         path: acp/
 
     - name: Build ACP_Ray2
-      working-directory: ${{env.GITHUB_WORKSPACE}}/acp
+      working-directory: acp/
       run: msbuild /m /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} .
 
     - name: Build
