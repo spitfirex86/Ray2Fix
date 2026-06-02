@@ -48,6 +48,8 @@ void GLI_fn_vCorrect3DFXBug1( GrVertex *a )
 /* copies renderer info (first listbox in GxSetup) to specified memory address */
 long GLI_DRV_lGetDllInfo( char const *szName, void *pData )
 {
+	static BOOL s_bFirstCall = TRUE;
+
 	if ( !strcmp(szName, "Name") )
 		M_CopyString(pData, GLI_szName);
 	else if ( !strcmp(szName, "Description") )
@@ -58,6 +60,36 @@ long GLI_DRV_lGetDllInfo( char const *szName, void *pData )
 		*(DWORD *)pData = GLI_lCode;
 	else
 		return 0;
+
+	/* FIRST RUN */
+	if ( s_bFirstCall && CFG_bIsMainModuleR2 )
+	{
+		if ( CFG_bFirstRun )
+		{
+			if ( CFG_fn_bOpenConfigTool("-firstrun") )
+				ExitProcess(0);
+			else
+			{
+				MessageBox(NULL,
+					"Ray2Fix encountered a non-critical configuration problem.\n"
+					"Please run Ray2Fix Settings and restart the game.",
+					GLI_szName, MB_OK | MB_ICONEXCLAMATION);
+			}
+		}
+		else if ( CFG_bSomeConfigFilesAreOutdated )
+		{
+			if ( !CFG_fn_bOpenConfigTool("-firstrun -silent") )
+			{
+				MessageBox(NULL,
+					"Some config files seem to be outdated or improperly set up.\n"
+					"Please run Ray2Fix Settings and restart the game.",
+					GLI_szName, MB_OK | MB_ICONEXCLAMATION);
+			}
+			ExitProcess(0);
+		}
+
+		s_bFirstCall = FALSE;
+	}
 
 	return 1;
 }
@@ -124,11 +156,13 @@ long GLI_DRV_fn_lGetAllDisplayConfig( tdfn_lAddDisplayInfo p_fn_lAddDisplayInfo 
 			return TRUE;
 	}
 
-	if ( CFG_fn_bOpenConfigTool() )
+	if ( CFG_fn_bOpenConfigTool(NULL) )
 		ExitProcess(0);
-
-	MessageBox(NULL, "Cannot open Ray2Fix Settings, please update or reinstall Ray2Fix.",
-			   GLI_szName, MB_OK | MB_ICONERROR);
+	else
+	{
+		MessageBox(NULL, "Cannot open Ray2Fix Settings.\nPlease update or reinstall Ray2Fix.",
+			GLI_szName, MB_OK | MB_ICONERROR);
+	}
 
 	return TRUE;
 }
@@ -169,23 +203,6 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 
 	/* HACK: Refresh rate fix for >60Hz monitors */
 	g_p_stCaps->xRefreshRate = CFG_bHalfRefRate ? 30.0f : 60.0f;
-
-	/* NOTE:
-	   this is a good place to check for this because the window is already created
-	   which means we can send WM_CLOSE and avoid having to deal with thread locks 
-	   and other issues caused by ExitProcess() */
-	if ( CFG_bSomeConfigFilesAreOutdated )
-	{
-		ShowCursor(TRUE);
-		int lResult = MessageBox(
-			hWnd,
-			"Some config files seem to be outdated or improperly set up.\n\n"
-			"Ray2Fix Settings will be opened - press OK within to automatically update the config files.",
-			GLI_szName, MB_OK | MB_ICONEXCLAMATION);
-
-		CFG_fn_bOpenConfigTool();
-		SendMessage(hWnd, WM_CLOSE, 0, 0);
-	}
 }
 
 void GLI_DRV_vFlipDeviceWithSyncro( void )

@@ -8,6 +8,9 @@
 
 HINSTANCE g_hInst;
 BOOL g_bUnsavedChanges = FALSE;
+BOOL g_bFirstRun = FALSE;
+BOOL g_bRunSilent = FALSE;
+unsigned short g_uwQuitReason = 0;
 
 char g_szAppName[80];
 
@@ -190,21 +193,15 @@ BOOL CALLBACK fn_bProc_Main( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 			g_bUnsavedChanges = FALSE;
 			// fall-through
 		case IDCANCEL:
+			g_uwQuitReason = LOWORD(wParam);
 			SendMessage(hWnd, WM_CLOSE, 0, 0);
 			return TRUE;
 		}
 		break;
 
 	case WM_CLOSE:
-		if ( g_bUnsavedChanges )
-		{
-			if ( fn_bAskSaveBeforeClose(hWnd) )
-				DestroyWindow(hWnd);
-		}
-		else
-		{
+		if ( !g_bUnsavedChanges || fn_bAskSaveBeforeClose(hWnd) )
 			DestroyWindow(hWnd);
-		}
 		return TRUE;
 
 	case WM_DESTROY:
@@ -213,6 +210,35 @@ BOOL CALLBACK fn_bProc_Main( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 	}
 
 	return FALSE;
+}
+
+BOOL fn_bStartTheGameAlready( void )
+{
+	STARTUPINFO si = { 0 };
+	PROCESS_INFORMATION pi = { 0 };
+	si.cb = sizeof(si);
+
+	char const *szAppName = "Rayman2.exe";
+	BOOL bResult = CreateProcessA(
+		szAppName, NULL,
+		NULL, NULL,
+		FALSE, 0,
+		NULL, NULL,
+		&si, &pi
+	);
+
+	if ( !bResult )
+	{
+		DWORD dwError = GetLastError();
+		char szErr[256];
+		sprintf_s(szErr, sizeof(szErr), "Could not launch %s.\nError code: 0x%08x", szAppName, dwError);
+		MessageBox(NULL, szErr, "Ray2Fix", MB_OK | MB_ICONERROR);
+		return FALSE;
+	}
+
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	return TRUE;
 }
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow )
@@ -240,27 +266,51 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		return 0;
 	}
 
+	BOOL bFirstRunForcedByGame = FALSE;
+	if ( strstr(lpCmdLine, "-firstrun") )
+	{
+		g_bFirstRun = TRUE;
+		bFirstRunForcedByGame = TRUE;
+	}
+	if ( strstr(lpCmdLine, "-silent") )
+	{
+		g_bRunSilent = TRUE;
+	}
+
 	CFG_fn_vVerify();
 	CFG_fn_vRead();
 	DSP_fn_vEnumResolutions();
 
-	hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_MAIN), NULL, fn_bProc_Main);
+	// FIRST RUN: re-write the config to update file structures
+	if ( g_bFirstRun )
+		CFG_fn_vWrite();
 
-	if ( hDlg == NULL )
-		return 1;
-
-	SetWindowText(hDlg, g_szAppName);
-	ShowWindow(hDlg, nCmdShow);
-
-	HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
-
-	while ( GetMessage(&msg, NULL, 0, 0) > 0 )
+	if ( !g_bRunSilent )
 	{
-		if ( !TranslateAccelerator(hDlg, hAccel, &msg) && !IsDialogMessage(hDlg, &msg) )
+		hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_MAIN), NULL, fn_bProc_Main);
+
+		if ( hDlg == NULL )
+			return 1;
+
+		SetWindowText(hDlg, g_szAppName);
+		ShowWindow(hDlg, nCmdShow);
+
+		HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
+
+		while ( GetMessage(&msg, NULL, 0, 0) > 0 )
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			if ( !TranslateAccelerator(hDlg, hAccel, &msg) && !IsDialogMessage(hDlg, &msg) )
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 		}
+	}
+	
+	// FIRST RUN: we wanna start the game at this point
+	if ( bFirstRunForcedByGame && (g_uwQuitReason == IDOK || g_bRunSilent) )
+	{
+		fn_bStartTheGameAlready();
 	}
 
 	ReleaseMutex(hMutex);

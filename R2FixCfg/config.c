@@ -1,6 +1,8 @@
 #include "framework.h"
 #include "config.h"
 #include "pad.h"
+#include "main.h"
+#include "../gitver.h"
 
 
 /*
@@ -22,6 +24,8 @@ BOOL g_bCleanupSnapShot = FALSE;
 
 tdeErrorState g_eError = e_ES_Ok;
 tdeVerifyErr g_eErrorDetails = e_VE_Ok;
+
+char g_szReadVersion[40] = "";
 
 
 /*
@@ -110,6 +114,13 @@ void fn_vReadUbiIni( void )
 	GetPrivateProfileString("Ray2Fix", "CleanupSnapShot", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		g_bCleanupSnapShot = TRUE;
+
+	// Version
+	GetPrivateProfileString("Ray2Fix", "Version", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	strcpy_s(g_szReadVersion, sizeof(g_szReadVersion), szBuffer);
+	GetPrivateProfileString("Ray2Fix", "ForceFirstRun", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+		g_bFirstRun = TRUE;
 }
 
 void fn_vReadDegeIni( void )
@@ -182,6 +193,10 @@ void fn_vWriteUbiIni( void )
 	// Delete screenshots
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_bCleanupSnapShot);
 	WritePrivateProfileString("Ray2Fix", "CleanupSnapShot", szBuffer, szUbiPath);
+
+	// Version
+	WritePrivateProfileString("Ray2Fix", "Version", C_GIT_VER, szUbiPath);
+	WritePrivateProfileString("Ray2Fix", "ForceFirstRun", NULL, szUbiPath);
 }
 
 void fn_vWriteDegeIni( void )

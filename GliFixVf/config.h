@@ -36,11 +36,14 @@ extern char CFG_szModuleDate[20];
 
 extern BOOL CFG_bSomeConfigFilesAreOutdated;
 
+extern char CFG_szReadVersion[40];
+extern BOOL CFG_bFirstRun;
+
 
 /*
  * Functions
  */
 
 void CFG_fn_vInitGlobals( void );
-BOOL CFG_fn_bOpenConfigTool( void );
+BOOL CFG_fn_bOpenConfigTool( char const *szParams );
 BOOL CFG_fn_bDetermineMainModule( void );

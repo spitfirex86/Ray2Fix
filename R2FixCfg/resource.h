@@ -37,6 +37,7 @@
 #define IDS_CLEANUPWARN                 130
 #define IDS_CLEANSNAP                   131
 #define IDS_REALFS                      132
+#define IDS_CHANGEDVER                  133
 #define IDC_MAINTOGGLE                  1001
 #define IDC_STATUSLINE                  1002
 #define IDC_TAB1                        1006

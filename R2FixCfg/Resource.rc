@@ -346,6 +346,7 @@ BEGIN
     IDS_CLEANUPWARN         "This will delete *all* extra GOG files that are not necessary for the game to run.\n\nAre you sure you want to continue?"
     IDS_CLEANSNAP           "Delete the contents of the SnapShot folder when the game is closed.\r\nFiles marked as read-only will be preserved."
     IDS_REALFS              "Disables borderless fullscreen.\r\nNOTE: This may cause issues with Alt-Tab!"
+    IDS_CHANGEDVER          "\r\nUpdated from version %s to %s."
 END
 
 #endif    // English (United States) resources

@@ -90,13 +90,13 @@ void EXT_fn_vDealWithSnapShot( void )
 			++pcUnit;
 		}
 
-		lWritten += sprintf_s(szBuffer+lWritten, sizeof(szBuffer)-lWritten,
+		lWritten += sprintf_s(szBuffer+lWritten, sizeof(szBuffer)-lWritten-1,
 			"%s\n\nFun fact:\nAt the current game resolution, %d screenshots take up approximately %.2f%cB of disk space.",
 			szTagLine, lDeleted, fTotalConsumed, *pcUnit);
 	}
 	else
 	{
-		sprintf_s(szBuffer+lWritten, sizeof(szBuffer)-lWritten,
+		sprintf_s(szBuffer+lWritten, sizeof(szBuffer)-lWritten-1,
 			"An error occurred while deleting. Please delete any remaining screenshots manually.");
 		uIcon = MB_ICONEXCLAMATION;
 	}

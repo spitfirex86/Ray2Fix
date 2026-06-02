@@ -11,6 +11,8 @@
 
 extern HINSTANCE g_hInst;
 extern BOOL g_bUnsavedChanges;
+extern BOOL g_bFirstRun;
+extern BOOL g_bRunSilent;
 
 extern char g_szAppName[80];
 

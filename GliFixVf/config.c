@@ -3,6 +3,7 @@
 #include <time.h>
 #include "config.h"
 #include "devinfo.h"
+#include "../gitver.h"
 
 
 #define C_MaxGlideModes 8
@@ -48,6 +49,9 @@ char CFG_szModuleName[MAX_PATH] = "";
 char CFG_szModuleDate[20] = "";
 
 BOOL CFG_bSomeConfigFilesAreOutdated = FALSE;
+
+char CFG_szReadVersion[40] = "";
+BOOL CFG_bFirstRun = FALSE;
 
 /*
  * Functions
@@ -129,6 +133,15 @@ void fn_vReadFixConfig( void )
 {
 	char szBuffer[128];
 
+	// FIRST RUN
+	GetPrivateProfileString("Ray2Fix", "ForceFirstRun", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	if( strtol(szBuffer, NULL, 10) > 0 )
+		CFG_bFirstRun = TRUE;
+
+	// Version
+	GetPrivateProfileString("Ray2Fix", "Version", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	strcpy_s(CFG_szReadVersion, sizeof(CFG_szReadVersion), szBuffer);
+
 	// Widescreen patch
 	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", "0", szBuffer, sizeof(szBuffer), szUbiPath);
 	if( strtol(szBuffer, NULL, 10) > 0 )
@@ -168,6 +181,12 @@ void CFG_fn_vInitGlobals( void )
 	fn_vReadR2Config();
 	fn_vReadFixConfig();
 
+	if ( _stricmp(CFG_szReadVersion, C_GIT_VER) != 0 )
+	{
+		/* version changed ? */
+		CFG_bFirstRun = TRUE;
+	}
+
 	unsigned int ratio = 100 * CFG_stActualDispMode.dwHeight / CFG_stActualDispMode.dwWidth;
 	CFG_bIsWidescreen = (ratio <= 73);
 
@@ -177,9 +196,9 @@ void CFG_fn_vInitGlobals( void )
 	CFG_xActualRatio = (float)CFG_stActualDispMode.dwHeight / (float)CFG_stActualDispMode.dwWidth;
 }
 
-BOOL CFG_fn_bOpenConfigTool( void )
+BOOL CFG_fn_bOpenConfigTool( char const *szParams )
 {
-	int lResult = (int)ShellExecute(NULL, NULL, ".\\R2FixCfg.exe", NULL, NULL, SW_SHOW);
+	int lResult = (int)ShellExecute(NULL, NULL, ".\\R2FixCfg.exe", szParams, NULL, SW_SHOW);
 
 	if ( lResult > 32 )
 		return TRUE;

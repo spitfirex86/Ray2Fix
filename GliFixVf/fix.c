@@ -76,7 +76,7 @@ char * FIX_fn_szGetStringFromTextOrStringParam( void *param )
 		{
 			g_bConfigToolIsAboutToOpen = TRUE;
 
-			if ( CFG_fn_bOpenConfigTool() )
+			if ( CFG_fn_bOpenConfigTool(NULL) )
 				SendMessage(GAM_fn_hGetWindowHandle(), WM_CLOSE, 0, 0);
 		}
 	}

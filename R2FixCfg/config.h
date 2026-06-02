@@ -47,6 +47,8 @@ extern BOOL g_bCleanupSnapShot;
 extern tdeErrorState g_eError;
 extern tdeVerifyErr g_eErrorDetails;
 
+extern char g_szReadVersion[40];
+
 
 /*
  * Functions

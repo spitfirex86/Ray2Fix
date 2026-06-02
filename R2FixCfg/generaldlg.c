@@ -4,6 +4,7 @@
 #include "display.h"
 #include "config.h"
 #include "main.h"
+#include "../gitver.h"
 
 
 static HWND hThis;
@@ -77,7 +78,7 @@ BOOL fn_bSetCustomDisplayMode( void )
 
 void fn_vUpdateStatus( HWND hEdit, HWND hButton )
 {
-	char szStatusLine[512];
+	char szStatusLine[512] = "";
 	char szMsgTemplate[140];
 	char szCurrentStatus[60];
 
@@ -139,6 +140,12 @@ void fn_vUpdateStatus( HWND hEdit, HWND hButton )
 			if ( g_eErrorDetails & e_VE_XidiModified )
 				nChars += LoadStringAtChar(IDS_VE_XIDICHANGED, szStatusLine, nChars);
 		}
+	}
+
+	if ( g_szReadVersion[0] && _stricmp(g_szReadVersion, C_GIT_VER) != 0 )
+	{
+		LoadRcString(IDS_CHANGEDVER, szMsgTemplate);
+		nChars += sprintf_s(szStatusLine+nChars, sizeof(szStatusLine)-nChars, szMsgTemplate, g_szReadVersion, C_GIT_VER);
 	}
 
 	Edit_SetText(hEdit, szStatusLine);
