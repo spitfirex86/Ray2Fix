@@ -9,3 +9,5 @@ echo #define C_GIT_VER "%TDEF1%"
 echo #define C_GIT_TAG "%TDEF2%"
 echo.
 )
+
+echo Generated gitver file: %TFILE%
