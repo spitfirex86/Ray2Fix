@@ -170,7 +170,7 @@ void fn_vShowCustomRes( void )
 	SetFocus(hResX);
 }
 
-void fn_vToggleAdvanced( BOOL bVisible )
+static void fn_vToggleAdvanced( BOOL bVisible )
 {
 	int nCmdShow = bVisible ? SW_SHOW : SW_HIDE;
 

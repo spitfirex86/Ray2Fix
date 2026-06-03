@@ -33,6 +33,9 @@
     <ClCompile Include="pad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="inputdlg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">

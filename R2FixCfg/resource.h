@@ -16,6 +16,7 @@
 #define IDS_ENABLED                     110
 #define IDR_ACCEL                       110
 #define IDS_DISABLED                    111
+#define IDD_INPUT                       111
 #define IDS_FIXSTATUS                   112
 #define IDS_STATUSCHANGED               113
 #define IDS_B_ENABLE                    114
@@ -56,6 +57,7 @@
 #define IDC_LS                          1032
 #define IDC_CHECK1                      1036
 #define IDC_PATCHWIDE                   1036
+#define IDC_XIDILOG                     1036
 #define IDC_CLEANUP                     1037
 #define IDC_EDIT1                       1041
 #define IDC_DEBUG_WF                    1041
@@ -63,6 +65,10 @@
 #define IDC_VERNUM                      1043
 #define IDC_CHECK2                      1044
 #define IDC_CLEANSNAP                   1044
+#define IDC_R_SDL                       1045
+#define IDC_RADIO2                      1046
+#define IDC_R_XINPUT                    1046
+#define IDC_AD                          1047
 #define IDC_RS                          1062
 #define IDC_LSCLICK                     1063
 #define IDC_RSCLICK                     1064
@@ -87,9 +93,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        111
+#define _APS_NEXT_RESOURCE_VALUE        113
 #define _APS_NEXT_COMMAND_VALUE         40003
-#define _APS_NEXT_CONTROL_VALUE         1045
+#define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

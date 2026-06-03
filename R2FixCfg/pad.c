@@ -5,7 +5,13 @@
 
 
 char const *g_szXidiPath = ".\\Xidi.ini";
+char const *g_szXidiTmpPath = ".\\Xidi.ini.tmp";
 char const *szDefaultInputValue = "Null";
+
+static BOOL g_bUsingTmpFile = FALSE;
+BOOL g_bUsingSDLBackend = FALSE;
+BOOL g_bXidiLogging = FALSE;
+
 
 tdstAnalogAction g_a_stAnalogAction[E_NbAnalogAction] = {
 	#define M_DefineAction(Id, szName, szCfg_X, szCfg_Y) { Id, szName, szCfg_X, szCfg_Y },
@@ -49,10 +55,62 @@ tdstAction * fn_p_stFindButtonAction( char const *szCfg )
 	return NULL;
 }
 
+BOOL fn_bPrepareTmpFile( void )
+{
+	FILE *hXidi, *hTmp;
+	fopen_s(&hTmp, g_szXidiTmpPath, "w");
+	if ( hTmp )
+	{
+		fputs("[Plugins]\n", hTmp);
+		fopen_s(&hXidi, g_szXidiPath, "r");
+		if ( hXidi )
+		{
+			int ch = 0;
+			while ( (ch = fgetc(hXidi)) != EOF )
+				fputc(ch, hTmp);
+			fclose(hXidi);
+		}
+		fclose(hTmp);
+		g_bUsingTmpFile = TRUE;
+	}
+	return g_bUsingTmpFile;
+}
+
+BOOL fn_bFinalizeTmpFile( void )
+{
+	FILE *hXidi, *hTmp;
+	BOOL bSuccess = FALSE;
+
+	fopen_s(&hTmp, g_szXidiTmpPath, "r");
+	if ( hTmp )
+	{
+		fopen_s(&hXidi, g_szXidiPath, "w");
+		if ( hXidi )
+		{
+			int ch = 0;
+			while ( (ch = fgetc(hTmp)) != EOF && ch != '\n' );
+			while ( (ch = fgetc(hTmp)) != EOF )
+				fputc(ch, hXidi);
+			fclose(hXidi);
+			bSuccess = TRUE;
+		}
+		fclose(hTmp);
+		if ( bSuccess )
+		{
+			DeleteFile(g_szXidiTmpPath);
+			g_bUsingTmpFile = FALSE;
+		}
+	}
+	return bSuccess;
+}
+
 void PAD_fn_vRead( void )
 {
 	char szBuffer[C_Pad_MaxCfgString];
 	char szBuffer2[C_Pad_MaxCfgString];
+
+	fn_bPrepareTmpFile();
+	char const *szPath = (g_bUsingTmpFile) ? g_szXidiTmpPath : g_szXidiPath;
 
 	for ( int i = 0; i < E_NbPadInput; i++ )
 	{
@@ -63,9 +121,9 @@ void PAD_fn_vRead( void )
 			char szNameAxis[C_Pad_MaxName];
 
 			sprintf_s(szNameAxis, C_Pad_MaxName, "%s%s", pInput->szName, "X");
-			GetPrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, szDefaultInputValue, szBuffer, sizeof(szBuffer), g_szXidiPath);
+			GetPrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, szDefaultInputValue, szBuffer, sizeof(szBuffer), szPath);
 			sprintf_s(szNameAxis, C_Pad_MaxName, "%s%s", pInput->szName, "Y");
-			GetPrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, szDefaultInputValue, szBuffer2, sizeof(szBuffer2), g_szXidiPath);
+			GetPrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, szDefaultInputValue, szBuffer2, sizeof(szBuffer2), szPath);
 
 			tdstAnalogAction *pAction = fn_p_stFindAnalogAction(szBuffer, szBuffer2);
 			if ( pAction )
@@ -81,7 +139,7 @@ void PAD_fn_vRead( void )
 		}
 		else
 		{
-			GetPrivateProfileString("CustomMapper:Ray2Fix", pInput->szName, szDefaultInputValue, szBuffer, sizeof(szBuffer), g_szXidiPath);
+			GetPrivateProfileString("CustomMapper:Ray2Fix", pInput->szName, szDefaultInputValue, szBuffer, sizeof(szBuffer), szPath);
 
 			tdstAction *pAction = fn_p_stFindButtonAction(szBuffer);
 			if ( pAction )
@@ -96,11 +154,25 @@ void PAD_fn_vRead( void )
 			}
 		}
 	}
+
+	GetPrivateProfileString("Log", "Enabled", "no", szBuffer, sizeof(szBuffer), szPath);
+	if ( !_stricmp(szBuffer, "yes") )
+		g_bXidiLogging = TRUE;
+
+	if ( g_bUsingTmpFile )
+	{
+		GetPrivateProfileString("Plugins", "Plugin", NULL, szBuffer, sizeof(szBuffer), szPath);
+		g_bUsingSDLBackend = !_stricmp(szBuffer, "SDL");
+
+		GetPrivateProfileString("Plugins", "ControllerBackend", NULL, szBuffer, sizeof(szBuffer), szPath);
+	}
 }
 
 void PAD_fn_vWrite( void )
 {
-	WritePrivateProfileString("Mapper", "Type.1", "Ray2Fix", g_szXidiPath);
+	char const *szPath = (g_bUsingTmpFile) ? g_szXidiTmpPath : g_szXidiPath;
+
+	WritePrivateProfileString("Mapper", "Type.1", "Ray2Fix", szPath);
 
 	for ( int i = 0; i < E_NbPadInput; i++ )
 	{
@@ -115,15 +187,33 @@ void PAD_fn_vWrite( void )
 			char szNameAxis[C_Pad_MaxName];
 
 			sprintf_s(szNameAxis, C_Pad_MaxName, "%s%s", pInput->szName, "X");
-			WritePrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, pAction->szConfigString_X, g_szXidiPath);
+			WritePrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, pAction->szConfigString_X, szPath);
 			sprintf_s(szNameAxis, C_Pad_MaxName, "%s%s", pInput->szName, "Y");
-			WritePrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, pAction->szConfigString_Y, g_szXidiPath);
-			
+			WritePrivateProfileString("CustomMapper:Ray2Fix", szNameAxis, pAction->szConfigString_Y, szPath);
 		}
 		else
 		{
 			tdstAction *pAction = &g_a_stButtonAction[pInput->lAction];
-			WritePrivateProfileString("CustomMapper:Ray2Fix", pInput->szName, pAction->szConfigString, g_szXidiPath);
+			WritePrivateProfileString("CustomMapper:Ray2Fix", pInput->szName, pAction->szConfigString, szPath);
 		}
 	}
+
+	WritePrivateProfileString("Log", "Enabled", (g_bXidiLogging) ? "yes" : "no", szPath);
+	WritePrivateProfileString("Log", "Level", (g_bXidiLogging) ? "4" : "1", szPath);
+
+	if ( g_bUsingTmpFile )
+	{
+		if ( g_bUsingSDLBackend )
+		{
+			WritePrivateProfileString("Plugins", "Plugin", "SDL", szPath);
+			WritePrivateProfileString("Plugins", "ControllerBackend", "SDL3", szPath);
+		}
+		else
+		{
+			WritePrivateProfileString("Plugins", "Plugin", NULL, szPath);
+			WritePrivateProfileString("Plugins", "ControllerBackend", NULL, szPath);
+		}
+	}
+
+	fn_bFinalizeTmpFile();
 }

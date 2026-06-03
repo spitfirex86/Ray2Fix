@@ -6,7 +6,7 @@
 #include "pad.h"
 
 
-HWND hDlg;
+static HWND hThis;
 
 tdstPadDlgItem a_stPadDlgItem[E_NbPadInput] = {
 	#define M_DefineInput(Id, lCtrl, bAnalog, szCfg) { Id, lCtrl, NULL, bAnalog },
@@ -72,7 +72,7 @@ BOOL CALLBACK DLG_fn_bProc_Pad( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	switch ( uMsg )
 	{
 		case WM_INITDIALOG:
-			hDlg = hWnd;
+			hThis = hWnd;
 
 			for ( int i = 0; i < E_NbPadInput; i++ )
 			{

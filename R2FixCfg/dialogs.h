@@ -6,6 +6,7 @@
 typedef enum tdeTabID_
 {
 	e_TAB_General,
+	e_TAB_Input,
 	e_TAB_Pad,
 	e_NbTab
 }
@@ -22,3 +23,4 @@ tdstTabInfo;
 
 BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 BOOL CALLBACK DLG_fn_bProc_Pad( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+BOOL CALLBACK DLG_fn_bProc_Input( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

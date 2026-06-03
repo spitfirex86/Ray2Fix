@@ -24,6 +24,7 @@ HWND a_hTabs[e_NbTab];
 
 tdstTabInfo a_stTabs[e_NbTab] = {
 	[e_TAB_General] = { IDD_GENERAL, "General", DLG_fn_bProc_General },
+	[e_TAB_Input] = { IDD_INPUT, "Input", DLG_fn_bProc_Input },
 	[e_TAB_Pad] = { IDD_PAD, "Gamepad", DLG_fn_bProc_Pad },
 };
 

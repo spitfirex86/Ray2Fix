@@ -73,6 +73,9 @@ tdstPadDlgItem;
 
 extern char const *g_szXidiPath;
 
+extern BOOL g_bUsingSDLBackend;
+extern BOOL g_bXidiLogging;
+
 extern tdstAnalogAction g_a_stAnalogAction[E_NbAnalogAction];
 extern tdstAction g_a_stButtonAction[E_NbButtonAction];
 extern tdstPadConfig g_a_stPadInput[E_NbPadInput];
