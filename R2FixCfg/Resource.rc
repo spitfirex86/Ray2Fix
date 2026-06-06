@@ -161,13 +161,18 @@ IDD_INPUT DIALOGEX 0, 0, 254, 194
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Gamepad Backend",IDC_STATIC,6,6,242,120
+    GROUPBOX        "Gamepad Backend",IDC_STATIC,6,6,242,114
     RADIOBUTTON     "SDL3",IDC_R_SDL,18,24,32,10,WS_GROUP
     LTEXT           "Recommended option.\nSupports most popular controllers out of the box.",IDC_STATIC,30,36,204,24
     RADIOBUTTON     "Xinput (Fallback)",IDC_R_XINPUT,18,66,69,10
     LTEXT           "Same as Ray2Fix v1.4.2 or earlier.\nTry this option if you experience issues (like incorrect gamepad binds or buttons triggering unwanted actions)",IDC_STATIC,30,78,204,36
-    GROUPBOX        "Advanced",IDC_ADVGROUP,6,132,126,36,NOT WS_VISIBLE
-    CONTROL         "Xidi Debug Logging",IDC_XIDILOG,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,12,144,76,10
+    GROUPBOX        "Trigger Deadzones",IDC_STATIC,6,126,126,60
+    RTEXT           "LT",IDC_STATIC,12,143,16,8
+    CONTROL         "",IDC_DEADZONE_LT,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP,30,140,96,20
+    RTEXT           "RT",IDC_STATIC,12,165,16,8
+    CONTROL         "",IDC_DEADZONE_RT,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP,30,162,96,20
+    GROUPBOX        "Advanced",IDC_ADVGROUP,136,126,112,36,NOT WS_VISIBLE
+    CONTROL         "Xidi Debug Logging",IDC_XIDILOG,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,144,138,76,10
 END
 
 

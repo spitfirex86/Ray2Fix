@@ -80,6 +80,9 @@ extern tdstAnalogAction g_a_stAnalogAction[E_NbAnalogAction];
 extern tdstAction g_a_stButtonAction[E_NbButtonAction];
 extern tdstPadConfig g_a_stPadInput[E_NbPadInput];
 
+extern long g_lDeadzoneLT;
+extern long g_lDeadzoneRT;
+
 
 void PAD_fn_vRead( void );
 void PAD_fn_vWrite( void );

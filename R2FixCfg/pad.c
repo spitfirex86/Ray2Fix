@@ -28,6 +28,9 @@ tdstPadConfig g_a_stPadInput[E_NbPadInput] = {
 	#include "def_pad.h"
 };
 
+long g_lDeadzoneLT = 10;
+long g_lDeadzoneRT = 10;
+
 
 tdstAnalogAction * fn_p_stFindAnalogAction( char const *szCfg_X, char const *szCfg_Y )
 {
@@ -108,6 +111,7 @@ void PAD_fn_vRead( void )
 {
 	char szBuffer[C_Pad_MaxCfgString];
 	char szBuffer2[C_Pad_MaxCfgString];
+	char *p;
 
 	fn_bPrepareTmpFile();
 	char const *szPath = (g_bUsingTmpFile) ? g_szXidiTmpPath : g_szXidiPath;
@@ -155,6 +159,16 @@ void PAD_fn_vRead( void )
 		}
 	}
 
+	GetPrivateProfileString("Properties", "DeadzonePercentTriggerLT", "10", szBuffer, sizeof(szBuffer), szPath);
+	long lParsVal = strtol(szBuffer, &p, 10);
+	if ( p > szBuffer && lParsVal >= 0 )
+		g_lDeadzoneLT = lParsVal;
+
+	GetPrivateProfileString("Properties", "DeadzonePercentTriggerRT", "10", szBuffer, sizeof(szBuffer), szPath);
+	lParsVal = strtol(szBuffer, &p, 10);
+	if ( p > szBuffer && lParsVal >= 0 )
+		g_lDeadzoneRT = lParsVal;
+
 	GetPrivateProfileString("Log", "Enabled", "no", szBuffer, sizeof(szBuffer), szPath);
 	if ( !_stricmp(szBuffer, "yes") )
 		g_bXidiLogging = TRUE;
@@ -170,6 +184,8 @@ void PAD_fn_vRead( void )
 
 void PAD_fn_vWrite( void )
 {
+	char szBuffer[40];
+
 	char const *szPath = (g_bUsingTmpFile) ? g_szXidiTmpPath : g_szXidiPath;
 
 	WritePrivateProfileString("Mapper", "Type.1", "Ray2Fix", szPath);
@@ -197,6 +213,12 @@ void PAD_fn_vWrite( void )
 			WritePrivateProfileString("CustomMapper:Ray2Fix", pInput->szName, pAction->szConfigString, szPath);
 		}
 	}
+
+	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_lDeadzoneLT);
+	WritePrivateProfileString("Properties", "DeadzonePercentTriggerLT", szBuffer, szPath);
+	sprintf_s(szBuffer, sizeof(szBuffer), "%d", g_lDeadzoneRT);
+	WritePrivateProfileString("Properties", "DeadzonePercentTriggerRT", szBuffer, szPath);
+
 
 	WritePrivateProfileString("Log", "Enabled", (g_bXidiLogging) ? "yes" : "no", szPath);
 	WritePrivateProfileString("Log", "Level", (g_bXidiLogging) ? "4" : "1", szPath);

@@ -48,6 +48,7 @@
 #define IDC_ADVANCED                    1019
 #define IDC_ADVGROUP                    1020
 #define IDC_REFRATE                     1021
+#define IDC_ADVGROUP2                   1021
 #define IDC_REFRATE_LABEL               1022
 #define IDC_FSMODE_WND                  1023
 #define IDC_FSMODE_FS                   1024
@@ -69,6 +70,8 @@
 #define IDC_RADIO2                      1046
 #define IDC_R_XINPUT                    1046
 #define IDC_AD                          1047
+#define IDC_DEADZONE_LT                 1048
+#define IDC_DEADZONE_RT                 1049
 #define IDC_RS                          1062
 #define IDC_LSCLICK                     1063
 #define IDC_RSCLICK                     1064
@@ -95,7 +98,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        113
 #define _APS_NEXT_COMMAND_VALUE         40003
-#define _APS_NEXT_CONTROL_VALUE         1048
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
