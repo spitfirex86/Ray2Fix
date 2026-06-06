@@ -161,7 +161,7 @@ IDD_INPUT DIALOGEX 0, 0, 254, 194
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Gamepad Backend",IDC_STATIC,6,6,240,120
+    GROUPBOX        "Gamepad Backend",IDC_STATIC,6,6,242,120
     RADIOBUTTON     "SDL3",IDC_R_SDL,18,24,32,10,WS_GROUP
     LTEXT           "Recommended option.\nSupports most popular controllers out of the box.",IDC_STATIC,30,36,204,24
     RADIOBUTTON     "Xinput (Fallback)",IDC_R_XINPUT,18,66,69,10

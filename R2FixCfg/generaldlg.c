@@ -142,10 +142,11 @@ void fn_vUpdateStatus( HWND hEdit, HWND hButton )
 		}
 	}
 
-	if ( g_szReadVersion[0] && _stricmp(g_szReadVersion, C_GIT_VER) != 0 )
+	if ( _stricmp(g_szReadVersion, C_GIT_VER) != 0 )
 	{
+		char const *szOldVer = (g_szReadVersion[0]) ? g_szReadVersion : "v1.4.2 or earlier";
 		LoadRcString(IDS_CHANGEDVER, szMsgTemplate);
-		nChars += sprintf_s(szStatusLine+nChars, sizeof(szStatusLine)-nChars, szMsgTemplate, g_szReadVersion, C_GIT_VER);
+		nChars += sprintf_s(szStatusLine+nChars, sizeof(szStatusLine)-nChars, szMsgTemplate, szOldVer, C_GIT_VER);
 	}
 
 	Edit_SetText(hEdit, szStatusLine);

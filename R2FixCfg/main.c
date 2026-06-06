@@ -9,6 +9,7 @@
 HINSTANCE g_hInst;
 BOOL g_bUnsavedChanges = FALSE;
 BOOL g_bFirstRun = FALSE;
+BOOL g_bFirstRunForcedByGame = FALSE;
 BOOL g_bRunSilent = FALSE;
 unsigned short g_uwQuitReason = 0;
 
@@ -148,6 +149,9 @@ BOOL CALLBACK fn_bProc_Main( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 		HWND hVerNum = GetDlgItem(hWnd, IDC_VERNUM);
 		SetWindowText(hVerNum, "Ray2Fix " C_GIT_VER);
 
+		if ( g_bFirstRunForcedByGame )
+			SetDlgItemText(hWnd, IDOK, "Play");
+
 		return TRUE;
 
 	case WM_SHOWWINDOW:
@@ -267,11 +271,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		return 0;
 	}
 
-	BOOL bFirstRunForcedByGame = FALSE;
 	if ( strstr(lpCmdLine, "-firstrun") )
 	{
 		g_bFirstRun = TRUE;
-		bFirstRunForcedByGame = TRUE;
+		g_bFirstRunForcedByGame = TRUE;
 	}
 	if ( strstr(lpCmdLine, "-silent") )
 	{
@@ -309,7 +312,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	}
 	
 	// FIRST RUN: we wanna start the game at this point
-	if ( bFirstRunForcedByGame && (g_uwQuitReason == IDOK || g_bRunSilent) )
+	if ( g_bFirstRunForcedByGame && (g_uwQuitReason == IDOK || g_bRunSilent) )
 	{
 		fn_bStartTheGameAlready();
 	}
