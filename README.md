@@ -27,4 +27,3 @@ Ray2Fix is a collection of fixes and a configuration tool that aims to simplify 
 - Rib - [Xidi-SDL3-Plugin](https://github.com/RibShark/Xidi-SDL3-Plugin)
 - samuelgr - [Xidi](https://github.com/samuelgr/Xidi)
 - Dege - [dgVoodoo2](https://dege.freeweb.hu/dgVoodoo2/)
-- 
