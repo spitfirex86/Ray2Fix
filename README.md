@@ -18,5 +18,13 @@ Ray2Fix is a collection of fixes and a configuration tool that aims to simplify 
 - (Optional) Customize the controller layout in the Gamepad tab.
 
 #### Controller troubleshooting:
-- Make sure the controller supports XInput.
+- Try a different controller backend in R2FixCfg > Input.
+- If using the SDL3 backend, make sure any other tools (such as DS4Windows) are disabled.
 - Make sure only one controller is plugged in (including virtual controllers).
+
+## Acknowledgements
+
+- Rib - [Xidi-SDL3-Plugin](https://github.com/RibShark/Xidi-SDL3-Plugin)
+- samuelgr - [Xidi](https://github.com/samuelgr/Xidi)
+- Dege - [dgVoodoo2](https://dege.freeweb.hu/dgVoodoo2/)
+- 
