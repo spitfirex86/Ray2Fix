@@ -90,7 +90,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     GROUPBOX        "Status",IDC_STATIC,6,6,242,68
     EDITTEXT        IDC_STATUSLINE,14,18,226,34,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
-    CONTROL         "Enable Ray2Fix",IDC_MAINTOGGLE,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,14,58,65,10
+    CONTROL         "Enable Ray2Fix",IDC_MAINTOGGLE,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,14,58,104,10
     GROUPBOX        "Resolution / Window size",IDC_STATIC,6,78,126,60
     COMBOBOX        IDC_RESOLUTION,14,90,110,74,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_RESX,14,90,46,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
@@ -103,13 +103,11 @@ BEGIN
     LTEXT           "*  Suggested ""safe"" values for speedrunning",IDC_STATIC,6,168,144,8
     LTEXT           "+  Largest recommended size for windowed mode",IDC_STATIC,6,180,161,8
     GROUPBOX        "Advanced",IDC_ADVGROUP,136,78,112,87,NOT WS_VISIBLE
-    CONTROL         "Force REAL Fullscreen",IDC_REALFS,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,144,90,87,10
-    CONTROL         "Force VSync",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,144,102,55,10
-    LTEXT           "Refresh rate",IDC_REFRATE_LABEL,144,116,42,8,NOT WS_VISIBLE
-    COMBOBOX        IDC_REFRATE,198,114,43,46,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Clean up files",IDC_CLEANUP,162,130,60,14,NOT WS_VISIBLE
-    LTEXT           "DEBUG Wait Frame",IDC_DEBUG_WF_LABEL,144,149,62,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_DEBUG_WF,210,147,30,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
+    LTEXT           "Game timing (Hz)",IDC_REFRATE_LABEL,144,94,62,8,NOT WS_VISIBLE
+    COMBOBOX        IDC_REFRATE,204,92,37,46,CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Clean up files",IDC_CLEANUP,162,112,60,14,NOT WS_VISIBLE
+    LTEXT           "DEBUG Wait Frame",IDC_DEBUG_WF_LABEL,144,138,62,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_DEBUG_WF,210,136,30,12,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
 END
 
 IDD_PAD DIALOGEX 0, 0, 254, 194
@@ -165,7 +163,7 @@ BEGIN
     RADIOBUTTON     "SDL3",IDC_R_SDL,18,24,32,10,WS_GROUP
     LTEXT           "Recommended option.\nSupports most popular controllers out of the box.",IDC_STATIC,30,36,204,24
     RADIOBUTTON     "Xinput (Fallback)",IDC_R_XINPUT,18,66,69,10
-    LTEXT           "Same as Ray2Fix v1.4.2 or earlier.\nTry this option if you experience issues (like incorrect gamepad binds or buttons triggering unwanted actions)",IDC_STATIC,30,78,204,36
+    LTEXT           "As in the original Ray2Fix v1.4.2 or earlier.\nTry this option if you experience issues (like incorrect gamepad binds or buttons triggering unwanted actions)",IDC_STATIC,30,78,204,36
     GROUPBOX        "Trigger Deadzones",IDC_STATIC,6,126,126,60
     RTEXT           "LT",IDC_STATIC,12,143,16,8
     CONTROL         "",IDC_DEADZONE_LT,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP,30,140,96,20
@@ -204,7 +202,7 @@ BEGIN
             VALUE "InternalName", "R2FixCfg.exe"
             VALUE "LegalCopyright", "Copyright (C) 2026"
             VALUE "OriginalFilename", "R2FixCfg.exe"
-            VALUE "ProductName", "R2FixCfg"
+            VALUE "ProductName", "Ray2Fix"
             VALUE "ProductVersion", "1.4.3.0"
         END
     END
@@ -359,7 +357,7 @@ BEGIN
     IDS_VE_HEADER           "Missing files: "
     IDS_VE_REINSTALLFIX     "\r\nPlease reinstall Ray2Fix."
     IDS_VE_REINSTALLR2      "\r\nPlease reinstall Rayman 2."
-    IDS_VE_DEGE             "dgVoodoo.conf  "
+    IDS_VE_GAMEFRAME        "glide2x.dll  "
     IDS_VE_GLIDE            "GliVd1Vf.dll  "
     IDS_VE_FIX              "GliFixVf.dll  "
     IDS_VE_DINPUT           "dinput.dll  "
@@ -375,7 +373,6 @@ BEGIN
     IDS_NEWLINE             "\r\n"
     IDS_CLEANUPWARN         "This will delete *all* extra GOG files that are not necessary for the game to run.\n\nAre you sure you want to continue?"
     IDS_CLEANSNAP           "Delete the contents of the SnapShot folder when the game is closed.\r\nFiles marked as read-only will be preserved."
-    IDS_REALFS              "Disables borderless fullscreen.\r\nNOTE: This may cause issues with Alt-Tab!"
     IDS_CHANGEDVER          "\r\nUpdated from version %s to %s."
 END
 

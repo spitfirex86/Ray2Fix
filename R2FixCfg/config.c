@@ -15,10 +15,8 @@ BOOL g_bFixPrevState = FALSE;
 tdstDisplayMode g_stCurrentMode = { 0 };
 tdeRefRate g_eRefRate = e_RR_Full;
 tdeBitDepth g_eBitDepth = e_BPP_16;
-BOOL g_bForceVsync = FALSE;
 BOOL g_bFullscreen = FALSE;
 BOOL g_bPatchWidescreen = FALSE;
-BOOL g_bForceRealFullscreen = FALSE;
 int g_DEBUG_lWaitFrame = 0;
 BOOL g_bCleanupSnapShot = FALSE;
 
@@ -32,8 +30,14 @@ char g_szReadVersion[40] = "";
  * Strings
  */
 
-char const *szDegePath = ".\\dgVoodoo.conf";
 char const *szUbiPath = ".\\Ubi.ini";
+
+// Keep the original [Ray2Fix] Ubi.ini section for upstream compatibility.
+static void fn_vReadFixSetting( char const *szName, char const *szFallback, char *szBuffer, DWORD dwCapacity )
+{
+	GetPrivateProfileString("Ray2Fix", szName, szFallback, szBuffer, dwCapacity, szUbiPath);
+}
+
 
 char const *a_szFilesToDelete[] = {
 	"nglide_config.exe",
@@ -100,59 +104,59 @@ void fn_vReadUbiIni( void )
 	}
 
 	// Widescreen patch
-	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("PatchWidescreen", NULL, szBuffer, sizeof(szBuffer));
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		g_bPatchWidescreen = TRUE;
 
 	// DEBUG Wait frame
-	GetPrivateProfileString("Ray2Fix", "Debug_WaitFrame", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("Debug_WaitFrame", NULL, szBuffer, sizeof(szBuffer));
 	int lResult = strtol(szBuffer, NULL, 10);
 	if ( lResult > 0 )
 		g_DEBUG_lWaitFrame = lResult;
 
 	// Delete screenshots
-	GetPrivateProfileString("Ray2Fix", "CleanupSnapShot", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("CleanupSnapShot", NULL, szBuffer, sizeof(szBuffer));
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		g_bCleanupSnapShot = TRUE;
 
 	// Version
-	GetPrivateProfileString("Ray2Fix", "Version", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("Version", NULL, szBuffer, sizeof(szBuffer));
 	strcpy_s(g_szReadVersion, sizeof(g_szReadVersion), szBuffer);
-	GetPrivateProfileString("Ray2Fix", "ForceFirstRun", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("ForceFirstRun", NULL, szBuffer, sizeof(szBuffer));
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		g_bFirstRun = TRUE;
 }
 
-void fn_vReadDegeIni( void )
+// Migrate existing dgVoodoo settings once when the corresponding Ray2Fix
+// option is absent. The legacy file is never required or modified.
+void fn_vReadRendererOptions( void )
 {
 	char szBuffer[128];
-
-	DWORD dwRefRate = 0;
-
-	// Refresh rate
-	GetPrivateProfileString("Glide", "Resolution", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	char *lpLastComma = strrchr(szBuffer, ',');
-
-	if ( lpLastComma != NULL )
+	fn_vReadFixSetting("Fullscreen", "", szBuffer, sizeof(szBuffer));
+	if ( szBuffer[0] )
+		g_bFullscreen = (strtol(szBuffer, NULL, 10) != 0);
+	else
 	{
-		int nParsed = sscanf_s(++lpLastComma, " refrate:%d", &dwRefRate);
-
-		if ( nParsed == 1 && dwRefRate > 0 )
-			g_eRefRate = dwRefRate;
+		GetPrivateProfileString("General", "FullScreenMode", "false",
+			szBuffer, sizeof(szBuffer), ".\\dgVoodoo.conf");
+		g_bFullscreen = !_stricmp(szBuffer, "true");
 	}
 
-	// Force VSync
-	GetPrivateProfileString("Glide", "ForceVerticalSync", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( !_stricmp(szBuffer, "true") )
-		g_bForceVsync = TRUE;
-
-	// Fullscreen mode
-	GetPrivateProfileString("General", "FullScreenMode", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( !_stricmp(szBuffer, "true") )
-		g_bFullscreen = TRUE;
-	GetPrivateProfileString("GeneralExt", "FullscreenAttributes", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-	if ( _stricmp(szBuffer, "fake") != 0 )
-		g_bForceRealFullscreen = TRUE;
+	fn_vReadFixSetting("HalfRefRate", "", szBuffer, sizeof(szBuffer));
+	if ( szBuffer[0] )
+		g_eRefRate = (strtol(szBuffer, NULL, 10) != 0) ? e_RR_Half : e_RR_Full;
+	else
+	{
+		GetPrivateProfileString("Glide", "Resolution", "",
+			szBuffer, sizeof(szBuffer), ".\\dgVoodoo.conf");
+		char *lpLastComma = strrchr(szBuffer, ',');
+		if ( lpLastComma )
+		{
+			unsigned int refresh = 0;
+			if ( sscanf_s(lpLastComma + 1, " refrate:%u", &refresh) == 1 && refresh == 30 )
+				g_eRefRate = e_RR_Half;
+		}
+	}
 }
 
 void fn_vWriteUbiIni( void )
@@ -182,7 +186,9 @@ void fn_vWriteUbiIni( void )
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_bPatchWidescreen);
 	WritePrivateProfileString("Ray2Fix", "PatchWidescreen", szBuffer, szUbiPath);
 
-	// Refresh rate
+	// GameFrame window style and Rayman engine timing (30 or 60 Hz).
+	sprintf_s(szBuffer, sizeof(szBuffer), "%i", g_bFullscreen);
+	WritePrivateProfileString("Ray2Fix", "Fullscreen", szBuffer, szUbiPath);
 	sprintf_s(szBuffer, sizeof(szBuffer), "%i", (g_eRefRate == e_RR_Half));
 	WritePrivateProfileString("Ray2Fix", "HalfRefRate", szBuffer, szUbiPath);
 
@@ -197,43 +203,6 @@ void fn_vWriteUbiIni( void )
 	// Version
 	WritePrivateProfileString("Ray2Fix", "Version", C_GIT_VER, szUbiPath);
 	WritePrivateProfileString("Ray2Fix", "ForceFirstRun", NULL, szUbiPath);
-}
-
-void fn_vWriteDegeIni( void )
-{
-	char szBuffer[128];
-
-	// These values should never change, but write them anyway in case the user messes up the config
-	WritePrivateProfileString("General", "ProgressiveScanlineOrder", "true", szDegePath);
-	WritePrivateProfileString("General", "EnumerateRefreshRates", "true", szDegePath);
-	WritePrivateProfileString("General", "ScalingMode", "stretched_ar", szDegePath);
-	WritePrivateProfileString("General", "KeepWindowAspectRatio", "true", szDegePath);
-	WritePrivateProfileString("Glide", "VideoCard", "voodoo_2", szDegePath);
-	WritePrivateProfileString("Glide", "OnboardRAM", "12", szDegePath);
-	WritePrivateProfileString("Glide", "MemorySizeOfTMU", "4096", szDegePath);
-	WritePrivateProfileString("Glide", "NumberOfTMUs", "2", szDegePath);
-	WritePrivateProfileString("Glide", "EnableGlideGammaRamp", "true", szDegePath);
-	WritePrivateProfileString("Glide", "EnableInactiveAppState", "false", szDegePath);
-	/* this one is necessary to avoid refresh rate affecting timers/screenshot lag... */
-	WritePrivateProfileString("GeneralExt", "FPSLimit", "60", szDegePath);
-	/* bit depth - 16bpp to 32bpp */
-	WritePrivateProfileString("GlideExt", "Dithering", "forcealways", szDegePath);
-	WritePrivateProfileString("GlideExt", "DitheringEffect", "pure32bit", szDegePath);
-
-	// Display mode & refresh rate
-	sprintf_s(szBuffer, sizeof(szBuffer), "h:%i, v:%i, refrate:%i",
-	          g_stCurrentMode.dwWidth, g_stCurrentMode.dwHeight, g_eRefRate);
-	WritePrivateProfileString("Glide", "Resolution", szBuffer, szDegePath);
-
-	// Force VSync
-	char const *szVsync = g_bForceVsync ? "true" : "false";
-	WritePrivateProfileString("Glide", "ForceVerticalSync", szVsync, szDegePath);
-
-	// Fullscreen mode
-	char const *szFullScreen = g_bFullscreen ? "true" : "false";
-	WritePrivateProfileString("General", "FullScreenMode", szFullScreen, szDegePath);
-	char const *szForceRealFS = g_bForceRealFullscreen ? "" : "fake";
-	WritePrivateProfileString("GeneralExt", "FullscreenAttributes", szForceRealFS, szDegePath);
 }
 
 void fn_vSoftCleanUp( void )
@@ -264,14 +233,13 @@ void fn_vManualCleanUp( void )
 void CFG_fn_vRead( void )
 {
 	fn_vReadUbiIni();
-	fn_vReadDegeIni();
+	fn_vReadRendererOptions();
 	PAD_fn_vRead();
 }
 
 void CFG_fn_vWrite( void )
 {
 	fn_vWriteUbiIni();
-	fn_vWriteDegeIni();
 	PAD_fn_vWrite();
 }
 
@@ -289,10 +257,10 @@ void CFG_fn_vVerify( void )
 		g_eErrorDetails |= e_VE_FilesMissing | e_VE_UbiMissing;
 	}
 
-	if ( GetFileAttributes(szDegePath) == INVALID_FILE_ATTRIBUTES )
+	if ( GetFileAttributes(".\\glide2x.dll") == INVALID_FILE_ATTRIBUTES )
 	{
 		g_eError |= e_ES_FixError;
-		g_eErrorDetails |= e_VE_FilesMissing | e_VE_DegeMissing;
+		g_eErrorDetails |= e_VE_FilesMissing | e_VE_GameFrameMissing;
 	}
 
 	if ( GetFileAttributes(".\\DLL\\GliVd1Vf.dll") == INVALID_FILE_ATTRIBUTES )

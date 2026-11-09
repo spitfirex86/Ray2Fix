@@ -21,7 +21,6 @@ tdstDisplayMode a_stGlideModes[C_MaxGlideModes] = {
 
 tdstDisplayMode stDefaultRes = { 1024, 768 };
 
-char const *szDegePath = ".\\dgVoodoo.conf";
 char const *szUbiPath = ".\\Ubi.ini";
 
 
@@ -36,8 +35,7 @@ tdstDisplayMode CFG_stDispMode = { 0 };
 BOOL CFG_bHalfRefRate = FALSE;
 int CFG_DEBUG_lWaitFrame = 0;
 BOOL CFG_bCleanupSnapShot = FALSE;
-int CFG_lDegeFPSLimit = 0;
-BOOL CFG_bDegeFullScreen = FALSE;
+BOOL CFG_bGameFrameFullScreen = FALSE;
 
 BOOL CFG_bIsMainModuleR2 = FALSE;
 BOOL CFG_bIsFixEnabled = TRUE;
@@ -76,27 +74,6 @@ tdstDisplayMode * fn_p_stGetClosestGlideMode( tdstDisplayMode *lpMode )
 	return &stDefaultRes;
 }
 
-BOOL fn_bReadDispModeFromDegeConfig( tdstDisplayMode *lpDst )
-{
-	char szBuffer[128];
-	char *szSection = "Glide";
-
-	GetPrivateProfileString(szSection, "Resolution", NULL, szBuffer, sizeof(szBuffer), szDegePath);
-
-	int nParsed = sscanf_s(szBuffer, "h:%u, v:%u", &lpDst->dwWidth, &lpDst->dwHeight);
-
-	if ( nParsed < 2 || lpDst->dwWidth <= 0 || lpDst->dwHeight <= 0 )
-	{
-		// Try the other format before giving up
-		nParsed = sscanf_s(szBuffer, "%dx%d", &lpDst->dwWidth, &lpDst->dwHeight);
-
-		if ( nParsed < 2 || lpDst->dwWidth <= 0 || lpDst->dwHeight <= 0 )
-			return FALSE;
-	}
-
-	return TRUE;
-}
-
 void fn_vReadR2Config( void )
 {
 	char szBuffer[128];
@@ -119,14 +96,16 @@ void fn_vReadR2Config( void )
 
 	if ( nParsed < 2 || stFromConfig.dwWidth <= 0 || stFromConfig.dwHeight <= 0 )
 	{
-		// Try to parse resolution from dgvoodoo.conf
-		if ( !fn_bReadDispModeFromDegeConfig(&stFromConfig) )
-		{
-			// Give up and apply sane defaults (1024x768)
-			stFromConfig = stDefaultRes;
-		}
+		// Use a safe default when Ubi.ini has no usable game mode.
+		stFromConfig = stDefaultRes;
 	}
 	CFG_stActualDispMode = stFromConfig;
+}
+
+// Continue using the upstream [Ray2Fix] section in Ubi.ini.
+static void fn_vReadFixSetting( char const *szName, char const *szFallback, char *szBuffer, DWORD dwCapacity )
+{
+	GetPrivateProfileString("Ray2Fix", szName, szFallback, szBuffer, dwCapacity, szUbiPath);
 }
 
 void fn_vReadFixConfig( void )
@@ -134,44 +113,38 @@ void fn_vReadFixConfig( void )
 	char szBuffer[128];
 
 	// FIRST RUN
-	GetPrivateProfileString("Ray2Fix", "ForceFirstRun", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("ForceFirstRun", NULL, szBuffer, sizeof(szBuffer));
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		CFG_bFirstRun = TRUE;
 
 	// Version
-	GetPrivateProfileString("Ray2Fix", "Version", NULL, szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("Version", NULL, szBuffer, sizeof(szBuffer));
 	strcpy_s(CFG_szReadVersion, sizeof(CFG_szReadVersion), szBuffer);
 
 	// Widescreen patch
-	GetPrivateProfileString("Ray2Fix", "PatchWidescreen", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("PatchWidescreen", "0", szBuffer, sizeof(szBuffer));
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		CFG_bPatchWidescreen = TRUE;
 
 	// Refresh rate
-	GetPrivateProfileString("Ray2Fix", "HalfRefRate", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("HalfRefRate", "0", szBuffer, sizeof(szBuffer));
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		CFG_bHalfRefRate = TRUE;
 
 	// DEBUG Wait frame
-	GetPrivateProfileString("Ray2Fix", "Debug_WaitFrame", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("Debug_WaitFrame", "0", szBuffer, sizeof(szBuffer));
 	int lResult = strtol(szBuffer, NULL, 10);
 	if ( lResult > 0 )
 		CFG_DEBUG_lWaitFrame = lResult;
 
 	// Delete screenshots
-	GetPrivateProfileString("Ray2Fix", "CleanupSnapShot", "0", szBuffer, sizeof(szBuffer), szUbiPath);
+	fn_vReadFixSetting("CleanupSnapShot", "0", szBuffer, sizeof(szBuffer));
 	if( strtol(szBuffer, NULL, 10) > 0 )
 		CFG_bCleanupSnapShot = TRUE;
 
-	// Dege - refresh rate fix
-	GetPrivateProfileString("GeneralExt", "FPSLimit", "0", szBuffer, sizeof(szBuffer), szDegePath);
-	lResult = strtol(szBuffer, NULL, 10);
-	CFG_lDegeFPSLimit = lResult;
-	CFG_bSomeConfigFilesAreOutdated |= (CFG_lDegeFPSLimit != 60);
-
-	// Dege - fullscreen mode
-	GetPrivateProfileString("General", "FullScreenMode", "false", szBuffer, sizeof(szBuffer), szDegePath);
-	CFG_bDegeFullScreen = ( !_stricmp(szBuffer, "true") );
+	// Renderer selection now lives in Ubi.ini, not dgVoodoo.conf.
+	fn_vReadFixSetting("Fullscreen", "0", szBuffer, sizeof(szBuffer));
+	CFG_bGameFrameFullScreen = (strtol(szBuffer, NULL, 10) != 0);
 }
 
 void CFG_fn_vInitGlobals( void )
@@ -194,6 +167,18 @@ void CFG_fn_vInitGlobals( void )
 	CFG_stDispMode = *lpGlideMode;
 
 	CFG_xActualRatio = (float)CFG_stActualDispMode.dwHeight / (float)CFG_stActualDispMode.dwWidth;
+
+	// The underlying Rayman GLI driver may load glide2x.dll as soon as it is
+	// loaded itself. Configure GameFrame BEFORE IMP_fn_vLoadGliLibrary().
+	if ( CFG_bIsMainModuleR2 || !_stricmp(CFG_szModuleName, "MainWinR.exe") )
+	{
+		char szOutputSize[48];
+		sprintf_s(szOutputSize, sizeof(szOutputSize), "%lux%lu",
+			CFG_stActualDispMode.dwWidth, CFG_stActualDispMode.dwHeight);
+		SetEnvironmentVariableA("GLIDE_SIZE", szOutputSize);
+		SetEnvironmentVariableA("RAY2FIX_GLIDE_WINDOWED", CFG_bGameFrameFullScreen ? "0" : "1");
+		SetEnvironmentVariableA("RAY2FIX_GAMEFRAME", "1");
+	}
 }
 
 BOOL CFG_fn_bOpenConfigTool( char const *szParams )

@@ -25,7 +25,7 @@
 #define IDS_VE_HEADER                   117
 #define IDS_VE_REINSTALLFIX             118
 #define IDS_VE_REINSTALLR2              119
-#define IDS_VE_DEGE                     120
+#define IDS_VE_GAMEFRAME                     120
 #define IDS_VE_GLIDE                    121
 #define IDS_VE_FIX                      122
 #define IDS_VE_DINPUT                   123
@@ -37,14 +37,11 @@
 #define IDS_NEWLINE                     129
 #define IDS_CLEANUPWARN                 130
 #define IDS_CLEANSNAP                   131
-#define IDS_REALFS                      132
 #define IDS_CHANGEDVER                  133
 #define IDC_MAINTOGGLE                  1001
 #define IDC_STATUSLINE                  1002
 #define IDC_TAB1                        1006
 #define IDC_RESOLUTION                  1008
-#define IDC_VSYNC                       1014
-#define IDC_REALFS                      1015
 #define IDC_ADVANCED                    1019
 #define IDC_ADVGROUP                    1020
 #define IDC_REFRATE                     1021

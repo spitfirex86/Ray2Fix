@@ -144,7 +144,7 @@ long GLI_DRV_fn_lGetAllDisplayConfig( tdfn_lAddDisplayInfo p_fn_lAddDisplayInfo 
 	p_fn_lAddDisplayInfo(lDisp, lDev, 0, C_DI_DevCaps, (long)&stCaps);
 
 
-	/* If fix is enabled, always open R2FixCfg,
+	/* If fix is enabled, always open Ray2Fix Settings,
 	   if fix is disabled, ask first */
 	if ( !CFG_bIsFixEnabled )
 	{
@@ -178,11 +178,10 @@ void GLI_DRV_xInitDriver( HWND hWnd, BOOL bFullscreen, long lWidth, long lHeight
 {
 	Vd_GLI_DRV_xInitDriver(hWnd, bFullscreen, lWidth, lHeight, lBpp);
 
-	if ( !CFG_bDegeFullScreen )
+	if ( !CFG_bGameFrameFullScreen )
 	{
-		/* HACK: make sure the window has a title bar and a border
-		Sometimes the game and/or dgVoodoo bugs out for no reason and displays the game
-		without a title bar, making it impossible to move or resize the game window. */
+		/* Keep the regular window frame: GameFrame can resize the game
+		   window during Glide initialization. */
 		int lStyle = GetWindowLong(hWnd, GWL_STYLE);
 		SetWindowLong(hWnd, GWL_STYLE, lStyle | WS_OVERLAPPEDWINDOW);
 		

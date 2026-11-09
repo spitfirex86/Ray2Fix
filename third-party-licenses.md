@@ -55,3 +55,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Copyright (c) 2026 Rib, licensed under GNU GPL v3
 
 https://github.com/RibShark/Xidi-SDL3-Plugin
+
+## GameFrame Glide 2
+
+Copyright (c) GameFrame contributors.
+
+License: Apache License, Version 2.0.
+Source: https://github.com/tanepiper/game-frame
+This distribution builds Glide2x from a pinned GameFrame source revision.
+The complete Apache-2.0 license is included in the build artifact as
+GameFrame-LICENSE-APACHE.txt.

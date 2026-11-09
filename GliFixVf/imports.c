@@ -135,6 +135,18 @@ void fn_vLoadGlide2Lib( void )
 	grAlphaCombine = (void *)GetProcAddress(hGlide2, "_grAlphaCombine@20");
 	guColorCombineFunction = (void *)GetProcAddress(hGlide2, "_guColorCombineFunction@4");
 	grDrawLine = (void *)GetProcAddress(hGlide2, "_grDrawLine@8");
+
+	// Fail with a diagnostic rather than dereferencing an incompatible
+	// Glide2x export set (for example, a stale third-party wrapper).
+	if ( !grAlphaBlendFunction || !grAlphaCombine ||
+		 !guColorCombineFunction || !grDrawLine )
+	{
+		MessageBox(NULL,
+			"Incompatible glide2x.dll: Ray2Fix requires the GameFrame Glide 2 exports.\n"
+			"Reinstall the complete Ray2Fix/GameFrame build.",
+			"Ray2Fix - Glide", MB_OK | MB_ICONERROR);
+		ExitProcess(1);
+	}
 }
 
 

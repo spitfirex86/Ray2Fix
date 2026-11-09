@@ -108,14 +108,8 @@ void EXT_fn_vDealWithSnapShot( void )
 
 void EXT_fn_vInitEvaluateSpeedrunValidity( void )
 {
-	BOOL bTest = (
-		CFG_bIsMainModuleR2 && /* sanity checks */
-		CFG_bIsFixEnabled &&
-		!(CFG_bIsWidescreen && CFG_bPatchWidescreen) && /* no widescreen */
-		!CFG_bHalfRefRate && /* 60fps only */
-		(CFG_DEBUG_lWaitFrame == 0) && /* default framerate fix */
-		(CFG_lDegeFPSLimit == 60) /* refresh rate fix (screenshot lag) */
-		);
-
-	EXT_bSeemsLegalForSpeedruns = bTest;
+	/* GameFrame uses a new OpenGL presentation and frame limiter.
+	   Until the 60 FPS pacing and screenshot lag behavior are verified on
+	   real Rayman 2 installations, never claim speedrun compliance. */
+	EXT_bSeemsLegalForSpeedruns = FALSE;
 }

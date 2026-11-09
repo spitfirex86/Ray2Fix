@@ -23,8 +23,6 @@ static HWND hFsModeWin;
 static HWND hFsModeFs;
 
 static HWND hAdvGroup;
-static HWND hForceRealFS;
-static HWND hVsync;
 static HWND hRefRateLabel;
 static HWND hRefRate;
 static HWND hCleanup;
@@ -106,8 +104,8 @@ void fn_vUpdateStatus( HWND hEdit, HWND hButton )
 		{
 			nChars += LoadStringAtChar(IDS_VE_HEADER, szStatusLine, nChars);
 
-			if ( g_eErrorDetails & e_VE_DegeMissing )
-				nChars += LoadStringAtChar(IDS_VE_DEGE, szStatusLine, nChars);
+			if ( g_eErrorDetails & e_VE_GameFrameMissing )
+				nChars += LoadStringAtChar(IDS_VE_GAMEFRAME, szStatusLine, nChars);
 
 			if ( g_eErrorDetails & e_VE_FixMissing )
 				nChars += LoadStringAtChar(IDS_VE_FIX, szStatusLine, nChars);
@@ -176,8 +174,6 @@ static void fn_vToggleAdvanced( BOOL bVisible )
 	int nCmdShow = bVisible ? SW_SHOW : SW_HIDE;
 
 	ShowWindow(hAdvGroup, nCmdShow);
-	ShowWindow(hForceRealFS, nCmdShow);
-	ShowWindow(hVsync, nCmdShow);
 	ShowWindow(hRefRateLabel, nCmdShow);
 	ShowWindow(hRefRate, nCmdShow);
 	ShowWindow(hCleanup, nCmdShow);
@@ -306,8 +302,6 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		hFsModeFs = GetDlgItem(hWnd, IDC_FSMODE_FS);
 
 		hAdvGroup = GetDlgItem(hWnd, IDC_ADVGROUP);
-		hForceRealFS = GetDlgItem(hWnd, IDC_REALFS);
-		hVsync = GetDlgItem(hWnd, IDC_VSYNC);
 		hRefRateLabel = GetDlgItem(hWnd, IDC_REFRATE_LABEL);
 		hRefRate = GetDlgItem(hWnd, IDC_REFRATE);
 		hCleanup = GetDlgItem(hWnd, IDC_CLEANUP);
@@ -318,8 +312,6 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		fn_vPopulateDisplayModes(hResolution);
 		fn_vPopulateRefRates(hRefRate);
 
-		Button_SetCheck(hForceRealFS, g_bForceRealFullscreen);
-		Button_SetCheck(hVsync, g_bForceVsync);
 		Button_SetCheck(hFsModeWin, !g_bFullscreen);
 		Button_SetCheck(hFsModeFs, g_bFullscreen);
 		Button_SetCheck(hPatchWidescreen, g_bPatchWidescreen);
@@ -331,7 +323,6 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		fn_vInitDebugWaitFrame();
 
 		fn_vRegisterToolTip(hWnd, hCleanupSnapShot, IDS_CLEANSNAP);
-		fn_vRegisterToolTip(hWnd, hForceRealFS, IDS_REALFS);
 
 		return TRUE;
 
@@ -397,16 +388,6 @@ BOOL CALLBACK DLG_fn_bProc_General( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			g_bFullscreen = TRUE;
 			Button_SetCheck(hFsModeWin, BST_UNCHECKED);
 			Button_SetCheck(hFsModeFs, BST_CHECKED);
-			g_bUnsavedChanges = TRUE;
-			return TRUE;
-
-		case IDC_REALFS:
-			g_bForceRealFullscreen = Button_GetCheck(hForceRealFS);
-			g_bUnsavedChanges = TRUE;
-			return TRUE;
-
-		case IDC_VSYNC:
-			g_bForceVsync = Button_GetCheck(hVsync);
 			g_bUnsavedChanges = TRUE;
 			return TRUE;
 
